@@ -22,21 +22,6 @@ struct vertex
     float z;
 };
 
-bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
-{
-    if(line_start.x);
-}
-
-bool outsideTheTriangle(vertex test_vertex, vertex vertex_1, vertex vertex_2, vertex vertex_3)
-{
-    if( onTheSameSide(test_vertex, vertex_1, vertex_2, vertex_3) &&
-        onTheSameSide(test_vertex, vertex_3, vertex_1, vertex_2) &&
-        onTheSameSide(test_vertex, vertex_2, vertex_3, vertex_1) )
-        return false;
-
-    return true;
-}
-
 bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)
 {
     float distance2;
@@ -47,9 +32,17 @@ bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)
     return true;
 }
 
-centerOftheCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
+vertex centerOftheCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
 {
-    ;
+    vertex center;
+    return ;
+}
+
+bool isBadTriangle(vertex test_point, vertex center, float radius)
+{
+    if( insideTheCircle(test_point, center, radius) )
+        return true;
+    return false;
 }
 
 void triangle()
