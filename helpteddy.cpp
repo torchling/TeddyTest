@@ -47,9 +47,40 @@ bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)
     return true;
 }
 
-centerOftheCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
+centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
 {
-    ;
+    float xc =((vertex_1.x)^2+(vertex_1.y)^2)*vertex_2.y +
+              ((vertex_2.x)^2+(vertex_2.y)^2)*vertex_3.y +
+              ((vertex_3.x)^2+(vertex_3.y)^2)*vertex_1.y -
+              ((vertex_1.x)^2+(vertex_1.y)^2)*vertex_3.y -
+              ((vertex_2.x)^2+(vertex_2.y)^2)*vertex_1.y -
+              ((vertex_3.x)^2+(vertex_3.y)^2)*vertex_2.y;
+    float xm =vertex_1.x*vertex_2.y +
+              vertex_2.x*vertex_3.y +
+              vertex_3.x*vertex_1.y -
+              vertex_1.x*vertex_3.y -
+              vertex_2.x*vertex_1.y -
+              vertex_3.x*vertex_2.y -;
+
+    float yc =((vertex_1.x)^2+(vertex_1.y)^2)*vertex_3.x +
+              ((vertex_2.x)^2+(vertex_2.y)^2)*vertex_1.x +
+              ((vertex_3.x)^2+(vertex_3.y)^2)*vertex_2.x -
+              ((vertex_1.x)^2+(vertex_1.y)^2)*vertex_2.x -
+              ((vertex_2.x)^2+(vertex_2.y)^2)*vertex_3.x -
+              ((vertex_3.x)^2+(vertex_3.y)^2)*vertex_1.x;
+    float ym =vertex_1.x*vertex_2.y +
+              vertex_2.x*vertex_3.y +
+              vertex_3.x*vertex_1.y -
+              vertex_1.x*vertex_3.y -
+              vertex_2.x*vertex_1.y -
+              vertex_3.x*vertex_2.y -;
+    xm=2*xm;
+    ym=2*ym;
+
+    vertex center;
+    cenetr.x =xc/xm;
+    cenetr.y =yc/ym;
+    cenetr.z =0.0;
 }
 
 void triangle()
