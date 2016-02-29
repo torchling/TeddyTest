@@ -22,6 +22,40 @@ struct vertex
     float z;
 };
 
+bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
+{
+    if(line_start.x!=line_end.x)
+    {
+        float vx = line_start.x-line_end.x;
+        float vy = line_start.y-line_end.y;
+
+        if( (test_point.y - (line_start.y + vy*(test_point.x-line_start.x)/vx))*
+           (compare_point.y - (line_start.y + vy*(compare_point.x-line_start.x)/vx)) <= 0 )
+            return false;
+
+        return true;
+    }
+
+    if(line_start.x==line_end.x)
+    {
+        if( (test_point.x-line_start.x)*(compare_point.x-line_start.x) <= 0 )
+            return false;
+
+        return true;
+    }
+
+}
+
+bool outsideTheTriangle(vertex test_vertex, vertex vertex_1, vertex vertex_2, vertex vertex_3)
+{
+    if( onTheSameSide(test_vertex, vertex_1, vertex_2, vertex_3) &&
+        onTheSameSide(test_vertex, vertex_3, vertex_1, vertex_2) &&
+        onTheSameSide(test_vertex, vertex_2, vertex_3, vertex_1) )
+        return false;
+
+    return true;
+}
+
 bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)
 {
     float distance2;
@@ -32,7 +66,7 @@ bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)
     return true;
 }
 
-<<<<<<< HEAD
+//according to wiki's data
 centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
 {
     float xc =((vertex_1.x)^2+(vertex_1.y)^2)*vertex_2.y +
@@ -67,19 +101,28 @@ centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
     cenetr.x =xc/xm;
     cenetr.y =yc/ym;
     cenetr.z =0.0;
-=======
-vertex centerOftheCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
-{
-    vertex center;
-    return ;
-}
+
 
 bool isBadTriangle(vertex test_point, vertex center, float radius)
 {
     if( insideTheCircle(test_point, center, radius) )
         return true;
     return false;
->>>>>>> 714d6e69351aa391c92fd03f05075ec44d327423
+}
+
+findSuperTriangle()
+{
+    for()
+    {
+        if()
+        ;
+    }
+
+}
+
+void generateDelaunayTruangle()
+{
+    if();
 }
 
 void triangle()
@@ -87,6 +130,4 @@ void triangle()
     ;
 }
 
-
-#include <stdlib.h>
 
