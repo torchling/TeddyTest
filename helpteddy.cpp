@@ -110,11 +110,16 @@ bool isBadTriangle(vertex test_point, vertex center, float radius)
     return false;
 }
 
-findSuperTriangle()
+findSuperTriangle(vertex test_vertex, vertex center, float radius, pointarray)
 {
-    for()
+    vertex vertex_1;
+    vertex vertex_2;
+    vertex vertex_3;
+
+    for(i=0;i<sizeofpointarray;i++)
     {
-        if()
+        if(outsideTheTriangle( test_vertex, vertex_1, vertex_2, vertex_3)
+        vertex.x=
         ;
     }
 
