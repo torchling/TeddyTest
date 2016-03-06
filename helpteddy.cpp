@@ -101,7 +101,15 @@ centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
     cenetr.x =xc/xm;
     cenetr.y =yc/ym;
     cenetr.z =0.0;
+}
 
+float radiusOfCCircle(vertex testvertex, vertex center)
+{
+    float radius = (testvertex.x-center.x)^2 + (testvertex.y-center.y)^2;
+    radius = sqrt(radius);
+
+    return radius;
+}
 
 bool isBadTriangle(vertex test_point, vertex center, float radius)
 {
@@ -110,14 +118,18 @@ bool isBadTriangle(vertex test_point, vertex center, float radius)
     return false;
 }
 
-findSuperTriangle ( vertex test_vertex, vertex center, float radius, pointarray )
+findSuperTriangle ( pointarray )
 {
-    vertex vertex_1;
-    vertex vertex_2;
-    vertex vertex_3;
+    vertex vertex_1 = { 0.0, 1.0, 0.0 };
+    vertex vertex_2 = { 0.5, 0.0, 0.0};
+    vertex vertex_3 = { -0.5, 0.0, 0.0};
 
-    for(i=0;i<sizeofpointarray;i++)
+    vertex test_vertex;
+
+    for(i=0;i<sizeof pointarray;i++)
     {
+        test_vertex = pointarray[i];
+
         if(outsideTheTriangle( test_vertex, vertex_1, vertex_2, vertex_3 ))
 
         vertex_1.x = vertex_1.x + vertex_1.x - test_vertex.x;
@@ -129,16 +141,41 @@ findSuperTriangle ( vertex test_vertex, vertex center, float radius, pointarray 
         vertex_3.y = vertex_3.y + vertex_3.y - test_vertex.y;
     }
 
+    super1 = vertex_1;
+    super2 = vertex_2;
+    super3 = vertex_3;
 }
 
-void generateDelaunayTruangle()
-{
-    if();
-}
-
-void triangle()
+addToTrianglePool()
 {
     ;
+}
+
+void generateDelaunayTruangle( theSetOfInputPoint, vertex super1, vertex super2, vertex super3 )
+{
+    vertex vertex_1;
+    vertex vertex_2;
+    vertex vertex_3;
+    vertex center;
+    float radius;
+
+    findSuperTriangle( theSetOfInputPoint );
+    for(i=0;i<sizeof theSetOfInputPoint;i++)
+    {
+        for(j=0;j<sizeof trianglePool;j++)
+            {
+                //push;
+                center = centerOfCircumscribedCircle(vertex_1, vertex_2, vertex_3);
+                radius = radiusOfCCircle( vertex_1, center );
+
+                if( insideTheCircle(theSetOfInputPoint[i], center, radius) )
+                    {
+                        ;
+                    }
+            }
+
+        ;
+    }
 }
 
 
