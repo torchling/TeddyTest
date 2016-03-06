@@ -146,11 +146,13 @@ findSuperTriangle ( pointarray )
     super3 = vertex_3;
 }
 
-addToTrianglePool()
+//§ï¶}ÀY
+float addToTrianglePool()
 {
     ;
 }
 
+//BowyerWatson
 void generateDelaunayTruangle( theSetOfInputPoint, vertex super1, vertex super2, vertex super3 )
 {
     vertex vertex_1;
@@ -170,7 +172,7 @@ void generateDelaunayTruangle( theSetOfInputPoint, vertex super1, vertex super2,
 
                 if( insideTheCircle(theSetOfInputPoint[i], center, radius) )
                     {
-                        ;
+                        addToTrianglePool();
                     }
             }
 
