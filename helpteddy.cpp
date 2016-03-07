@@ -22,6 +22,13 @@ struct vertex
     float z;
 };
 
+struct triangle
+{
+    vertex v1;
+    vertex v2;
+    vertex v3;
+};
+
 bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
 {
     if(line_start.x!=line_end.x)
@@ -146,7 +153,12 @@ findSuperTriangle ( pointarray )
     super3 = vertex_3;
 }
 
-//§ï¶}ÀY
+//float might have to change
+float addToBadTrianglePool()
+{
+    ;
+}
+
 float addToTrianglePool()
 {
     ;
@@ -164,16 +176,23 @@ void generateDelaunayTruangle( theSetOfInputPoint, vertex super1, vertex super2,
     findSuperTriangle( theSetOfInputPoint );
     for(i=0;i<sizeof theSetOfInputPoint;i++)
     {
+        badTriangle := emptyset;
+
         for(j=0;j<sizeof trianglePool;j++)
             {
-                //push;
-                center = centerOfCircumscribedCircle(vertex_1, vertex_2, vertex_3);
+
+                center = centerOfCircumscribedCircle( vertex_1, vertex_2, vertex_3 );
                 radius = radiusOfCCircle( vertex_1, center );
 
                 if( insideTheCircle(theSetOfInputPoint[i], center, radius) )
-                    {
-                        addToTrianglePool();
+
+                        addToBadTrianglePool();
                     }
+            }
+
+        for(k=0;;k++)
+            {
+                ;
             }
 
         ;
