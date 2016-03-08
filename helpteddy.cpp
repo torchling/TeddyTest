@@ -1,7 +1,7 @@
 /*
-    Jui Cheng, Sung. R.O.C.
+    Jui-Cheng,Sung. R.O.C.
     Lyre Mellark.
-    2016.Feb.10
+    Started from 2016.Feb.10
 */
 
 #ifdef __APPLE__
@@ -20,6 +20,12 @@ struct vertex
     float x;
     float y;
     float z;
+};
+
+struct edge
+{
+    vertex v1;
+    vertex v2;
 };
 
 struct triangle
@@ -118,6 +124,7 @@ float radiusOfCCircle(vertex testvertex, vertex center)
     return radius;
 }
 
+//might be ok to delete  bool isBadTriangle
 bool isBadTriangle(vertex test_point, vertex center, float radius)
 {
     if( insideTheCircle(test_point, center, radius) )
@@ -125,36 +132,38 @@ bool isBadTriangle(vertex test_point, vertex center, float radius)
     return false;
 }
 
-findSuperTriangle ( pointarray )
+triangle findSuperTriangle ( pointarray )
 {
     vertex vertex_1 = { 0.0, 1.0, 0.0 };
     vertex vertex_2 = { 0.5, 0.0, 0.0};
     vertex vertex_3 = { -0.5, 0.0, 0.0};
 
-    vertex test_vertex;
+    triangle super;
 
     for(i=0;i<sizeof pointarray;i++)
     {
-        test_vertex = pointarray[i];
+        if(outsideTheTriangle( pointarray[i], vertex_1, vertex_2, vertex_3 ))
+        {
+        	vertex_1.x = vertex_1.x + vertex_1.x - test_vertex.x;
+        	vertex_2.x = vertex_2.x + vertex_2.x - test_vertex.x;
+        	vertex_3.x = vertex_3.x + vertex_3.x - test_vertex.x;
 
-        if(outsideTheTriangle( test_vertex, vertex_1, vertex_2, vertex_3 ))
+        	vertex_1.y = vertex_1.y + vertex_1.y - test_vertex.y;
+        	vertex_2.y = vertex_2.y + vertex_2.y - test_vertex.y;
+        	vertex_3.y = vertex_3.y + vertex_3.y - test_vertex.y;
+        }
 
-        vertex_1.x = vertex_1.x + vertex_1.x - test_vertex.x;
-        vertex_2.x = vertex_2.x + vertex_2.x - test_vertex.x;
-        vertex_3.x = vertex_3.x + vertex_3.x - test_vertex.x;
-
-        vertex_1.y = vertex_1.y + vertex_1.y - test_vertex.y;
-        vertex_2.y = vertex_2.y + vertex_2.y - test_vertex.y;
-        vertex_3.y = vertex_3.y + vertex_3.y - test_vertex.y;
     }
 
-    super1 = vertex_1;
-    super2 = vertex_2;
-    super3 = vertex_3;
+    super.v1 = vertex_1;
+    super.v2 = vertex_2;
+    super.v3 = vertex_3;
+
+    return super;
 }
 
-//float might have to change
-float addToBadTrianglePool()
+//float might need to be changed
+float addToEdgelePool()
 {
     ;
 }
@@ -164,38 +173,59 @@ float addToTrianglePool()
     ;
 }
 
-//BowyerWatson
-void generateDelaunayTruangle( theSetOfInputPoint, vertex super1, vertex super2, vertex super3 )
+bool areSameEdges( edge edge1 , edge edge2 )
 {
-    vertex vertex_1;
-    vertex vertex_2;
-    vertex vertex_3;
+	if((edge1.v1==edge2.v1)&&(edge1.v2==edge2.v2))
+		return true;
+	else if((edge1.v1==edge2.v2)&&(edge1.v2==edge2.v1))
+		return true;
+
+	return false;
+}
+
+void deletDoubleEdge( edgePool )
+{
+    ;
+}
+
+//BowyerWatson
+void generateDelaunayTruangle( theSetOfInputPoint )
+{
+    triangle superDT;
     vertex center;
     float radius;
 
-    findSuperTriangle( theSetOfInputPoint );
+    superDT = findSuperTriangle( theSetOfInputPoint );
+
     for(i=0;i<sizeof theSetOfInputPoint;i++)
     {
-        badTriangle := emptyset;
+        trianglepool := emptyset;
 
         for(j=0;j<sizeof trianglePool;j++)
             {
 
-                center = centerOfCircumscribedCircle( vertex_1, vertex_2, vertex_3 );
-                radius = radiusOfCCircle( vertex_1, center );
+                center = centerOfCircumscribedCircle( superDT.v1 , superDT.v2 , superDT.v3 );
+                radius = radiusOfCCircle( vertex_1 , center );
 
-                if( insideTheCircle(theSetOfInputPoint[i], center, radius) )
-
-                        addToBadTrianglePool();
+                if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) )
+                	{
+                        addToTrianglePool();
                     }
             }
 
-        for(k=0;;k++)
+        edgePool := emptyset;
+        deletDoubleEdge(edgePool);
+
+        for(k=0;k<sizeof edgePool;k++)
             {
-                ;
+                for()
+                {
+                	if( areSameEdges() );
+                }
+
             }
 
-        ;
+        for;
     }
 }
 
