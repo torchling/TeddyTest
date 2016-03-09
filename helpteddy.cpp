@@ -163,12 +163,12 @@ triangle findSuperTriangle ( pointarray )
 }
 
 //float might need to be changed
-float addToEdgelePool()
+float addToEdgelePool( vertex v1 , vertex v2 )
 {
     ;
 }
 
-float addToTrianglePool()
+float addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
 {
     ;
 }
@@ -185,13 +185,17 @@ bool areSameEdges( edge edge1 , edge edge2 )
 
 void deletDoubleEdge( edgePool )
 {
-    ;
+    for()
+    {
+    	;
+    }
 }
 
 //BowyerWatson
 void generateDelaunayTruangle( theSetOfInputPoint )
 {
     triangle superDT;
+    edge edgeFT;
     vertex center;
     float radius;
 
@@ -199,33 +203,35 @@ void generateDelaunayTruangle( theSetOfInputPoint )
 
     for(i=0;i<sizeof theSetOfInputPoint;i++)
     {
-        trianglepool := emptyset;
-
         for(j=0;j<sizeof trianglePool;j++)
             {
 
+                superDT.v1 = trianglePool[j];
+                superDT.v2 = trianglePool[j+1];
+                superDT.v3 = trianglePool[j+2];
                 center = centerOfCircumscribedCircle( superDT.v1 , superDT.v2 , superDT.v3 );
                 radius = radiusOfCCircle( vertex_1 , center );
 
                 if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) )
                 	{
-                        addToTrianglePool();
+                        addToEdgelePool( superDT.v1 , superDT.v2 );
+						addToEdgelePool( superDT.v2 , superDT.v3 );
+                  		addToEdgelePool( superDT.v3 , superDT.v1 );      
                     }
             }
+        trianglepool := emptyset;
 
-        edgePool := emptyset;
+        
         deletDoubleEdge(edgePool);
 
         for(k=0;k<sizeof edgePool;k++)
             {
-                for()
-                {
-                	if( areSameEdges() );
-                }
-
+            	edgeFT = edgePool[k];
+                addToTrianglePool( edgeFT.v1 , edgeFT.v2 , theSetOfInputPoint[i] );
             }
+        edgePool := emptyset;
 
-        for;
+        
     }
 }
 
