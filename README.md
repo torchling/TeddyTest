@@ -1,2 +1,2 @@
-<!--need Code::Blocks to build-->
-
+<!---->
+This project need Code::Blocks to build
