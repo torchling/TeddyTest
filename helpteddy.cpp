@@ -185,9 +185,19 @@ bool areSameEdges( edge edge1 , edge edge2 )
 
 void deletDoubleEdge( edgePool )
 {
-    for()
+    int i;
+    int j;
+    int k=0;
+    for(i=0;i<edgePool;i++)
     {
-    	;
+        edgePool_new[k]=edgePool[i];
+        for(j=0;j<edgePool;j++)
+        {
+            if( areSameEdges(edgePool[i],edgePool[j]) && (i!=j) )
+            {
+                delete edgePool[j] from edgePooL;
+            }
+        }
     }
 }
 
@@ -216,22 +226,22 @@ void generateDelaunayTruangle( theSetOfInputPoint )
                 	{
                         addToEdgelePool( superDT.v1 , superDT.v2 );
 						addToEdgelePool( superDT.v2 , superDT.v3 );
-                  		addToEdgelePool( superDT.v3 , superDT.v1 );      
+                  		addToEdgelePool( superDT.v3 , superDT.v1 );
                     }
             }
         trianglepool := emptyset;
 
-        
+
         deletDoubleEdge(edgePool);
 
         for(k=0;k<sizeof edgePool;k++)
             {
             	edgeFT = edgePool[k];
-                addToTrianglePool( edgeFT.v1 , edgeFT.v2 , theSetOfInputPoint[i] );
+                addToTrianglePoo  l( edgeFT.v1 , edgeFT.v2 , theSetOfInputPoint[i] );
             }
         edgePool := emptyset;
 
-        
+
     }
 }
 
