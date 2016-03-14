@@ -15,6 +15,13 @@
 #include <stdio.h>
 #include <math.h>
 
+
+#include <vector>
+
+std::vector< vertex >	theSetOfInputPoint ;
+std::vector< edge >		edgePool ;
+std::vector< triangle > trianglePool ;
+
 struct vertex
 {
     float x;
@@ -46,6 +53,7 @@ bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex
            (compare_point.y - (line_start.y + vy*(compare_point.x-line_start.x)/vx)) <= 0 )
             return false;
 
+ 
         return true;
     }
 
@@ -237,7 +245,7 @@ void generateDelaunayTruangle( theSetOfInputPoint )
         for(k=0;k<sizeof edgePool;k++)
             {
             	edgeFT = edgePool[k];
-                addToTrianglePoo  l( edgeFT.v1 , edgeFT.v2 , theSetOfInputPoint[i] );
+                addToTrianglePool( edgeFT.v1 , edgeFT.v2 , theSetOfInputPoint[i] );
             }
         edgePool := emptyset;
 
