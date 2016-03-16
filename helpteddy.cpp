@@ -14,9 +14,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
-
+#include <algorithm>
 #include <vector>
+
+using namespace std;
 
 struct vertex
 {
@@ -29,6 +30,7 @@ struct edge
 {
     vertex v1;
     vertex v2;
+    bool b=1;
 };
 
 struct triangle
@@ -67,11 +69,11 @@ bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex
 
 }
 
-bool outsideTheTriangle(vertex test_vertex, vertex vertex_1, vertex vertex_2, vertex vertex_3)
+bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
 {
-    if( onTheSameSide(test_vertex, vertex_1, vertex_2, vertex_3) &&
-        onTheSameSide(test_vertex, vertex_3, vertex_1, vertex_2) &&
-        onTheSameSide(test_vertex, vertex_2, vertex_3, vertex_1) )
+    if( onTheSameSide(testvertex, vertex1, vertex2, vertex3) &&
+        onTheSameSide(testvertex, vertex3, vertex1, vertex2) &&
+        onTheSameSide(testvertex, vertex2, vertex3, vertex1) )
         return false;
 
     return true;
@@ -139,30 +141,31 @@ float radiusOfCCircle(vertex testvertex, vertex center)
 //might be ok to delete  bool isBadTriangle
 bool isBadTriangle(vertex test_point, vertex center, float radius)
 {
-    if( insideTheCircle(test_point, center, radius) )
-        return true;
+    if( insideTheCircle(test_point, center, radius) ){return true;}
     return false;
 }
 
-triangle findSuperTriangle ( GLfloat pointarray )
+triangle findSuperTriangle( vector<vertex>& inputPoint )
 {
+
     vertex vertex_1 = { 0.0, 1.0, 0.0 };
     vertex vertex_2 = { 0.5, 0.0, 0.0};
     vertex vertex_3 = { -0.5, 0.0, 0.0};
 
     triangle super;
+    printf("test02\n");
 
-    for(int i=0;i<sizeof pointarray;i++)
+    for(int i=0;i<inputPoint.size();i++)
     {
-        if(outsideTheTriangle( pointarray[i], vertex_1, vertex_2, vertex_3 ))
+        if(outsideTheTriangle( inputPoint[i], vertex_1, vertex_2, vertex_3 ))
         {
-        	vertex_1.x = vertex_1.x + vertex_1.x - test_vertex.x;
-        	vertex_2.x = vertex_2.x + vertex_2.x - test_vertex.x;
-        	vertex_3.x = vertex_3.x + vertex_3.x - test_vertex.x;
+        	vertex_1.x = vertex_1.x + vertex_1.x - inputPoint[i].x;
+        	vertex_2.x = vertex_2.x + vertex_2.x - inputPoint[i].x;
+        	vertex_3.x = vertex_3.x + vertex_3.x - inputPoint[i].x;
 
-        	vertex_1.y = vertex_1.y + vertex_1.y - test_vertex.y;
-        	vertex_2.y = vertex_2.y + vertex_2.y - test_vertex.y;
-        	vertex_3.y = vertex_3.y + vertex_3.y - test_vertex.y;
+        	vertex_1.y = vertex_1.y + vertex_1.y - inputPoint[i].y;
+        	vertex_2.y = vertex_2.y + vertex_2.y - inputPoint[i].y;
+        	vertex_3.y = vertex_3.y + vertex_3.y - inputPoint[i].y;
         }
 
     }
@@ -175,7 +178,7 @@ triangle findSuperTriangle ( GLfloat pointarray )
 }
 
 //float might need to be changed
-float addToEdgelePool( vertex v1 , vertex v2 )
+void addToEdgelePool( vertex v1 , vertex v2 )
 {
     edge edgetp;
     edgetp.v1 = v1;
@@ -184,7 +187,7 @@ float addToEdgelePool( vertex v1 , vertex v2 )
     edgePool.push_back(edgetp);
 }
 
-float addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
+void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
 {
     triangle triangletp;
     triangletp.v1 = v1;
@@ -196,52 +199,61 @@ float addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
 
 bool areSameEdges( edge edge1 , edge edge2 )
 {
-	if((edge1.v1==edge2.v1)&&(edge1.v2==edge2.v2))
-		return true;
-	else if((edge1.v1==edge2.v2)&&(edge1.v2==edge2.v1))
-		return true;
+    bool v1122 =(((edge1.v1.x == edge2.v1.x)&&(edge1.v1.y == edge2.v1.y))&&(edge1.v1.z == edge2.v1.z))&&
+                (((edge1.v2.x == edge2.v2.x)&&(edge1.v2.y == edge2.v2.y))&&(edge1.v2.z == edge2.v2.z));
+    bool v1221 =(((edge1.v1.x == edge2.v2.x)&&(edge1.v1.y == edge2.v2.y))&&(edge1.v1.z == edge2.v2.z))&&
+                (((edge1.v2.x == edge2.v1.x)&&(edge1.v2.y == edge2.v1.y))&&(edge1.v2.z == edge2.v1.z));
+
+	if(v1122){
+		return true;}
+	else if(v1221){
+		return true;}
 
 	return false;
 }
 
-void deletDoubleEdge( edgePool )
+void deletDoubleEdge( vector<edge>& edgepool )
 {
     int i;
     int j;
     int k=0;
-    for(i=0;i<edgePool;i++)
+    for(i=0;i<edgepool.size();i++)
     {
-        edgePool_new[k]=edgePool[i];
-        for(j=0;j<edgePool;j++)
+        for(j=0;j<edgepool.size();j++)
         {
-            if( areSameEdges(edgePool[i],edgePool[j]) && (i!=j) )
+            if( areSameEdges(edgepool[i],edgepool[j]) && (i!=j) )
             {
-                delete edgePool[j] from edgePooL;
+                if((i+j)>1)
+                //delete edgePool[j] from edgePooL;
+                edgepool[j].b=0;
             }
         }
     }
 }
 
 //BowyerWatson
-void generateDelaunayTruangle( theSetOfInputPoint )
+void generateDelaunayTriangle( vector<vertex>& theSetofInputPoint )
 {
+
     triangle superDT;
     edge edgeFT;
     vertex center;
     float radius;
 
-    superDT = findSuperTriangle( theSetOfInputPoint );
+    superDT = findSuperTriangle( theSetofInputPoint );
+    printf("test03\n");
+    addToTrianglePool(superDT.v1, superDT.v2, superDT.v3);
 
-    for(i=0;i<sizeof theSetOfInputPoint;i++)
+
+    for(int i=0; i<theSetofInputPoint.size(); i++)
     {
-        for(j=0;j<sizeof trianglePool;j++)
+        for(int j=0; j<trianglePool.size(); j++)
             {
-
-                superDT.v1 = trianglePool[j];
-                superDT.v2 = trianglePool[j+1];
-                superDT.v3 = trianglePool[j+2];
+                superDT.v1 = trianglePool[j].v1;
+                superDT.v2 = trianglePool[j].v2;
+                superDT.v3 = trianglePool[j].v3;
                 center = centerOfCircumscribedCircle( superDT.v1 , superDT.v2 , superDT.v3 );
-                radius = radiusOfCCircle( vertex_1 , center );
+                radius = radiusOfCCircle( superDT.v1 , center );
 
                 if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) )
                 	{
@@ -250,18 +262,19 @@ void generateDelaunayTruangle( theSetOfInputPoint )
                   		addToEdgelePool( superDT.v3 , superDT.v1 );
                     }
             }
-        trianglepool := emptyset;
-
+        //trianglepool := emptyset;
+        trianglePool.clear();
 
         deletDoubleEdge(edgePool);
 
-        for(k=0;k<sizeof edgePool;k++)
+        for(int k=0;k<edgePool.size();k++)
             {
             	edgeFT = edgePool[k];
                 addToTrianglePool( edgeFT.v1 , edgeFT.v2 , theSetOfInputPoint[i] );
             }
-        edgePool := emptyset;
-
+        //edgePool := emptyset;
+        if((i+1)<theSetOfInputPoint.size())
+        edgePool.clear();
 
     }
 }

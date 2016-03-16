@@ -8,18 +8,45 @@
 #include <GL/glut.h>
 #endif
 
+using namespace std;
+
+struct vertex
+{
+    float x;
+    float y;
+    float z;
+};
+
+struct edge
+{
+    vertex v1;
+    vertex v2;
+    bool b=1;
+};
+
+struct triangle
+{
+    vertex v1;
+    vertex v2;
+    vertex v3;
+};
+/*
+std::vector< vertex >	theSetOfInputPoint ;
+std::vector< edge >		edgePool ;
+std::vector< triangle > trianglePool ;*/
+
 //help teddy
-bool onTheSameSide(float test_point, float line_start, float line_end, float );
-bool outsideTheTriangle(float test_vertex, float vertex_1, float vertex_2, float vertex_3);
-bool insideTheCircle(float test_vertex, float center_of_circle, float radius);
+bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
+bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
+bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius);
 vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3);
 float radiusOfCCircle(vertex testvertex, vertex center);
 bool isBadTriangle(vertex test_point, vertex center, float radius);
-triangle findSuperTriangle ( pointarray );
-float addToEdgelePool( vertex v1 , vertex v2 );
-float addToTrianglePool( vertex v1 , vertex v2 , vertex v3 );
+triangle findSuperTriangle( vector<vertex>& inputPoint );
+void addToEdgelePool( vertex v1 , vertex v2 );
+void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 );
 bool areSameEdges( edge edge1 , edge edge2 );
-void deletDoubleEdge( edgePool );
-void generateDelaunayTruangle( theSetOfInputPoint );
+void deletDoubleEdge( vector<edge>& edgepool );
+vertex generateDelaunayTruangle( vector<vertex>& theSetofInputPoint );
 
 #endif

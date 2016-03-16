@@ -15,13 +15,11 @@
 #include <vector>
 #include "helpteddy.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 using namespace std;
 
-vector<float> vect;
-
-bool meshBeenMade = false;
-
+/*
 struct vertex
 {
     float x;
@@ -29,8 +27,33 @@ struct vertex
     float z;
 };
 
+struct edge
+{
+    vertex v1;
+    vertex v2;
+    bool b=1;
+};
+
+struct triangle
+{
+    vertex v1;
+    vertex v2;
+    vertex v3;
+};
+
+std::vector< vertex >	theSetOfInputPoint ;
+std::vector< edge >		edgePool ;
+std::vector< triangle > trianglePool ;
+*/
+
+vector<vertex> pointPoolforMain;
+
+bool meshBeenMade = false;
+
+/*------------*/
 static int slices = 16;
 static int stacks = 16;
+/*-------------------*/
 
 GLfloat vertices[15][3]=
 {
@@ -52,7 +75,6 @@ GLfloat vertices[15][3]=
 };
 
 /* GLUT callback Handlers */
-
 static void resize(int width, int height)
 {
     const float ar = (float) width / (float) height;
@@ -175,8 +197,20 @@ int main(int argc, char *argv[])
 {
     if(!meshBeenMade)
     {
-        generateDelaunayTruangle( vertices );
+        vertex vertextp;
+        for(int i=0;i<15;i++)
+        {
+            vertextp.x = vertices[i][0];
+            vertextp.y = vertices[i][1];
+            vertextp.z = vertices[i][2];
+            pointPoolforMain.push_back(vertextp);
+        }
+        printf("test\n");
+        generateDelaunayTriangle( pointPoolforMain );
+        pointPoolforMain.clear();
         //makeMesh();
+
+        meshBeenMade=true;
     }
 
     glutInit(&argc, argv);
