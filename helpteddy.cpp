@@ -18,10 +18,6 @@
 
 #include <vector>
 
-std::vector< vertex >	theSetOfInputPoint ;
-std::vector< edge >		edgePool ;
-std::vector< triangle > trianglePool ;
-
 struct vertex
 {
     float x;
@@ -42,6 +38,10 @@ struct triangle
     vertex v3;
 };
 
+std::vector< vertex >	theSetOfInputPoint ;
+std::vector< edge >		edgePool ;
+std::vector< triangle > trianglePool ;
+
 bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
 {
     if(line_start.x!=line_end.x)
@@ -53,7 +53,7 @@ bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex
            (compare_point.y - (line_start.y + vy*(compare_point.x-line_start.x)/vx)) <= 0 )
             return false;
 
- 
+
         return true;
     }
 
@@ -80,7 +80,7 @@ bool outsideTheTriangle(vertex test_vertex, vertex vertex_1, vertex vertex_2, ve
 bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)
 {
     float distance2;
-    distance2 = (test_vertex.x-center_of_circle.x)^2 + (test_vertex.y-center_of_circle.y)^2 ;
+    distance2 = pow(test_vertex.x-center_of_circle.x, 2.0) + pow(test_vertex.y-center_of_circle.y, 2.0) ;
     if( sqrt(distance2) > radius )
         return false;
 
@@ -88,45 +88,49 @@ bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)
 }
 
 //according to wiki's data
-centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
+vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
 {
-    float xc =((vertex_1.x)^2+(vertex_1.y)^2)*vertex_2.y +
-              ((vertex_2.x)^2+(vertex_2.y)^2)*vertex_3.y +
-              ((vertex_3.x)^2+(vertex_3.y)^2)*vertex_1.y -
-              ((vertex_1.x)^2+(vertex_1.y)^2)*vertex_3.y -
-              ((vertex_2.x)^2+(vertex_2.y)^2)*vertex_1.y -
-              ((vertex_3.x)^2+(vertex_3.y)^2)*vertex_2.y;
+
+
+    float xc =(pow(vertex_1.x, 2.0)+pow(vertex_1.y, 2.0))*vertex_2.y +
+              (pow(vertex_2.x, 2.0)+pow(vertex_2.y, 2.0))*vertex_3.y +
+              (pow(vertex_3.x, 2.0)+pow(vertex_3.y, 2.0))*vertex_1.y -
+              (pow(vertex_1.x, 2.0)+pow(vertex_1.y, 2.0))*vertex_3.y -
+              (pow(vertex_2.x, 2.0)+pow(vertex_2.y, 2.0))*vertex_1.y -
+              (pow(vertex_3.x, 2.0)+pow(vertex_3.y, 2.0))*vertex_2.y;
     float xm =vertex_1.x*vertex_2.y +
               vertex_2.x*vertex_3.y +
               vertex_3.x*vertex_1.y -
               vertex_1.x*vertex_3.y -
               vertex_2.x*vertex_1.y -
-              vertex_3.x*vertex_2.y -;
+              vertex_3.x*vertex_2.y;
 
-    float yc =((vertex_1.x)^2+(vertex_1.y)^2)*vertex_3.x +
-              ((vertex_2.x)^2+(vertex_2.y)^2)*vertex_1.x +
-              ((vertex_3.x)^2+(vertex_3.y)^2)*vertex_2.x -
-              ((vertex_1.x)^2+(vertex_1.y)^2)*vertex_2.x -
-              ((vertex_2.x)^2+(vertex_2.y)^2)*vertex_3.x -
-              ((vertex_3.x)^2+(vertex_3.y)^2)*vertex_1.x;
+    float yc =(pow(vertex_1.x, 2.0)+pow(vertex_1.y, 2.0))*vertex_3.x +
+              (pow(vertex_2.x, 2.0)+pow(vertex_2.y, 2.0))*vertex_1.x +
+              (pow(vertex_3.x, 2.0)+pow(vertex_3.y, 2.0))*vertex_2.x -
+              (pow(vertex_1.x, 2.0)+pow(vertex_1.y, 2.0))*vertex_2.x -
+              (pow(vertex_2.x, 2.0)+pow(vertex_2.y, 2.0))*vertex_3.x -
+              (pow(vertex_3.x, 2.0)+pow(vertex_3.y, 2.0))*vertex_1.x;
     float ym =vertex_1.x*vertex_2.y +
               vertex_2.x*vertex_3.y +
               vertex_3.x*vertex_1.y -
               vertex_1.x*vertex_3.y -
               vertex_2.x*vertex_1.y -
-              vertex_3.x*vertex_2.y -;
+              vertex_3.x*vertex_2.y;
     xm=2*xm;
     ym=2*ym;
 
     vertex center;
-    cenetr.x =xc/xm;
-    cenetr.y =yc/ym;
-    cenetr.z =0.0;
+    center.x =xc/xm;
+    center.y =yc/ym;
+    center.z =0.0;
+
+    return center;
 }
 
 float radiusOfCCircle(vertex testvertex, vertex center)
 {
-    float radius = (testvertex.x-center.x)^2 + (testvertex.y-center.y)^2;
+    float radius = pow(testvertex.x-center.x, 2.0) + pow(testvertex.y-center.y, 2.0);
     radius = sqrt(radius);
 
     return radius;
@@ -140,7 +144,7 @@ bool isBadTriangle(vertex test_point, vertex center, float radius)
     return false;
 }
 
-triangle findSuperTriangle ( pointarray )
+triangle findSuperTriangle ( GLfloat pointarray )
 {
     vertex vertex_1 = { 0.0, 1.0, 0.0 };
     vertex vertex_2 = { 0.5, 0.0, 0.0};
@@ -148,7 +152,7 @@ triangle findSuperTriangle ( pointarray )
 
     triangle super;
 
-    for(i=0;i<sizeof pointarray;i++)
+    for(int i=0;i<sizeof pointarray;i++)
     {
         if(outsideTheTriangle( pointarray[i], vertex_1, vertex_2, vertex_3 ))
         {
@@ -173,12 +177,21 @@ triangle findSuperTriangle ( pointarray )
 //float might need to be changed
 float addToEdgelePool( vertex v1 , vertex v2 )
 {
-    ;
+    edge edgetp;
+    edgetp.v1 = v1;
+    edgetp.v2 = v2;
+
+    edgePool.push_back(edgetp);
 }
 
 float addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
 {
-    ;
+    triangle triangletp;
+    triangletp.v1 = v1;
+    triangletp.v2 = v2;
+    triangletp.v3 = v3;
+
+    trianglePool.push_back(triangletp);
 }
 
 bool areSameEdges( edge edge1 , edge edge2 )

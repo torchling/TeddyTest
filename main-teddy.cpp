@@ -1,9 +1,9 @@
 /*
     GLUT Teddy
-    Jui Cheng, Sung. R.O.C.
+    Jui-Cheng,Sung. R.O.C.
     Lyre Mellark.
-    2016.Feb.10
- */
+    Started from 2016.Feb.10
+*/
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -175,7 +175,8 @@ int main(int argc, char *argv[])
 {
     if(!meshBeenMade)
     {
-        makeMesh();
+        generateDelaunayTruangle( vertices );
+        //makeMesh();
     }
 
     glutInit(&argc, argv);
