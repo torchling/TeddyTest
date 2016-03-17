@@ -40,13 +40,11 @@ bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex
 bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
 bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius);
 vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3);
-float radiusOfCCircle(vertex testvertex, vertex center);
+GLfloat radiusOfCCircle(vertex testvertex, vertex center);
 bool isBadTriangle(vertex test_point, vertex center, float radius);
-triangle findSuperTriangle( vector<vertex>& inputPoint );
 void addToEdgelePool( vertex v1 , vertex v2 );
 void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 );
 bool areSameEdges( edge edge1 , edge edge2 );
-void deletDoubleEdge( vector<edge>& edgepool );
-vertex generateDelaunayTruangle( vector<vertex>& theSetofInputPoint );
+
 
 #endif

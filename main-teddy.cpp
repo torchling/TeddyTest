@@ -16,6 +16,7 @@
 #include "helpteddy.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 
 using namespace std;
 
@@ -39,14 +40,11 @@ struct triangle
     vertex v1;
     vertex v2;
     vertex v3;
-};
+};*/
 
 std::vector< vertex >	theSetOfInputPoint ;
 std::vector< edge >		edgePool ;
 std::vector< triangle > trianglePool ;
-*/
-
-vector<vertex> pointPoolforMain;
 
 bool meshBeenMade = false;
 
@@ -73,6 +71,155 @@ GLfloat vertices[15][3]=
     { 3.4f, -1.8f, 0.0f },
     { 1.2f, -1.5f, 0.0f }
 };
+
+triangle findSuperTriangle()
+{
+/*
+    vertex vertex_1 = { 0.0, 1.0, 0.0 };
+    vertex vertex_2 = { 0.5, 0.0, 0.0};
+    vertex vertex_3 = { -0.5, 0.0, 0.0};
+*/
+    vertex vertex_1 = {-10.0f, -4.1f, 0.0f};
+    vertex vertex_2 = {4.5f, 13.7f, 0.0f};
+    vertex vertex_3 = {24.0f,-6.3f, 0.0f};
+
+    triangle super;
+/*
+    for(int i=0;i<theSetOfInputPoint.size();i++)
+    {
+        if(outsideTheTriangle( theSetOfInputPoint[i], vertex_1, vertex_2, vertex_3 ))
+        {
+        	vertex_1.x = vertex_1.x + vertex_1.x - theSetOfInputPoint[i].x;
+        	vertex_2.x = vertex_2.x + vertex_2.x - theSetOfInputPoint[i].x;
+        	vertex_3.x = vertex_3.x + vertex_3.x - theSetOfInputPoint[i].x;
+
+        	vertex_1.y = vertex_1.y + vertex_1.y - theSetOfInputPoint[i].y;
+        	vertex_2.y = vertex_2.y + vertex_2.y - theSetOfInputPoint[i].y;
+        	vertex_3.y = vertex_3.y + vertex_3.y - theSetOfInputPoint[i].y;
+        }
+
+    }
+*/
+    super.v1 = vertex_1;
+    super.v2 = vertex_2;
+    super.v3 = vertex_3;
+
+    return super;
+}
+
+//float might need to be changed
+void addToEdgePool( vertex v1 , vertex v2 )
+{
+    edge edgetp;
+    edgetp.v1 = v1;
+    edgetp.v2 = v2;
+
+    edgePool.push_back(edgetp);
+}
+
+void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
+{
+    triangle triangletp;
+    triangletp.v1 = v1;
+    triangletp.v2 = v2;
+    triangletp.v3 = v3;
+
+    trianglePool.push_back(triangletp);
+}
+
+void deletDoubleEdge()
+{
+    int i;
+    int j;
+    int k=0;
+    for(i=0;i<edgePool.size();i++)
+    {
+        for(j=0;j<edgePool.size();j++)
+        {
+            if( areSameEdges(edgePool[i],edgePool[j]) && (i!=j) )
+            {
+                if((i+j)>1)
+                //delete edgePool[j] from edgePooL;
+                edgePool[j].b=0;
+            }
+        }
+    }
+}
+
+//BowyerWatson
+void generateDelaunayTriangle()
+{
+
+    triangle superDT;
+    edge edgeFT;
+    vertex center;
+    float radius;
+
+    superDT = findSuperTriangle( );
+
+    addToTrianglePool(superDT.v1, superDT.v2, superDT.v3);
+
+
+    for(int i=0; i<theSetOfInputPoint.size(); i++)
+    {
+        edgePool.clear();
+        for(int j=0; j<trianglePool.size(); j++)
+            {
+                superDT.v1 = trianglePool[j].v1;
+                superDT.v2 = trianglePool[j].v2;
+                superDT.v3 = trianglePool[j].v3;
+                center = centerOfCircumscribedCircle( superDT.v1 , superDT.v2 , superDT.v3 );
+                radius = radiusOfCCircle( superDT.v1 , center );
+
+                if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) )
+                	{
+                        addToEdgePool( superDT.v1 , superDT.v2 );
+						addToEdgePool( superDT.v2 , superDT.v3 );
+                  		addToEdgePool( superDT.v3 , superDT.v1 );
+                    }
+            }
+        //trianglepool := emptyset;
+        trianglePool.clear();
+
+        deletDoubleEdge();
+
+        for(int k=0;k<edgePool.size();k++)
+            {
+            	edgeFT = edgePool[k];
+                addToTrianglePool( edgeFT.v1 , edgeFT.v2 , theSetOfInputPoint[i] );
+            }
+        //edgePool := emptyset;
+        cout<<edgePool.size()<<"_edgePool.size"<<"\n";
+        cout<<trianglePool.size()<<"_trianglePool.size"<<"\n";
+        cout<<theSetOfInputPoint[i].x<<" "<<"theSetOfInputPoint"<<"_"<<i<<".x"<<"\n";
+
+    }
+    cout<<edgePool.size()<<"_finalEdgePool.size"<<"\n";
+}
+
+void printTrianglePool()
+{
+    //cout<<trianglePool.size()<<"\n";
+    /*
+    for(int i; trianglePool.size(); i++)
+    {
+        cout<<trianglePool[i].v1.x<<trianglePool[i].v1.y<<trianglePool[i].v1.z<<"\n";
+        glBegin(GL_LINE_LOOP);
+            glVertex3f( trianglePool[i].v1.x, trianglePool[i].v1.y, trianglePool[i].v1.z );
+            glVertex3f( trianglePool[i].v2.x, trianglePool[i].v2.y, trianglePool[i].v2.z );
+            glVertex3f( trianglePool[i].v3.x, trianglePool[i].v3.y, trianglePool[i].v3.z );
+        glEnd();
+    }
+    */
+    cout<<"startToPrint"<<"\n";
+    for(int i; edgePool.size(); i++)
+    {
+        glBegin(GL_LINE_LOOP);
+            glVertex3f( edgePool[i].v1.x, edgePool[i].v1.y, edgePool[i].v1.z );
+            glVertex3f( edgePool[i].v2.x, edgePool[i].v2.y, edgePool[i].v2.z );
+        glEnd();
+    }
+}
 
 /* GLUT callback Handlers */
 static void resize(int width, int height)
@@ -129,6 +276,8 @@ static void display(void)
             glVertex3f( 3.4f, -1.8f, 0.0f);
             glVertex3f( 1.2f, -1.5f, 0.0f);
         glEnd();
+
+        printTrianglePool();
     glPopMatrix();
 
 /*
@@ -203,11 +352,11 @@ int main(int argc, char *argv[])
             vertextp.x = vertices[i][0];
             vertextp.y = vertices[i][1];
             vertextp.z = vertices[i][2];
-            pointPoolforMain.push_back(vertextp);
+            theSetOfInputPoint.push_back(vertextp);
         }
         printf("test\n");
-        generateDelaunayTriangle( pointPoolforMain );
-        pointPoolforMain.clear();
+        generateDelaunayTriangle();
+        theSetOfInputPoint.clear();
         //makeMesh();
 
         meshBeenMade=true;
