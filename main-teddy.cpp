@@ -20,28 +20,6 @@
 
 using namespace std;
 
-/*
-struct vertex
-{
-    float x;
-    float y;
-    float z;
-};
-
-struct edge
-{
-    vertex v1;
-    vertex v2;
-    bool b=1;
-};
-
-struct triangle
-{
-    vertex v1;
-    vertex v2;
-    vertex v3;
-};*/
-
 std::vector< vertex >	theSetOfInputPoint ;
 std::vector< edge >		edgePool ;
 std::vector< edge >		tmp_edgePool ;
@@ -72,6 +50,19 @@ GLfloat vertices[15][3]=
     { 3.4f, -1.8f, 0.0f },
     { 1.2f, -1.5f, 0.0f }
 };
+
+bool areSameEdges( edge edgeA , edge edgeB )
+{
+    bool vA1B1 =(((edgeA.v1.x == edgeB.v1.x)&&(edgeA.v1.y == edgeB.v1.y))&&(edgeA.v1.z == edgeB.v1.z))&&
+                (((edgeA.v2.x == edgeB.v2.x)&&(edgeA.v2.y == edgeB.v2.y))&&(edgeA.v2.z == edgeB.v2.z));
+    bool vA1B2 =(((edgeA.v1.x == edgeB.v2.x)&&(edgeA.v1.y == edgeB.v2.y))&&(edgeA.v1.z == edgeB.v2.z))&&
+                (((edgeA.v2.x == edgeB.v1.x)&&(edgeA.v2.y == edgeB.v1.y))&&(edgeA.v2.z == edgeB.v1.z));
+
+	if(vA1B1||vA1B2)
+		return true;
+
+	return false;
+}
 
 triangle findSuperTriangle()
 {
@@ -126,6 +117,8 @@ void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
     triangletp.v3 = v3;
 
     trianglePool.push_back(triangletp);
+    cout<<"testforadd"<<"\n";
+            	cout<<"\n";
 }
 
 void deletDoubleEdge()
@@ -137,7 +130,9 @@ void deletDoubleEdge()
     start:
     for(i=0;i<edgePool.size();i++)
     {
-        cout<<edgePool[i].v1.x<<" "<<edgePool[i].v2.x<<"\n";
+        cout<<edgePool[i].v1.x<<" "<<edgePool[i].v1.y<<"\n";
+        cout<<edgePool[i].v2.x<<" "<<edgePool[i].v2.y<<"\n";
+        cout<<"\n";
         for(j=0;j<edgePool.size();j++)
         {
             if( areSameEdges(edgePool[i],edgePool[j]) && (i!=j) )
@@ -198,7 +193,7 @@ void generateDelaunayTriangle()
 cout<<"BE_edgePool.size "<<edgePool.size()<<"\n";
         deletDoubleEdge();
 cout<<"AF_edgePool.size "<<edgePool.size()<<"\n";
-cout<<"\n";
+cout<<"theSetOfInputPoint"<<i<<" "<<theSetOfInputPoint[i].x<<" "<<theSetOfInputPoint[i].y<<"\n";
         for(int k=0;k<edgePool.size();k++)
             {
             	edgeFT = edgePool[k];

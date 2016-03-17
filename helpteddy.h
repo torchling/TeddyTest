@@ -21,7 +21,7 @@ struct edge
 {
     vertex v1;
     vertex v2;
-    bool b=1;
+
 };
 
 struct triangle
@@ -31,6 +31,7 @@ struct triangle
     vertex v3;
 };
 /*
+
 std::vector< vertex >	theSetOfInputPoint ;
 std::vector< edge >		edgePool ;
 std::vector< triangle > trianglePool ;*/
@@ -44,7 +45,7 @@ GLfloat radiusOfCCircle(vertex testvertex, vertex center);
 bool isBadTriangle(vertex test_point, vertex center, float radius);
 void addToEdgelePool( vertex v1 , vertex v2 );
 void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 );
-bool areSameEdges( edge edge1 , edge edge2 );
+//bool areSameEdges( edge edge1 , edge edge2 );
 
 
 #endif

@@ -134,26 +134,6 @@ GLfloat radiusOfCCircle(vertex testvertex, vertex center)
     return radius;
 }
 
-//might be ok to delete  bool isBadTriangle
-bool isBadTriangle(vertex test_point, vertex center, float radius)
-{
-    if( insideTheCircle(test_point, center, radius) ){return true;}
-    return false;
-}
 
 
-bool areSameEdges( edge edge1 , edge edge2 )
-{
-    bool v1122 =(((edge1.v1.x == edge2.v1.x)&&(edge1.v1.y == edge2.v1.y))&&(edge1.v1.z == edge2.v1.z))&&
-                (((edge1.v2.x == edge2.v2.x)&&(edge1.v2.y == edge2.v2.y))&&(edge1.v2.z == edge2.v2.z));
-    bool v1221 =(((edge1.v1.x == edge2.v2.x)&&(edge1.v1.y == edge2.v2.y))&&(edge1.v1.z == edge2.v2.z))&&
-                (((edge1.v2.x == edge2.v1.x)&&(edge1.v2.y == edge2.v1.y))&&(edge1.v2.z == edge2.v1.z));
-
-	if(v1122){
-		return true;}
-	else if(v1221){
-		return true;}
-
-	return false;
-}
 
