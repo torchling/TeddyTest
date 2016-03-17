@@ -44,6 +44,7 @@ struct triangle
 
 std::vector< vertex >	theSetOfInputPoint ;
 std::vector< edge >		edgePool ;
+std::vector< edge >		tmp_edgePool ;
 std::vector< triangle > trianglePool ;
 
 bool meshBeenMade = false;
@@ -131,16 +132,29 @@ void deletDoubleEdge()
 {
     int i;
     int j;
-    int k=0;
+    int k;
+    int record_edgePool_size;
+    start:
     for(i=0;i<edgePool.size();i++)
     {
+        cout<<edgePool[i].v1.x<<" "<<edgePool[i].v2.x<<"\n";
         for(j=0;j<edgePool.size();j++)
         {
             if( areSameEdges(edgePool[i],edgePool[j]) && (i!=j) )
             {
-                if((i+j)>1)
-                //delete edgePool[j] from edgePooL;
-                edgePool[j].b=0;
+
+                for(k=0; k<edgePool.size(); k++){
+                    if((k!=i)&&(k!=j))
+                    tmp_edgePool.push_back(edgePool[k]);
+                }
+
+                edgePool.clear();
+                for(k=0; k<tmp_edgePool.size(); k++){
+                    edgePool.push_back(tmp_edgePool[k]);
+                }
+                cout<<tmp_edgePool.size()<<"\n";
+                tmp_edgePool.clear();
+                goto start;
             }
         }
     }
@@ -151,6 +165,7 @@ void generateDelaunayTriangle()
 {
 
     triangle superDT;
+    triangle test;
     edge edgeFT;
     vertex center;
     float radius;
@@ -165,36 +180,37 @@ void generateDelaunayTriangle()
         edgePool.clear();
         for(int j=0; j<trianglePool.size(); j++)
             {
-                superDT.v1 = trianglePool[j].v1;
-                superDT.v2 = trianglePool[j].v2;
-                superDT.v3 = trianglePool[j].v3;
-                center = centerOfCircumscribedCircle( superDT.v1 , superDT.v2 , superDT.v3 );
-                radius = radiusOfCCircle( superDT.v1 , center );
+                test.v1 = trianglePool[j].v1;
+                test.v2 = trianglePool[j].v2;
+                test.v3 = trianglePool[j].v3;
+                center = centerOfCircumscribedCircle( test.v1 , test.v2 , test.v3 );
+                radius = radiusOfCCircle( test.v1 , center );
 
                 if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) )
                 	{
-                        addToEdgePool( superDT.v1 , superDT.v2 );
-						addToEdgePool( superDT.v2 , superDT.v3 );
-                  		addToEdgePool( superDT.v3 , superDT.v1 );
+                        addToEdgePool( test.v1 , test.v2 );
+						addToEdgePool( test.v2 , test.v3 );
+                  		addToEdgePool( test.v3 , test.v1 );
                     }
             }
         //trianglepool := emptyset;
         trianglePool.clear();
-
+cout<<"BE_edgePool.size "<<edgePool.size()<<"\n";
         deletDoubleEdge();
-
+cout<<"AF_edgePool.size "<<edgePool.size()<<"\n";
+cout<<"\n";
         for(int k=0;k<edgePool.size();k++)
             {
             	edgeFT = edgePool[k];
                 addToTrianglePool( edgeFT.v1 , edgeFT.v2 , theSetOfInputPoint[i] );
             }
-        //edgePool := emptyset;
+/*
         cout<<edgePool.size()<<"_edgePool.size"<<"\n";
         cout<<trianglePool.size()<<"_trianglePool.size"<<"\n";
         cout<<theSetOfInputPoint[i].x<<" "<<"theSetOfInputPoint"<<"_"<<i<<".x"<<"\n";
-
+*/
     }
-    cout<<edgePool.size()<<"_finalEdgePool.size"<<"\n";
+//    cout<<edgePool.size()<<"_finalEdgePool.size"<<"\n";
 }
 
 void printTrianglePool()
@@ -211,7 +227,11 @@ void printTrianglePool()
         glEnd();
     }
     */
-    cout<<"startToPrint"<<"\n";
+    glBegin(GL_LINE_LOOP);
+            glVertex3f( theSetOfInputPoint[3].x, theSetOfInputPoint[3].y, theSetOfInputPoint[3].z );
+            glVertex3f( theSetOfInputPoint[9].x, theSetOfInputPoint[9].y, theSetOfInputPoint[9].z );
+    glEnd();
+    //cout<<"startToPrint"<<"\n";
     for(int i; edgePool.size(); i++)
     {
         glBegin(GL_LINE_LOOP);
@@ -298,7 +318,6 @@ static void display(void)
     glutSwapBuffers();
 }
 
-
 static void key(unsigned char key, int x, int y)
 {
     switch (key)
@@ -356,7 +375,9 @@ int main(int argc, char *argv[])
         }
         printf("test\n");
         generateDelaunayTriangle();
+
         theSetOfInputPoint.clear();
+        cout<<"end of DT"<<"\n";
         //makeMesh();
 
         meshBeenMade=true;

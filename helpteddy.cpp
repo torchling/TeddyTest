@@ -30,7 +30,6 @@ struct edge
 {
     vertex v1;
     vertex v2;
-    bool b=1;
 };
 
 struct triangle
@@ -38,7 +37,6 @@ struct triangle
     vertex v1;
     vertex v2;
     vertex v3;
-    bool b=1;
 };
 
 
