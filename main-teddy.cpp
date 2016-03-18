@@ -24,6 +24,7 @@ std::vector< vertex >	theSetOfInputPoint ;
 std::vector< edge >		edgePool ;
 std::vector< edge >		tmp_edgePool ;
 std::vector< triangle > trianglePool ;
+std::vector< triangle > badTrianglePool ;
 
 bool meshBeenMade = false;
 
@@ -121,6 +122,16 @@ void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
             	cout<<"\n";
 }
 
+void addToBadTrianglePool( vertex v1 , vertex v2 , vertex v3 )
+{
+    triangle triangletp;
+    triangletp.v1 = v1;
+    triangletp.v2 = v2;
+    triangletp.v3 = v3;
+
+    trianglePool.push_back(triangletp);
+}
+
 void deletDoubleEdge()
 {
     int i;
@@ -158,21 +169,23 @@ void deletDoubleEdge()
 //BowyerWatson
 void generateDelaunayTriangle()
 {
-
     triangle superDT;
     triangle test;
     edge edgeFT;
     vertex center;
     float radius;
+    bool contains_superDT;
 
-    superDT = findSuperTriangle( );
+    trianglePool.clear();
 
+    superDT = findSuperTriangle();
     addToTrianglePool(superDT.v1, superDT.v2, superDT.v3);
 
 
     for(int i=0; i<theSetOfInputPoint.size(); i++)
     {
-        edgePool.clear();
+
+        badTrianglePool.clear();
         for(int j=0; j<trianglePool.size(); j++)
             {
                 test.v1 = trianglePool[j].v1;
@@ -182,36 +195,56 @@ void generateDelaunayTriangle()
                 radius = radiusOfCCircle( test.v1 , center );
 
                 if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) )
-                	{
-                        addToEdgePool( test.v1 , test.v2 );
-						addToEdgePool( test.v2 , test.v3 );
-                  		addToEdgePool( test.v3 , test.v1 );
-                    }
+                        addToBadTrianglePool( test.v1 , test.v2 , test.v3 );
+
+                        //Delete badTri. from tri.Pool
+                        if(j!=trianglePool.size()-1)
+                        trianglePool[j]=trianglePool[trianglePool.size()-1];
+                        trianglePool.pop_back();
+                        j--;
             }
-        //trianglepool := emptyset;
-        trianglePool.clear();
-cout<<"BE_edgePool.size "<<edgePool.size()<<"\n";
+
+        edgePool.clear();
+        for(int q=0; q<badTrianglePool.size(); q++)
+            {
+                addToEdgePool( badTrianglePool[q].v1 , badTrianglePool[q].v2 );
+                addToEdgePool( badTrianglePool[q].v2 , badTrianglePool[q].v3 );
+                addToEdgePool( badTrianglePool[q].v3 , badTrianglePool[q].v1 );
+            }
         deletDoubleEdge();
-cout<<"AF_edgePool.size "<<edgePool.size()<<"\n";
-cout<<"theSetOfInputPoint"<<i<<" "<<theSetOfInputPoint[i].x<<" "<<theSetOfInputPoint[i].y<<"\n";
+/*
+        for each triangle in badTriangles do // remove them from the data structure
+            remove triangle from triangulation
+
+        //Part of pseudo code. Have been writen in Line 199 "Delete badTri. from tri.Pool"
+*/
         for(int k=0;k<edgePool.size();k++)
             {
             	edgeFT = edgePool[k];
                 addToTrianglePool( edgeFT.v1 , edgeFT.v2 , theSetOfInputPoint[i] );
             }
-/*
-        cout<<edgePool.size()<<"_edgePool.size"<<"\n";
-        cout<<trianglePool.size()<<"_trianglePool.size"<<"\n";
-        cout<<theSetOfInputPoint[i].x<<" "<<"theSetOfInputPoint"<<"_"<<i<<".x"<<"\n";
-*/
+
     }
-//    cout<<edgePool.size()<<"_finalEdgePool.size"<<"\n";
+
+    for (int ct=0; ct<trianglePool.size(); ct++) // done inserting points, now clean up
+    {
+        contains_superDT =  (((trianglePool[ct].v1.x == superDT.v1.x)&&(trianglePool[ct].v1.y == superDT.v1.y))&&(trianglePool[ct].v1.z == superDT.v1.z))&&
+                            (((trianglePool[ct].v2.x == superDT.v2.x)&&(trianglePool[ct].v2.y == superDT.v2.y))&&(trianglePool[ct].v2.z == superDT.v2.z));
+
+        if( contains_superDT )
+        {
+            if(ct!=trianglePool.size()-1)
+                trianglePool[ct]=trianglePool[trianglePool.size()-1];
+            trianglePool.pop_back();
+            ct--;
+        }
+    }
+
 }
 
 void printTrianglePool()
 {
     //cout<<trianglePool.size()<<"\n";
-    /*
     for(int i; trianglePool.size(); i++)
     {
         cout<<trianglePool[i].v1.x<<trianglePool[i].v1.y<<trianglePool[i].v1.z<<"\n";
@@ -221,19 +254,12 @@ void printTrianglePool()
             glVertex3f( trianglePool[i].v3.x, trianglePool[i].v3.y, trianglePool[i].v3.z );
         glEnd();
     }
-    */
+
     glBegin(GL_LINE_LOOP);
             glVertex3f( theSetOfInputPoint[3].x, theSetOfInputPoint[3].y, theSetOfInputPoint[3].z );
             glVertex3f( theSetOfInputPoint[9].x, theSetOfInputPoint[9].y, theSetOfInputPoint[9].z );
     glEnd();
-    //cout<<"startToPrint"<<"\n";
-    for(int i; edgePool.size(); i++)
-    {
-        glBegin(GL_LINE_LOOP);
-            glVertex3f( edgePool[i].v1.x, edgePool[i].v1.y, edgePool[i].v1.z );
-            glVertex3f( edgePool[i].v2.x, edgePool[i].v2.y, edgePool[i].v2.z );
-        glEnd();
-    }
+
 }
 
 /* GLUT callback Handlers */
