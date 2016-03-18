@@ -119,7 +119,6 @@ void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
 
     trianglePool.push_back(triangletp);
     cout<<"testforadd"<<"\n";
-            	cout<<"\n";
 }
 
 void addToBadTrianglePool( vertex v1 , vertex v2 , vertex v3 )
@@ -129,7 +128,7 @@ void addToBadTrianglePool( vertex v1 , vertex v2 , vertex v3 )
     triangletp.v2 = v2;
     triangletp.v3 = v3;
 
-    trianglePool.push_back(triangletp);
+    badTrianglePool.push_back(triangletp);
 }
 
 void deletDoubleEdge()
@@ -137,13 +136,11 @@ void deletDoubleEdge()
     int i;
     int j;
     int k;
-    int record_edgePool_size;
+    int h;
+
     start:
     for(i=0;i<edgePool.size();i++)
     {
-        cout<<edgePool[i].v1.x<<" "<<edgePool[i].v1.y<<"\n";
-        cout<<edgePool[i].v2.x<<" "<<edgePool[i].v2.y<<"\n";
-        cout<<"\n";
         for(j=0;j<edgePool.size();j++)
         {
             if( areSameEdges(edgePool[i],edgePool[j]) && (i!=j) )
@@ -155,15 +152,36 @@ void deletDoubleEdge()
                 }
 
                 edgePool.clear();
-                for(k=0; k<tmp_edgePool.size(); k++){
-                    edgePool.push_back(tmp_edgePool[k]);
+                for(h=0; h<tmp_edgePool.size(); h++){
+                    edgePool.push_back(tmp_edgePool[h]);
                 }
-                cout<<tmp_edgePool.size()<<"\n";
                 tmp_edgePool.clear();
                 goto start;
             }
         }
     }
+}
+
+bool triangulationContainSuperDT( triangle test, triangle super )
+{
+    vertex s1 = super.v1;
+    vertex s2 = super.v2;
+    vertex s3 = super.v3;
+
+    if(
+    (((test.v1.x == s1.x)&&(test.v1.y == s1.y))&&(test.v1.z == s1.z))||
+    (((test.v1.x == s2.x)&&(test.v1.y == s2.y))&&(test.v1.z == s2.z))||
+    (((test.v1.x == s3.x)&&(test.v1.y == s3.y))&&(test.v1.z == s3.z))||
+    (((test.v2.x == s1.x)&&(test.v2.y == s1.y))&&(test.v2.z == s1.z))||
+    (((test.v2.x == s2.x)&&(test.v2.y == s2.y))&&(test.v2.z == s2.z))||
+    (((test.v2.x == s3.x)&&(test.v2.y == s3.y))&&(test.v2.z == s3.z))||
+    (((test.v3.x == s1.x)&&(test.v3.y == s1.y))&&(test.v3.z == s1.z))||
+    (((test.v3.x == s2.x)&&(test.v3.y == s2.y))&&(test.v3.z == s2.z))||
+    (((test.v3.x == s3.x)&&(test.v3.y == s3.y))&&(test.v3.z == s3.z))
+       )
+       return true;
+
+    return false;
 }
 
 //BowyerWatson
@@ -184,7 +202,9 @@ void generateDelaunayTriangle()
 
     for(int i=0; i<theSetOfInputPoint.size(); i++)
     {
-
+        cout<<"\n";
+        cout<<"Round "<<i<<"\n";
+        cout<<trianglePool.size()<<" TrianglePool_Size"<<"\n";
         badTrianglePool.clear();
         for(int j=0; j<trianglePool.size(); j++)
             {
@@ -198,10 +218,12 @@ void generateDelaunayTriangle()
                         addToBadTrianglePool( test.v1 , test.v2 , test.v3 );
 
                         //Delete badTri. from tri.Pool
-                        if(j!=trianglePool.size()-1)
-                        trianglePool[j]=trianglePool[trianglePool.size()-1];
+                        if(j!=trianglePool.size()-1){
+                            trianglePool[j]=trianglePool[trianglePool.size()-1];
+                            j--;
+                        }
                         trianglePool.pop_back();
-                        j--;
+
             }
 
         edgePool.clear();
@@ -211,7 +233,20 @@ void generateDelaunayTriangle()
                 addToEdgePool( badTrianglePool[q].v2 , badTrianglePool[q].v3 );
                 addToEdgePool( badTrianglePool[q].v3 , badTrianglePool[q].v1 );
             }
+
+        cout<<edgePool.size()<<" edgeSizeBE"<<"\n";
+        for(int ti=0;ti<edgePool.size();ti++){
+        cout<<edgePool[ti].v1.x<<" "<<edgePool[ti].v1.y<<"\n";
+        cout<<edgePool[ti].v2.x<<" "<<edgePool[ti].v2.y<<"\n";
+        cout<<"\n";}
+
         deletDoubleEdge();
+
+        cout<<edgePool.size()<<" edgeSizeAF"<<"\n";
+        for(int tj=0;tj<edgePool.size();tj++){
+        cout<<edgePool[tj].v1.x<<" "<<edgePool[tj].v1.y<<"\n";
+        cout<<edgePool[tj].v2.x<<" "<<edgePool[tj].v2.y<<"\n";
+        cout<<"\n";}
 /*
         for each triangle in badTriangles do // remove them from the data structure
             remove triangle from triangulation
@@ -228,15 +263,13 @@ void generateDelaunayTriangle()
 
     for (int ct=0; ct<trianglePool.size(); ct++) // done inserting points, now clean up
     {
-        contains_superDT =  (((trianglePool[ct].v1.x == superDT.v1.x)&&(trianglePool[ct].v1.y == superDT.v1.y))&&(trianglePool[ct].v1.z == superDT.v1.z))&&
-                            (((trianglePool[ct].v2.x == superDT.v2.x)&&(trianglePool[ct].v2.y == superDT.v2.y))&&(trianglePool[ct].v2.z == superDT.v2.z));
-
-        if( contains_superDT )
+        if( triangulationContainSuperDT( trianglePool[ct], superDT ) )
         {
-            if(ct!=trianglePool.size()-1)
+            if(ct!=trianglePool.size()-1){
                 trianglePool[ct]=trianglePool[trianglePool.size()-1];
+                ct--;
+            }
             trianglePool.pop_back();
-            ct--;
         }
     }
 
@@ -247,7 +280,6 @@ void printTrianglePool()
     //cout<<trianglePool.size()<<"\n";
     for(int i; trianglePool.size(); i++)
     {
-        cout<<trianglePool[i].v1.x<<trianglePool[i].v1.y<<trianglePool[i].v1.z<<"\n";
         glBegin(GL_LINE_LOOP);
             glVertex3f( trianglePool[i].v1.x, trianglePool[i].v1.y, trianglePool[i].v1.z );
             glVertex3f( trianglePool[i].v2.x, trianglePool[i].v2.y, trianglePool[i].v2.z );
@@ -283,7 +315,7 @@ static void display(void)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
-
+/*
     glPushMatrix();
         glTranslated(-2.4,1.2,-6);
         glBegin(GL_TRIANGLES);
@@ -292,7 +324,7 @@ static void display(void)
             glVertex3f(-0.2f,-0.2f, 0.2f);    // Bottom Left Of The Quad (Front)
         glEnd();
     glPopMatrix();
-
+*/
     glPushMatrix();
         glTranslated(-5.0,-3.0,-30);
         glBegin(GL_LINE_LOOP);
