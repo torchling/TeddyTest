@@ -42,10 +42,11 @@ bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, verte
 bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius);
 vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3);
 GLfloat radiusOfCCircle(vertex testvertex, vertex center);
+/*
 bool isBadTriangle(vertex test_point, vertex center, float radius);
-void addToEdgelePool( vertex v1 , vertex v2 );
+void addToEdgePool( vertex v1 , vertex v2 );
 void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 );
-//bool areSameEdges( edge edge1 , edge edge2 );
-
+bool areSameEdges( edge edge1 , edge edge2 );
+*/
 
 #endif

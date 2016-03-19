@@ -184,6 +184,11 @@ bool triangulationContainSuperDT( triangle test, triangle super )
     return false;
 }
 
+bool isAnOutsideTriangle( testTri, testEdge )
+{
+    ;
+}
+
 //BowyerWatson
 void generateDelaunayTriangle()
 {
@@ -249,11 +254,12 @@ void generateDelaunayTriangle()
         cout<<edgePool[tj].v2.x<<" "<<edgePool[tj].v2.y<<"\n";
         cout<<"\n";}
 */
+
 /*
+        //Part of pseudo code. Have been writen in Line 199 "Delete badTri. from tri.Pool"
+
         for each triangle in badTriangles do // remove them from the data structure
             remove triangle from triangulation
-
-        //Part of pseudo code. Have been writen in Line 199 "Delete badTri. from tri.Pool"
 */
         for(int k=0;k<edgePool.size();k++)
             {
@@ -272,6 +278,25 @@ void generateDelaunayTriangle()
                 ct--;
             }
             trianglePool.pop_back();
+        }
+    }
+
+    //Trimming outside Triangles
+    edgePool.clear();
+    for (int cot=0; cot<theSetOfInputPoint.size()-1; cot++){
+        addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[cot+1] );
+    }
+    for (int cnt=0; cnt<edgePool.size(); cnt++) // done inserting points, now clean up
+    {
+        for (int ad=0; ad<trianglePool.size(); ad++){
+            if( isAnOutsideTriangle( trianglePool[ad], edgePool[cnt] ) )
+            {
+                if(ad!=trianglePool.size()-1){
+                    trianglePool[ad]=trianglePool[trianglePool.size()-1];
+                    ad--;
+                }
+                trianglePool.pop_back();
+            }
         }
     }
 
@@ -351,21 +376,6 @@ static void display(void)
         printTrianglePool();
     glPopMatrix();
 
-/*
-    glPushMatrix();
-        glTranslated(2.4,1.2,-6);
-        glRotated(60,1,0,0);
-        glRotated(a,0,0,1);
-        glutSolidTorus(0.2,0.8,slices,stacks);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslated(2.4,-1.2,-6);
-        glRotated(60,1,0,0);
-        glRotated(a,0,0,1);
-        glutWireTorus(0.2,0.8,slices,stacks);
-    glPopMatrix();
-*/
     glutSwapBuffers();
 }
 
