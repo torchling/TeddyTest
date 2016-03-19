@@ -214,7 +214,7 @@ void generateDelaunayTriangle()
                 center = centerOfCircumscribedCircle( test.v1 , test.v2 , test.v3 );
                 radius = radiusOfCCircle( test.v1 , center );
 
-                if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) )
+                if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) ){
                         addToBadTrianglePool( test.v1 , test.v2 , test.v3 );
 
                         //Delete badTri. from tri.Pool
@@ -223,6 +223,7 @@ void generateDelaunayTriangle()
                             j--;
                         }
                         trianglePool.pop_back();
+                }
 
             }
 
@@ -233,20 +234,21 @@ void generateDelaunayTriangle()
                 addToEdgePool( badTrianglePool[q].v2 , badTrianglePool[q].v3 );
                 addToEdgePool( badTrianglePool[q].v3 , badTrianglePool[q].v1 );
             }
-
+/*
         cout<<edgePool.size()<<" edgeSizeBE"<<"\n";
         for(int ti=0;ti<edgePool.size();ti++){
         cout<<edgePool[ti].v1.x<<" "<<edgePool[ti].v1.y<<"\n";
         cout<<edgePool[ti].v2.x<<" "<<edgePool[ti].v2.y<<"\n";
         cout<<"\n";}
-
+*/
         deletDoubleEdge();
-
+/*
         cout<<edgePool.size()<<" edgeSizeAF"<<"\n";
         for(int tj=0;tj<edgePool.size();tj++){
         cout<<edgePool[tj].v1.x<<" "<<edgePool[tj].v1.y<<"\n";
         cout<<edgePool[tj].v2.x<<" "<<edgePool[tj].v2.y<<"\n";
         cout<<"\n";}
+*/
 /*
         for each triangle in badTriangles do // remove them from the data structure
             remove triangle from triangulation
@@ -278,7 +280,8 @@ void generateDelaunayTriangle()
 void printTrianglePool()
 {
     //cout<<trianglePool.size()<<"\n";
-    for(int i; trianglePool.size(); i++)
+
+    for(int i=0; i<trianglePool.size(); i++)
     {
         glBegin(GL_LINE_LOOP);
             glVertex3f( trianglePool[i].v1.x, trianglePool[i].v1.y, trianglePool[i].v1.z );
@@ -286,11 +289,6 @@ void printTrianglePool()
             glVertex3f( trianglePool[i].v3.x, trianglePool[i].v3.y, trianglePool[i].v3.z );
         glEnd();
     }
-
-    glBegin(GL_LINE_LOOP);
-            glVertex3f( theSetOfInputPoint[3].x, theSetOfInputPoint[3].y, theSetOfInputPoint[3].z );
-            glVertex3f( theSetOfInputPoint[9].x, theSetOfInputPoint[9].y, theSetOfInputPoint[9].z );
-    glEnd();
 
 }
 
