@@ -26,6 +26,8 @@ std::vector< edge >		tmp_edgePool ;
 std::vector< triangle > trianglePool ;
 std::vector< triangle > badTrianglePool ;
 
+triangle superDT;
+
 bool meshBeenMade = false;
 
 /*------------*/
@@ -35,9 +37,15 @@ static int stacks = 16;
 
 GLfloat vertices[15][3]=
 {
+    //{ 0.0f, 0.0f, 0.0f },
     { 0.0f, 0.0f, 0.0f },
+
+    //{ 3.5f, -0.5f, 0.0f },
     { 3.5f, -0.5f, 0.0f },
+
+    //{ 3.7f, 1.6f, 0.0f },
     { 3.7f, 1.6f, 0.0f },
+
     { 0.6f, 3.2f, 0.0f },
     { 0.5f, 6.8f, 0.0f },
     { 3.7f, 9.2f, 0.0f },
@@ -69,32 +77,49 @@ bool areSameEdges( edge edgeA , edge edgeB )
 
 triangle findSuperTriangle()
 {
-/*
     vertex vertex_1 = { 0.0, 1.0, 0.0 };
     vertex vertex_2 = { 0.5, 0.0, 0.0};
     vertex vertex_3 = { -0.5, 0.0, 0.0};
-*/
+/*
     vertex vertex_1 = {-10.0f, -4.1f, 0.0f};
     vertex vertex_2 = {4.5f, 13.7f, 0.0f};
     vertex vertex_3 = {24.0f,-6.3f, 0.0f};
-
+*/
     triangle super;
-/*
+
     for(int i=0;i<theSetOfInputPoint.size();i++)
     {
         if(outsideTheTriangle( theSetOfInputPoint[i], vertex_1, vertex_2, vertex_3 ))
         {
-        	vertex_1.x = vertex_1.x + vertex_1.x - theSetOfInputPoint[i].x;
-        	vertex_2.x = vertex_2.x + vertex_2.x - theSetOfInputPoint[i].x;
-        	vertex_3.x = vertex_3.x + vertex_3.x - theSetOfInputPoint[i].x;
+            again:
+            if(!onTheSameSide( theSetOfInputPoint[i], vertex_1, vertex_2, vertex_3 )){
+                vertex_1.x = vertex_1.x + vertex_1.x - vertex_3.x;
+                vertex_2.x = vertex_2.x + vertex_2.x - vertex_3.x;
+                vertex_3.x = vertex_3.x + vertex_3.x - theSetOfInputPoint[i].x;
 
-        	vertex_1.y = vertex_1.y + vertex_1.y - theSetOfInputPoint[i].y;
-        	vertex_2.y = vertex_2.y + vertex_2.y - theSetOfInputPoint[i].y;
-        	vertex_3.y = vertex_3.y + vertex_3.y - theSetOfInputPoint[i].y;
+                vertex_1.y = vertex_1.y + vertex_1.y - vertex_3.y;
+                vertex_2.y = vertex_2.y + vertex_2.y - vertex_3.y;
+                vertex_3.y = vertex_3.y + vertex_3.y - theSetOfInputPoint[i].y;
+            }
+            if(!onTheSameSide( theSetOfInputPoint[i], vertex_2, vertex_3, vertex_1 )){
+                vertex_2.x = vertex_2.x + vertex_2.x - vertex_1.x;
+                vertex_3.x = vertex_3.x + vertex_3.x - vertex_1.x;
+
+                vertex_2.y = vertex_2.y + vertex_2.y - vertex_1.y;
+                vertex_3.y = vertex_3.y + vertex_3.y - vertex_1.y;
+            }
+            if(!onTheSameSide( theSetOfInputPoint[i], vertex_3, vertex_1, vertex_2 )){
+                vertex_1.x = vertex_1.x + vertex_1.x - vertex_2.x;
+                vertex_3.x = vertex_3.x + vertex_3.x - vertex_2.x;
+
+                vertex_1.y = vertex_1.y + vertex_1.y - vertex_2.y;
+                vertex_3.y = vertex_3.y + vertex_3.y - vertex_2.y;
+            }
         }
-
+        if (outsideTheTriangle( theSetOfInputPoint[i], vertex_1, vertex_2, vertex_3 ))
+        goto again;
     }
-*/
+
     super.v1 = vertex_1;
     super.v2 = vertex_2;
     super.v3 = vertex_3;
@@ -237,7 +262,7 @@ bool isAnOutsideTriangle( triangle testTri, edge testEdge )
 
 void generateDelaunayTriangle()
 {
-    triangle superDT;
+    //triangle superDT;
     triangle test;
     edge edgeFT;
     vertex center;
@@ -336,7 +361,6 @@ void generateDelaunayTriangle()
 void printTrianglePool()
 {
     //cout<<trianglePool.size()<<"\n";
-
     for(int i=0; i<trianglePool.size(); i++)
     {
         glBegin(GL_LINE_LOOP);
@@ -345,6 +369,12 @@ void printTrianglePool()
             glVertex3f( trianglePool[i].v3.x, trianglePool[i].v3.y, trianglePool[i].v3.z );
         glEnd();
     }
+
+    glBegin(GL_LINE_LOOP);
+        glVertex3f( superDT.v1.x, superDT.v1.y, superDT.v1.z );
+        glVertex3f( superDT.v2.x, superDT.v2.y, superDT.v2.z );
+        glVertex3f( superDT.v3.x, superDT.v3.y, superDT.v3.z );
+    glEnd();
 
 }
 
@@ -382,11 +412,12 @@ static void display(void)
 */
     glPushMatrix();
         glTranslated(-5.0,-3.0,-30);
-        /*glBegin(GL_LINE_LOOP);
+        /*
+        glBegin(GL_LINE_LOOP);
             glVertex3f( -10.0f, -4.1f, 0.0f);
             glVertex3f(4.5f, 13.7f, 0.0f);
             glVertex3f(24.0f,-6.3f, 0.0f);
-        glEnd();*/
+        glEnd();
         glBegin(GL_LINE_LOOP);
             glVertex3f( 0.0f, 0.0f, 0.0f);
             glVertex3f( 3.5f, -0.5f, 0.0f);
@@ -404,7 +435,7 @@ static void display(void)
             glVertex3f( 3.4f, -1.8f, 0.0f);
             glVertex3f( 1.2f, -1.5f, 0.0f);
         glEnd();
-
+        */
         printTrianglePool();
     glPopMatrix();
 
