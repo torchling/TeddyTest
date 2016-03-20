@@ -52,6 +52,8 @@ GLfloat vertices[15][3]=
     { 1.2f, -1.5f, 0.0f }
 };
 
+
+//BowyerWatson
 bool areSameEdges( edge edgeA , edge edgeB )
 {
     bool vA1B1 =(((edgeA.v1.x == edgeB.v1.x)&&(edgeA.v1.y == edgeB.v1.y))&&(edgeA.v1.z == edgeB.v1.z))&&
@@ -184,12 +186,55 @@ bool triangulationContainSuperDT( triangle test, triangle super )
     return false;
 }
 
-bool isAnOutsideTriangle( testTri, testEdge )
+bool triangulationContainPoint( triangle test, vertex s1 )
 {
-    ;
+    if(
+    (((test.v1.x == s1.x)&&(test.v1.y == s1.y))&&(test.v1.z == s1.z))||
+    (((test.v2.x == s1.x)&&(test.v2.y == s1.y))&&(test.v2.z == s1.z))||
+    (((test.v3.x == s1.x)&&(test.v3.y == s1.y))&&(test.v3.z == s1.z))
+       )
+       return true;
+
+    return false;
 }
 
-//BowyerWatson
+bool isAnOutsideTriangle( triangle testTri, edge testEdge )
+{
+    if( triangulationContainPoint( testTri , testEdge.v1 ) ) {
+    if( triangulationContainPoint( testTri , testEdge.v2 ) ){
+        edge e1,e2,e3;
+        e1.v1=testTri.v1; e1.v2=testTri.v2;
+        e2.v1=testTri.v2; e2.v2=testTri.v3;
+        e3.v1=testTri.v3; e3.v2=testTri.v1;
+        vertex p;
+
+        if( areSameEdges( e1,testEdge ) ){
+            p.x =testEdge.v1.x+testEdge.v2.y-testEdge.v1.y;
+            p.y =testEdge.v1.y+testEdge.v1.x-testEdge.v2.x;
+            p.z =0.0;
+            if( !onTheSameSide( p, testTri.v1, testTri.v2, testTri.v3 ) )
+            return true;
+        }
+        else if( areSameEdges( e2,testEdge ) ){
+            p.x =testEdge.v1.x+testEdge.v2.y-testEdge.v1.y;
+            p.y =testEdge.v1.y+testEdge.v1.x-testEdge.v2.x;
+            p.z =0.0;
+            if( !onTheSameSide( p, testTri.v2, testTri.v3, testTri.v1 ) )
+            return true;
+        }
+        else if( areSameEdges( e3,testEdge ) ){
+            p.x =testEdge.v1.x+testEdge.v2.y-testEdge.v1.y;
+            p.y =testEdge.v1.y+testEdge.v1.x-testEdge.v2.x;
+            p.z =0.0;
+            if( !onTheSameSide( p, testTri.v3, testTri.v1, testTri.v2 ) )
+            return true;
+        }
+    }
+    }
+
+    return false;
+}
+
 void generateDelaunayTriangle()
 {
     triangle superDT;
@@ -239,22 +284,8 @@ void generateDelaunayTriangle()
                 addToEdgePool( badTrianglePool[q].v2 , badTrianglePool[q].v3 );
                 addToEdgePool( badTrianglePool[q].v3 , badTrianglePool[q].v1 );
             }
-/*
-        cout<<edgePool.size()<<" edgeSizeBE"<<"\n";
-        for(int ti=0;ti<edgePool.size();ti++){
-        cout<<edgePool[ti].v1.x<<" "<<edgePool[ti].v1.y<<"\n";
-        cout<<edgePool[ti].v2.x<<" "<<edgePool[ti].v2.y<<"\n";
-        cout<<"\n";}
-*/
-        deletDoubleEdge();
-/*
-        cout<<edgePool.size()<<" edgeSizeAF"<<"\n";
-        for(int tj=0;tj<edgePool.size();tj++){
-        cout<<edgePool[tj].v1.x<<" "<<edgePool[tj].v1.y<<"\n";
-        cout<<edgePool[tj].v2.x<<" "<<edgePool[tj].v2.y<<"\n";
-        cout<<"\n";}
-*/
 
+        deletDoubleEdge();
 /*
         //Part of pseudo code. Have been writen in Line 199 "Delete badTri. from tri.Pool"
 
@@ -317,6 +348,7 @@ void printTrianglePool()
 
 }
 
+
 /* GLUT callback Handlers */
 static void resize(int width, int height)
 {
@@ -350,11 +382,11 @@ static void display(void)
 */
     glPushMatrix();
         glTranslated(-5.0,-3.0,-30);
-        glBegin(GL_LINE_LOOP);
+        /*glBegin(GL_LINE_LOOP);
             glVertex3f( -10.0f, -4.1f, 0.0f);
             glVertex3f(4.5f, 13.7f, 0.0f);
             glVertex3f(24.0f,-6.3f, 0.0f);
-        glEnd();
+        glEnd();*/
         glBegin(GL_LINE_LOOP);
             glVertex3f( 0.0f, 0.0f, 0.0f);
             glVertex3f( 3.5f, -0.5f, 0.0f);
@@ -438,7 +470,7 @@ int main(int argc, char *argv[])
         generateDelaunayTriangle();
 
         theSetOfInputPoint.clear();
-        cout<<"end of DT"<<"\n";
+
         //makeMesh();
 
         meshBeenMade=true;

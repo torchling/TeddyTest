@@ -51,7 +51,6 @@ bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex
            (compare_point.y - (line_start.y + vy*(compare_point.x-line_start.x)/vx)) <= 0 )
             return false;
 
-
         return true;
     }
 
