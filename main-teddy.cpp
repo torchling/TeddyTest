@@ -35,6 +35,8 @@ static int slices = 16;
 static int stacks = 16;
 /*-------------------*/
 
+int test = 7;
+
 GLfloat vertices[15][3]=
 {
     //{ 0.0f, 0.0f, 0.0f },
@@ -56,7 +58,10 @@ GLfloat vertices[15][3]=
     { 6.2f, -1.2f, 0.0f },
     { 8.0f, -4.2f, 0.0f },
     { 4.5f, -4.1f, 0.0f },
+
+    //{ 3.4f, -1.8f, 0.0f },
     { 3.4f, -1.8f, 0.0f },
+
     { 1.2f, -1.5f, 0.0f }
 };
 
@@ -145,7 +150,6 @@ void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
     triangletp.v3 = v3;
 
     trianglePool.push_back(triangletp);
-    cout<<"testforadd"<<"\n";
 }
 
 void addToBadTrianglePool( vertex v1 , vertex v2 , vertex v3 )
@@ -277,9 +281,6 @@ void generateDelaunayTriangle()
 
     for(int i=0; i<theSetOfInputPoint.size(); i++)
     {
-        cout<<"\n";
-        cout<<"Round "<<i<<"\n";
-        cout<<trianglePool.size()<<" TrianglePool_Size"<<"\n";
         badTrianglePool.clear();
         for(int j=0; j<trianglePool.size(); j++)
             {
@@ -336,11 +337,11 @@ void generateDelaunayTriangle()
             trianglePool.pop_back();
         }
     }
-
+/*
     //Trimming outside Triangles
     edgePool.clear();
-    for (int cot=0; cot<theSetOfInputPoint.size()-1; cot++){
-        addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[cot+1] );
+    for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
+        addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[(cot+1)%theSetOfInputPoint.size()] );
     }
     for (int cnt=0; cnt<edgePool.size(); cnt++) // done inserting points, now clean up
     {
@@ -355,7 +356,7 @@ void generateDelaunayTriangle()
             }
         }
     }
-
+*/
 }
 
 void printTrianglePool()
@@ -412,31 +413,9 @@ static void display(void)
 */
     glPushMatrix();
         glTranslated(-5.0,-3.0,-30);
-        /*
-        glBegin(GL_LINE_LOOP);
-            glVertex3f( -10.0f, -4.1f, 0.0f);
-            glVertex3f(4.5f, 13.7f, 0.0f);
-            glVertex3f(24.0f,-6.3f, 0.0f);
-        glEnd();
-        glBegin(GL_LINE_LOOP);
-            glVertex3f( 0.0f, 0.0f, 0.0f);
-            glVertex3f( 3.5f, -0.5f, 0.0f);
-            glVertex3f( 3.7f, 1.6f, 0.0f);
-            glVertex3f( 0.6f, 3.2f, 0.0f);
-            glVertex3f( 0.5f, 6.8f, 0.0f);
-            glVertex3f( 3.7f, 9.2f, 0.0f);
-            glVertex3f( 7.5f, 8.9f, 0.0f);
-            glVertex3f( 10.1f, 6.5f, 0.0f);
-            glVertex3f( 9.6f, 3.3f, 0.0f);
-            glVertex3f( 6.7f, 1.5f, 0.0f);
-            glVertex3f( 6.2f, -1.2f, 0.0f);
-            glVertex3f( 8.0f, -4.2f, 0.0f);
-            glVertex3f( 4.5f, -4.1f, 0.0f);
-            glVertex3f( 3.4f, -1.8f, 0.0f);
-            glVertex3f( 1.2f, -1.5f, 0.0f);
-        glEnd();
-        */
+
         printTrianglePool();
+
     glPopMatrix();
 
     glutSwapBuffers();
@@ -462,6 +441,17 @@ static void key(unsigned char key, int x, int y)
                 slices--;
                 stacks--;
             }
+            break;
+
+        case 'r':
+            meshBeenMade=false;
+            test=test+3;
+            test=test%15;
+            break;
+
+        case 'a':
+            meshBeenMade=false;
+            test=15;
             break;
     }
 
@@ -490,7 +480,7 @@ int main(int argc, char *argv[])
     if(!meshBeenMade)
     {
         vertex vertextp;
-        for(int i=0;i<15;i++)
+        for(int i=0;i<test;i++)
         {
             vertextp.x = vertices[i][0];
             vertextp.y = vertices[i][1];
