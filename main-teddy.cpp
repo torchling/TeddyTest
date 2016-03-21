@@ -35,12 +35,12 @@ static int slices = 16;
 static int stacks = 16;
 /*-------------------*/
 
-int test = 7;
+int test = 5;
 
 GLfloat vertices[15][3]=
 {
     //{ 0.0f, 0.0f, 0.0f },
-    { 0.0f, 0.0f, 0.0f },
+    { -1.0f, 0.0f, 0.0f },
 
     //{ 3.5f, -0.5f, 0.0f },
     { 3.5f, -0.5f, 0.0f },
@@ -337,7 +337,7 @@ void generateDelaunayTriangle()
             trianglePool.pop_back();
         }
     }
-/*
+
     //Trimming outside Triangles
     edgePool.clear();
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
@@ -356,7 +356,7 @@ void generateDelaunayTriangle()
             }
         }
     }
-*/
+
 }
 
 void printTrianglePool()
@@ -445,8 +445,29 @@ static void key(unsigned char key, int x, int y)
 
         case 'r':
             meshBeenMade=false;
-            test=test+3;
+            test=test+1;
             test=test%15;
+            if(test%15==0)
+                test=5;
+            if(!meshBeenMade)
+            {
+                vertex vertextp;
+                    for(int i=0;i<test;i++)
+                    {
+                    vertextp.x = vertices[i][0];
+                    vertextp.y = vertices[i][1];
+                    vertextp.z = vertices[i][2];
+                    theSetOfInputPoint.push_back(vertextp);
+                    }
+                printf("test\n");
+                generateDelaunayTriangle();
+
+                theSetOfInputPoint.clear();
+
+                //makeMesh();
+
+                meshBeenMade=true;
+            }
             break;
 
         case 'a':
