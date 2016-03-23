@@ -21,26 +21,26 @@
 using namespace std;
 
 std::vector< vertex >	theSetOfInputPoint ;
+std::vector< vertex >	theSetOfCenter ;
 std::vector< edge >		edgePool ;
 std::vector< edge >		tmp_edgePool ;
 std::vector< triangle > trianglePool ;
 std::vector< triangle > badTrianglePool ;
-
 triangle superDT;
-
 bool meshBeenMade = false;
 
-/*------------*/
-static int slices = 16;
-static int stacks = 16;
-/*-------------------*/
+int test = 15;
 
-int test = 5;
+GLfloat prev_mouse_X;
+GLfloat prev_mouse_Y;
+bool is_first_time = true;
+bool drawn = true;
+
 
 GLfloat vertices[15][3]=
 {
     //{ 0.0f, 0.0f, 0.0f },
-    { -1.0f, 0.0f, 0.0f },
+    { 0.0f, 0.0f, 0.0f },
 
     //{ 3.5f, -0.5f, 0.0f },
     { 3.5f, -0.5f, 0.0f },
@@ -131,6 +131,7 @@ triangle findSuperTriangle()
 
     return super;
 }
+
 
 //float might need to be changed
 void addToEdgePool( vertex v1 , vertex v2 )
@@ -288,6 +289,7 @@ void generateDelaunayTriangle()
                 test.v2 = trianglePool[j].v2;
                 test.v3 = trianglePool[j].v3;
                 center = centerOfCircumscribedCircle( test.v1 , test.v2 , test.v3 );
+                //theSetOfCenter.push_back(center);
                 radius = radiusOfCCircle( test.v1 , center );
 
                 if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) ){
@@ -341,7 +343,7 @@ void generateDelaunayTriangle()
     //Trimming outside Triangles
     edgePool.clear();
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
-        addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[(cot+1)%theSetOfInputPoint.size()] );
+        addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[(cot+1)%theSetOfInputPoint.size()] ); //(cot+1)%theSetOfInputPoint.size()
     }
     for (int cnt=0; cnt<edgePool.size(); cnt++) // done inserting points, now clean up
     {
@@ -377,8 +379,113 @@ void printTrianglePool()
         glVertex3f( superDT.v3.x, superDT.v3.y, superDT.v3.z );
     glEnd();
 
+    /*glColor3d(0,0,0);
+    glBegin(GL_POINTS);
+        for(int j=0; j<theSetOfCenter.size(); j++)
+        {
+            glVertex3f( theSetOfCenter[j].x, theSetOfCenter[j].y, theSetOfCenter[j].z );
+        }
+    glEnd();*/
 }
 
+void drawFlatTriangleBase()
+{
+    if(!meshBeenMade)
+    {
+        //theSetOfCenter.clear();
+        vertex vertextp;
+        for(int i=0;i<test;i++)
+        {
+            vertextp.x = vertices[i][0];
+            vertextp.y = vertices[i][1];
+            vertextp.z = vertices[i][2];
+            theSetOfInputPoint.push_back(vertextp);
+        }
+        cout<<"test"<<"\n";
+        generateDelaunayTriangle();
+        theSetOfInputPoint.clear();
+
+        meshBeenMade=true;
+    }
+}
+
+//Mouse draw
+void mousebutton(int button, int state, int x, int y)
+{
+    if(button==GLUT_LEFT_BUTTON) {
+        switch(state) {
+			case GLUT_DOWN:
+				drawn = false;
+				break;
+			case GLUT_UP:
+				drawn = true;
+				cout<<"Size of Stroke: "<<theSetOfCenter.size()<<"\n";
+				for(int i=0;i<theSetOfCenter.size();i++)
+                {
+                    cout<<theSetOfCenter[i].x<<" "<<theSetOfCenter[i].y<<" "<<theSetOfCenter[i].z<<"\n";
+                }
+                cout<<"\n";
+				break;
+		}
+	}
+	if(button==GLUT_RIGHT_BUTTON) {
+        theSetOfCenter.clear();
+	}
+}
+
+void recordMousePos( int x, int y )
+{
+    vertex pre_pos;
+    GLfloat xf,yf;
+
+    if (is_first_time) {
+        prev_mouse_X = x;
+        prev_mouse_Y = y;
+        prev_mouse_X = prev_mouse_X/100;
+        prev_mouse_Y = prev_mouse_Y/100;
+        pre_pos.x=prev_mouse_X;
+        pre_pos.y=prev_mouse_Y;
+        pre_pos.z=0;
+        theSetOfCenter.push_back(pre_pos);
+        is_first_time=false;
+        return;
+    }
+
+    xf = x;
+    yf = y;
+    xf = xf/100;
+    yf = yf/100;
+
+    GLfloat deltaX = xf - prev_mouse_X;
+    GLfloat deltaY = yf - prev_mouse_Y;
+
+
+    if ((abs(deltaX)+abs(deltaY))> 0.084f) {
+
+        xf=xf+deltaX;
+        yf=yf+deltaY;
+
+        pre_pos.x=xf;
+        pre_pos.y=yf;
+        pre_pos.z=0.0;
+        theSetOfCenter.push_back(pre_pos);
+    }
+
+    prev_mouse_X = xf;
+    prev_mouse_Y = yf;
+}
+
+void printStroke()
+{
+    //if(!drawn)
+    //{
+    glBegin(GL_LINE_STRIP);
+        for(int i=0;i<theSetOfCenter.size();i++){
+            glVertex3f( theSetOfCenter[i].x, theSetOfCenter[i].y, theSetOfCenter[i].z );
+        }
+    glEnd();
+    //}
+}
 
 /* GLUT callback Handlers */
 static void resize(int width, int height)
@@ -401,22 +508,21 @@ static void display(void)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
+
+    //glBegin(GL_TRIANGLES);
+
+    glPushMatrix();
+
+        glTranslated(-5.0,-3.0,-30);
+        printTrianglePool();
+        printStroke();
+
+    glPopMatrix();
 /*
     glPushMatrix();
-        glTranslated(-2.4,1.2,-6);
-        glBegin(GL_TRIANGLES);
-            glVertex3f( 0.2f, 0.2f, 0.2f);    // Top Right Of The Quad (Front)
-            glVertex3f(-0.2f, 0.2f, 0.2f);    // Top Left Of The Quad (Front)
-            glVertex3f(-0.2f,-0.2f, 0.2f);    // Bottom Left Of The Quad (Front)
-        glEnd();
+        glTranslated(0.0,0.0,0.0);
     glPopMatrix();
 */
-    glPushMatrix();
-        glTranslated(-5.0,-3.0,-30);
-
-        printTrianglePool();
-
-    glPopMatrix();
 
     glutSwapBuffers();
 }
@@ -430,44 +536,22 @@ static void key(unsigned char key, int x, int y)
             exit(0);
             break;
 
-        case '+':
-            slices++;
-            stacks++;
-            break;
-
-        case '-':
-            if (slices>3 && stacks>3)
-            {
-                slices--;
-                stacks--;
-            }
-            break;
-
         case 'r':
             meshBeenMade=false;
             test=test+1;
-            test=test%15;
-            if(test%15==0)
+            test=test%16;
+            if(test%16==0)
                 test=5;
-            if(!meshBeenMade)
-            {
-                vertex vertextp;
-                    for(int i=0;i<test;i++)
-                    {
-                    vertextp.x = vertices[i][0];
-                    vertextp.y = vertices[i][1];
-                    vertextp.z = vertices[i][2];
-                    theSetOfInputPoint.push_back(vertextp);
-                    }
-                printf("test\n");
-                generateDelaunayTriangle();
+            drawFlatTriangleBase();
+            break;
 
-                theSetOfInputPoint.clear();
-
-                //makeMesh();
-
-                meshBeenMade=true;
-            }
+        case 'e':
+            meshBeenMade=false;
+            test=test-1;
+            test=test%16;
+            if(test%16<0)
+                test=15;
+            drawFlatTriangleBase();
             break;
 
         case 'a':
@@ -498,25 +582,7 @@ const GLfloat high_shininess[] = { 100.0f };
 
 int main(int argc, char *argv[])
 {
-    if(!meshBeenMade)
-    {
-        vertex vertextp;
-        for(int i=0;i<test;i++)
-        {
-            vertextp.x = vertices[i][0];
-            vertextp.y = vertices[i][1];
-            vertextp.z = vertices[i][2];
-            theSetOfInputPoint.push_back(vertextp);
-        }
-        printf("test\n");
-        generateDelaunayTriangle();
-
-        theSetOfInputPoint.clear();
-
-        //makeMesh();
-
-        meshBeenMade=true;
-    }
+    drawFlatTriangleBase();
 
     glutInit(&argc, argv);
     glutInitWindowSize(640,480);
@@ -528,6 +594,10 @@ int main(int argc, char *argv[])
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
     glutKeyboardFunc(key);
+
+    glutMouseFunc( mousebutton );           // when mouse moves
+    glutMotionFunc( recordMousePos );       // when mouse drags around
+
     glutIdleFunc(idle);
 
     glClearColor(1,1,1,1);
