@@ -18,6 +18,9 @@
 #include <stdio.h>
 #include <iostream>
 
+int Width = 640;
+int Height= 480;
+
 using namespace std;
 
 std::vector< vertex >	theSetOfInputPoint ;
@@ -242,21 +245,21 @@ bool isAnOutsideTriangle( triangle testTri, edge testEdge )
             p.x =testEdge.v1.x+testEdge.v2.y-testEdge.v1.y;
             p.y =testEdge.v1.y+testEdge.v1.x-testEdge.v2.x;
             p.z =0.0;
-            if( !onTheSameSide( p, testTri.v1, testTri.v2, testTri.v3 ) )
+            if( onTheSameSide( p, testTri.v1, testTri.v2, testTri.v3 ) )
             return true;
         }
         else if( areSameEdges( e2,testEdge ) ){
             p.x =testEdge.v1.x+testEdge.v2.y-testEdge.v1.y;
             p.y =testEdge.v1.y+testEdge.v1.x-testEdge.v2.x;
             p.z =0.0;
-            if( !onTheSameSide( p, testTri.v2, testTri.v3, testTri.v1 ) )
+            if( onTheSameSide( p, testTri.v2, testTri.v3, testTri.v1 ) )
             return true;
         }
         else if( areSameEdges( e3,testEdge ) ){
             p.x =testEdge.v1.x+testEdge.v2.y-testEdge.v1.y;
             p.y =testEdge.v1.y+testEdge.v1.x-testEdge.v2.x;
             p.z =0.0;
-            if( !onTheSameSide( p, testTri.v3, testTri.v1, testTri.v2 ) )
+            if( onTheSameSide( p, testTri.v3, testTri.v1, testTri.v2 ) )
             return true;
         }
     }
@@ -339,8 +342,9 @@ void generateDelaunayTriangle()
             trianglePool.pop_back();
         }
     }
-/*
+
     //Trimming outside Triangles
+/*
     edgePool.clear();
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
         addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[(cot+1)%theSetOfInputPoint.size()] ); //(cot+1)%theSetOfInputPoint.size()
@@ -434,8 +438,8 @@ void recordMousePos( int x, int y )
 
     xf = x;
     yf = y;
-    xf = (xf-320)/16;
-    yf = (yf-240)/16;
+    xf = (xf-Width/2)/(Width/40);
+    yf = (yf-Height/2)/(Height/30);
 /*
     GLfloat deltaX = xf - prev_mouse_X;
     GLfloat deltaY = yf - prev_mouse_Y;
@@ -470,7 +474,8 @@ void printStroke()
 static void resize(int width, int height)
 {
     const float ar = (float) width / (float) height;
-
+    Width  = width;
+    Height = height;
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -482,8 +487,8 @@ static void resize(int width, int height)
 
 static void display(void)
 {
-    const double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-    const double a = t*90.0;
+    /*const double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+    const double a = t*90.0;*/
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
@@ -564,7 +569,7 @@ int main(int argc, char *argv[])
     drawFlatTriangleBase();
 
     glutInit(&argc, argv);
-    glutInitWindowSize(640,480);
+    glutInitWindowSize(Width,Height);
     glutInitWindowPosition(10,10);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
