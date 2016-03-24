@@ -27,12 +27,12 @@ std::vector< edge >		tmp_edgePool ;
 std::vector< triangle > trianglePool ;
 std::vector< triangle > badTrianglePool ;
 triangle superDT;
-bool meshBeenMade = false;
+bool meshBeenMade = true;
 
 int test = 15;
 
-GLfloat prev_mouse_X;
-GLfloat prev_mouse_Y;
+GLfloat prev_mouse_X=0;
+GLfloat prev_mouse_Y=0;
 bool is_first_time = true;
 bool drawn = true;
 
@@ -339,7 +339,7 @@ void generateDelaunayTriangle()
             trianglePool.pop_back();
         }
     }
-
+/*
     //Trimming outside Triangles
     edgePool.clear();
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
@@ -358,7 +358,7 @@ void generateDelaunayTriangle()
             }
         }
     }
-
+*/
 }
 
 void printTrianglePool()
@@ -372,20 +372,6 @@ void printTrianglePool()
             glVertex3f( trianglePool[i].v3.x, trianglePool[i].v3.y, trianglePool[i].v3.z );
         glEnd();
     }
-
-    glBegin(GL_LINE_LOOP);
-        glVertex3f( superDT.v1.x, superDT.v1.y, superDT.v1.z );
-        glVertex3f( superDT.v2.x, superDT.v2.y, superDT.v2.z );
-        glVertex3f( superDT.v3.x, superDT.v3.y, superDT.v3.z );
-    glEnd();
-
-    /*glColor3d(0,0,0);
-    glBegin(GL_POINTS);
-        for(int j=0; j<theSetOfCenter.size(); j++)
-        {
-            glVertex3f( theSetOfCenter[j].x, theSetOfCenter[j].y, theSetOfCenter[j].z );
-        }
-    glEnd();*/
 }
 
 void drawFlatTriangleBase()
@@ -393,6 +379,7 @@ void drawFlatTriangleBase()
     if(!meshBeenMade)
     {
         //theSetOfCenter.clear();
+        /*
         vertex vertextp;
         for(int i=0;i<test;i++)
         {
@@ -400,6 +387,10 @@ void drawFlatTriangleBase()
             vertextp.y = vertices[i][1];
             vertextp.z = vertices[i][2];
             theSetOfInputPoint.push_back(vertextp);
+        }
+        */
+        for(int i=0;i<theSetOfCenter.size();i=i+2){
+            theSetOfInputPoint.push_back(theSetOfCenter[i]);
         }
         cout<<"test"<<"\n";
         generateDelaunayTriangle();
@@ -420,16 +411,19 @@ void mousebutton(int button, int state, int x, int y)
 			case GLUT_UP:
 				drawn = true;
 				cout<<"Size of Stroke: "<<theSetOfCenter.size()<<"\n";
-				for(int i=0;i<theSetOfCenter.size();i++)
-                {
-                    cout<<theSetOfCenter[i].x<<" "<<theSetOfCenter[i].y<<" "<<theSetOfCenter[i].z<<"\n";
-                }
                 cout<<"\n";
+                meshBeenMade = false;
+                drawFlatTriangleBase();
+                theSetOfCenter.clear();
 				break;
 		}
 	}
 	if(button==GLUT_RIGHT_BUTTON) {
         theSetOfCenter.clear();
+        trianglePool.clear();
+        prev_mouse_X=0;
+        prev_mouse_Y=0;
+        is_first_time=true;
 	}
 }
 
@@ -438,41 +432,25 @@ void recordMousePos( int x, int y )
     vertex pre_pos;
     GLfloat xf,yf;
 
-    if (is_first_time) {
-        prev_mouse_X = x;
-        prev_mouse_Y = y;
-        prev_mouse_X = prev_mouse_X/100;
-        prev_mouse_Y = prev_mouse_Y/100;
-        pre_pos.x=prev_mouse_X;
-        pre_pos.y=prev_mouse_Y;
-        pre_pos.z=0;
-        theSetOfCenter.push_back(pre_pos);
-        is_first_time=false;
-        return;
-    }
-
     xf = x;
     yf = y;
-    xf = xf/100;
-    yf = yf/100;
-
+    xf = (xf-320)/16;
+    yf = (yf-240)/16;
+/*
     GLfloat deltaX = xf - prev_mouse_X;
     GLfloat deltaY = yf - prev_mouse_Y;
 
-
-    if ((abs(deltaX)+abs(deltaY))> 0.084f) {
-
-        xf=xf+deltaX;
-        yf=yf+deltaY;
-
-        pre_pos.x=xf;
-        pre_pos.y=yf;
-        pre_pos.z=0.0;
-        theSetOfCenter.push_back(pre_pos);
-    }
-
+    xf = xf + deltaX/1.25;
+    yf = yf + deltaY/1.25;
+*/
+    pre_pos.x=xf;
+    pre_pos.y=-yf;
+    pre_pos.z=0.0;
+    theSetOfCenter.push_back(pre_pos);
+/*
     prev_mouse_X = xf;
     prev_mouse_Y = yf;
+*/
 }
 
 void printStroke()
@@ -486,6 +464,7 @@ void printStroke()
     glEnd();
     //}
 }
+
 
 /* GLUT callback Handlers */
 static void resize(int width, int height)
@@ -513,16 +492,16 @@ static void display(void)
 
     glPushMatrix();
 
-        glTranslated(-5.0,-3.0,-30);
+        glTranslated(0.0,0.0,-30);
         printTrianglePool();
-        printStroke();
+
 
     glPopMatrix();
-/*
+
     glPushMatrix();
-        glTranslated(0.0,0.0,0.0);
+        glTranslated(0.0,0.0,-30);
+        printStroke();
     glPopMatrix();
-*/
 
     glutSwapBuffers();
 }
