@@ -231,7 +231,10 @@ bool triangulationContainPoint( triangle test, vertex s1 )
     return false;
 }
 
-bool isAnOutsideTriangle( triangle testTri, edge testEdge )
+bool clockwise( vertex v1, vertex v2, vertex v3 )
+{}
+
+bool AttachedTri_Out( triangle testTri, edge testEdge, bool isClockwise )
 {
     if( triangulationContainPoint( testTri , testEdge.v1 ) ) {
     if( triangulationContainPoint( testTri , testEdge.v2 ) ){
@@ -267,6 +270,9 @@ bool isAnOutsideTriangle( triangle testTri, edge testEdge )
 
     return false;
 }
+
+bool PrimeTri_Out( triangle testTri, edge testEdge )
+{}
 
 void generateDelaunayTriangle()
 {
@@ -344,7 +350,8 @@ void generateDelaunayTriangle()
     }
 
     //Trimming outside Triangles
-/*
+    
+    //trim 01 : attached triangle
     edgePool.clear();
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
         addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[(cot+1)%theSetOfInputPoint.size()] ); //(cot+1)%theSetOfInputPoint.size()
@@ -352,7 +359,7 @@ void generateDelaunayTriangle()
     for (int cnt=0; cnt<edgePool.size(); cnt++) // done inserting points, now clean up
     {
         for (int ad=0; ad<trianglePool.size(); ad++){
-            if( isAnOutsideTriangle( trianglePool[ad], edgePool[cnt] ) )
+            if( isOutsideAttachedTri( trianglePool[ad], edgePool[cnt] ) )
             {
                 if(ad!=trianglePool.size()-1){
                     trianglePool[ad]=trianglePool[trianglePool.size()-1];
@@ -362,7 +369,23 @@ void generateDelaunayTriangle()
             }
         }
     }
-*/
+    
+    //trim 02 : prime triangle
+    for (int cnt=0; cnt<edgePool.size(); cnt++)
+    {
+        for (int ad=0; ad<trianglePool.size(); ad++){
+            if( !isOutsideAttachedTri( trianglePool[ad], edgePool[cnt] ) )
+            {
+                if(ad!=trianglePool.size()-1){
+                    trianglePool[ad]=trianglePool[trianglePool.size()-1];
+                    ad--;
+                }
+                trianglePool.pop_back();
+            }
+        }
+    }
+    
+
 }
 
 void printTrianglePool()
@@ -405,7 +428,7 @@ void drawFlatTriangleBase()
 }
 
 //Mouse draw
-void mousebutton(int button, int state, int x, int y)
+void mousebutton( int button, int state, int x, int y )
 {
     if(button==GLUT_LEFT_BUTTON) {
         switch(state) {
