@@ -231,10 +231,11 @@ bool triangulationContainPoint( triangle test, vertex s1 )
     return false;
 }
 
+/*
 bool clockwise( vertex v1, vertex v2, vertex v3 )
 {}
-
-bool AttachedTri_Out( triangle testTri, edge testEdge, bool isClockwise )
+*/
+bool isOutEars( triangle testTri, edge testEdge, bool isClockwise )
 {
     if( triangulationContainPoint( testTri , testEdge.v1 ) ) {
     if( triangulationContainPoint( testTri , testEdge.v2 ) ){
@@ -270,10 +271,10 @@ bool AttachedTri_Out( triangle testTri, edge testEdge, bool isClockwise )
 
     return false;
 }
-
+/*
 bool PrimeTri_Out( triangle testTri, edge testEdge )
 {}
-
+*/
 void generateDelaunayTriangle()
 {
     //triangle superDT;
@@ -350,7 +351,7 @@ void generateDelaunayTriangle()
     }
 
     //Trimming outside Triangles
-    
+
     //trim 01 : attached triangle
     edgePool.clear();
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
@@ -359,7 +360,7 @@ void generateDelaunayTriangle()
     for (int cnt=0; cnt<edgePool.size(); cnt++) // done inserting points, now clean up
     {
         for (int ad=0; ad<trianglePool.size(); ad++){
-            if( isOutsideAttachedTri( trianglePool[ad], edgePool[cnt] ) )
+            if( isOutEars( trianglePool[ad], edgePool[cnt] , false ) )
             {
                 if(ad!=trianglePool.size()-1){
                     trianglePool[ad]=trianglePool[trianglePool.size()-1];
@@ -369,7 +370,7 @@ void generateDelaunayTriangle()
             }
         }
     }
-    
+/*
     //trim 02 : prime triangle
     for (int cnt=0; cnt<edgePool.size(); cnt++)
     {
@@ -384,7 +385,7 @@ void generateDelaunayTriangle()
             }
         }
     }
-    
+*/
 
 }
 
