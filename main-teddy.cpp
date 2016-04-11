@@ -39,36 +39,6 @@ GLfloat prev_mouse_Y=0;
 bool is_first_time = true;
 bool drawn = true;
 
-
-GLfloat vertices[15][3]=
-{
-    //{ 0.0f, 0.0f, 0.0f },
-    { 0.0f, 0.0f, 0.0f },
-
-    //{ 3.5f, -0.5f, 0.0f },
-    { 3.5f, -0.5f, 0.0f },
-
-    //{ 3.7f, 1.6f, 0.0f },
-    { 3.7f, 1.6f, 0.0f },
-
-    { 0.6f, 3.2f, 0.0f },
-    { 0.5f, 6.8f, 0.0f },
-    { 3.7f, 9.2f, 0.0f },
-    { 7.5f, 8.9f, 0.0f },
-    { 10.1f, 6.5f, 0.0f },
-    { 9.6f, 3.3f, 0.0f },
-    { 6.7f, 1.5f, 0.0f },
-    { 6.2f, -1.2f, 0.0f },
-    { 8.0f, -4.2f, 0.0f },
-    { 4.5f, -4.1f, 0.0f },
-
-    //{ 3.4f, -1.8f, 0.0f },
-    { 3.4f, -1.8f, 0.0f },
-
-    { 1.2f, -1.5f, 0.0f }
-};
-
-
 //BowyerWatson
 bool areSameEdges( edge edgeA , edge edgeB )
 {
