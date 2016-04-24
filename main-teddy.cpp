@@ -40,6 +40,14 @@ bool is_first_time = true;
 bool drawn = true;
 
 //BowyerWatson
+bool isSameVertex( vertex A , vertex B )
+{
+	if(((A.x == B.x)&&(A.y == B.y))&&(A.z == B.z))
+		return true;
+
+	return false;
+}
+
 bool areSameEdges( edge edgeA , edge edgeB )
 {
     bool vA1B1 =(((edgeA.v1.x == edgeB.v1.x)&&(edgeA.v1.y == edgeB.v1.y))&&(edgeA.v1.z == edgeB.v1.z))&&
@@ -201,11 +209,28 @@ bool triangulationContainPoint( triangle test, vertex s1 )
     return false;
 }
 
-/*
-bool clockwise( vertex v1, vertex v2, vertex v3 )
-{}
-*/
-bool isOutEars( triangle testTri, edge testEdge, bool isClockwise )
+bool rotation_type( vertex v1, vertex v2, vertex v3 )//true:clockwise ;false:Counterclockwise
+{
+    vertex p;
+    p.x= v1.x + v2.y - v1.y;
+    p.y= v1.y + v1.x - v2.x;
+    p.z=0.0;
+    if( onTheSameSide( p, v1, v2, v3 ) )
+        return true;	//clockwise
+    return false;		//Counterclockwise
+}
+
+bool check_inputPonits_rotationtype()//true:clockwise ;false:Counterclockwise
+{
+	int size = theSetOfInputPoint.size();
+	int n1,n2,n3;
+	n1 = 0;
+	n2 = size/3;
+	n3 = (size*2)/3;
+	return rotation_type( theSetOfInputPoint[n1], theSetOfInputPoint[n2], theSetOfInputPoint[n3] );
+}
+
+bool isOutEars( triangle testTri, edge testEdge, bool origins_Rotation_Type ) //true:clockwise ;false:Counterclockwise
 {
     if( triangulationContainPoint( testTri , testEdge.v1 ) ) {
     if( triangulationContainPoint( testTri , testEdge.v2 ) ){
@@ -241,10 +266,46 @@ bool isOutEars( triangle testTri, edge testEdge, bool isClockwise )
 
     return false;
 }
-/*
-bool PrimeTri_Out( triangle testTri, edge testEdge )
-{}
-*/
+
+bool isPrimeEars( triangle testTri, bool origins_Rotation_Type )
+{
+	int t1,t2,t3;
+	int n=0;
+	for (int cot=0; cot<theSetOfInputPoint.size(); cot++)
+	{
+		if(n==0)
+		{
+			if(isSameVertex( testTri.v1 , theSetOfInputPoint[cot] ))  t1 = cot;
+			if(isSameVertex( testTri.v2 , theSetOfInputPoint[cot] ))  t1 = cot;
+			if(isSameVertex( testTri.v3 , theSetOfInputPoint[cot] ))  t1 = cot;
+			n++;
+		}
+
+		if(n==1)
+		{
+			if(isSameVertex( testTri.v1 , theSetOfInputPoint[cot] ))  t2 = cot;
+			if(isSameVertex( testTri.v2 , theSetOfInputPoint[cot] ))  t2 = cot;
+			if(isSameVertex( testTri.v3 , theSetOfInputPoint[cot] ))  t2 = cot;
+			n++;
+		}
+
+		if(n==2)
+		{
+			if(isSameVertex( testTri.v1 , theSetOfInputPoint[cot] ))  t3 = cot;
+			if(isSameVertex( testTri.v2 , theSetOfInputPoint[cot] ))  t3 = cot;
+			if(isSameVertex( testTri.v3 , theSetOfInputPoint[cot] ))  t3 = cot;
+		}
+	}
+	//if( rotation_type( theSetOfInputPoint[t1], theSetOfInputPoint[t2], theSetOfInputPoint[t3] ) != origins_Rotation_Type )
+    vertex p;
+    p.x = theSetOfInputPoint[t1].x+theSetOfInputPoint[t2].y-theSetOfInputPoint[t1].y;
+    p.y = theSetOfInputPoint[t1].y+theSetOfInputPoint[t1].x-theSetOfInputPoint[t2].x;
+    p.z = 0.0;
+	if( onTheSameSide( p, theSetOfInputPoint[t1], theSetOfInputPoint[t2], theSetOfInputPoint[t3] )&&( ( ((t2-t1)!=1)&&((t3-t2)!=1) ) &&((t1-t3)!=1) ) )//theSetOfInputPoint[t1+(t2-t1)/2]
+		return true;
+	return false;
+}
+
 void generateDelaunayTriangle()
 {
     //triangle superDT;
@@ -340,22 +401,21 @@ void generateDelaunayTriangle()
             }
         }
     }
-/*
+
     //trim 02 : prime triangle
-    for (int cnt=0; cnt<edgePool.size(); cnt++)
+    bool originRtype = check_inputPonits_rotationtype();
+    for (int ad=0; ad<trianglePool.size(); ad++)
     {
-        for (int ad=0; ad<trianglePool.size(); ad++){
-            if( !isOutsideAttachedTri( trianglePool[ad], edgePool[cnt] ) )
-            {
-                if(ad!=trianglePool.size()-1){
+        if ( isPrimeEars(trianglePool[ad], originRtype ) )
+        {
+            if( ad!=trianglePool.size()-1 ){
                     trianglePool[ad]=trianglePool[trianglePool.size()-1];
                     ad--;
-                }
-                trianglePool.pop_back();
             }
+            trianglePool.pop_back();
         }
     }
-*/
+
 
 }
 
@@ -376,17 +436,6 @@ void drawFlatTriangleBase()
 {
     if(!meshBeenMade)
     {
-        //theSetOfCenter.clear();
-        /*
-        vertex vertextp;
-        for(int i=0;i<test;i++)
-        {
-            vertextp.x = vertices[i][0];
-            vertextp.y = vertices[i][1];
-            vertextp.z = vertices[i][2];
-            theSetOfInputPoint.push_back(vertextp);
-        }
-        */
         for(int i=0;i<theSetOfCenter.size();i=i+2){
             theSetOfInputPoint.push_back(theSetOfCenter[i]);
         }
