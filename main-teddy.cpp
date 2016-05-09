@@ -23,12 +23,12 @@ int Height= 480;
 
 using namespace std;
 
-std::vector< vertex >	theSetOfInputPoint ;
-std::vector< vertex >	theSetOfCenter ;
-std::vector< edge >		edgePool ;
-std::vector< edge >		tmp_edgePool ;
-std::vector< triangle > trianglePool ;
-std::vector< triangle > badTrianglePool ;
+std::vector< vertex >	theSetOfInputPoint ;    //.stay                 ;;
+std::vector< vertex >	theSetOfCenter ;        //.clear() in the end   ;;
+std::vector< edge >		edgePool ;              //.clear() in the end   ;;
+std::vector< edge >		tmp_edgePool ;          //.clear() in the end   ;;
+std::vector< triangle > trianglePool ;          //.stay                 ;;
+std::vector< triangle > badTrianglePool ;       //
 triangle superDT;
 bool meshBeenMade = true;
 
@@ -122,6 +122,15 @@ void addToEdgePool( vertex v1 , vertex v2 )
     edgetp.v2 = v2;
 
     edgePool.push_back(edgetp);
+}
+
+void addToTmpEdgePool( vertex v1 , vertex v2 )
+{
+    edge edgetp;
+    edgetp.v1 = v1;
+    edgetp.v2 = v2;
+
+    tmp_edgePool.push_back(edgetp);
 }
 
 void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
@@ -305,7 +314,18 @@ bool isPrimeEars( triangle testTri, bool origins_Rotation_Type )
 		return true;
 	return false;
 }
-
+void generateBoneLine()
+{
+    for(int i=0; i<theSetOfInputPoint.size(); i++)
+    {
+        if(i!=theSetOfInputPoint.size()-1)
+            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
+        else
+            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[0]);
+    }
+    ;
+    ;
+}
 void generateDelaunayTriangle()
 {
     //triangle superDT;
