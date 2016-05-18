@@ -212,7 +212,7 @@
 1301111156 c:\program files\codeblocks\mingw\include\oleidl.h
 	<objfwd.h>
 
-976692172 c:\program files\codeblocks\mingw\include\gl\glut.h
+976638172 c:\program files\codeblocks\mingw\include\gl\glut.h
 	<windows.h>
 	<GL/gl.h>
 	<GL/glu.h>
@@ -246,4 +246,28 @@
 
 1341010374 c:\program files\codeblocks\mingw\include\math.h
 	<_mingw.h>
+
+1461498171 source:c:\users\user\documents\github\teddytest\helpteddy.cpp
+	<GLUT/glut.h>
+	<windows.h>
+	<GL/glut.h>
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	<algorithm>
+	<vector>
+
+1462764857 source:c:\users\user\documents\github\teddytest\main-teddy.cpp
+	<GLUT/glut.h>
+	<windows.h>
+	<GL/glut.h>
+	<vector>
+	"helpteddy.h"
+	<stdlib.h>
+	<stdio.h>
+	<iostream>
+
+1458537046 c:\users\user\documents\github\teddytest\helpteddy.h
+	<GLUT/glut.h>
+	<GL/glut.h>
 
