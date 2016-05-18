@@ -333,17 +333,28 @@ void generateBoneLine()
     	addToEdgePool( trianglePool[j].v2, trianglePool[j].v3 );
     	addToEdgePool( trianglePool[j].v3, trianglePool[j].v1 );
     }
+
     for(int k=0; k<edgePool.size(); k++)
     {
     	for(int l=0; l<tmp_edgePool.size(); l++)
-    	{
-    		if()
+    	{  
+    		if( areSameEdges(edgePool[k], tmp_edgePool[l]) ){
     			;
+    		}
     		;
     	}
     }
+
+    for(int i=0; i<theSetOfInputPoint.size(); i++)
+    {
+        if(i!=theSetOfInputPoint.size()-1)
+            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
+        else
+            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[0]);
+    }
     ;
 }
+
 
 void generateDelaunayTriangle()
 {
