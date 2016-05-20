@@ -27,7 +27,9 @@ std::vector< vertex >	theSetOfInputPoint ;    //.stay                 ;;
 std::vector< vertex >	theSetOfCenter ;        //.clear() in the end   ;;
 std::vector< edge >		edgePool ;              //.clear() in the end   ;;
 std::vector< edge >		tmp_edgePool ;          //.clear() in the end   ;;
+std::vector< edge > 	bone_edgePool ;         //.stay                 ;;
 std::vector< triangle > trianglePool ;          //.stay                 ;;
+std::vector< triangle > primeTrianglePool ;     //.stay                 ;;
 std::vector< triangle > badTrianglePool ;       // ???   ;;
 triangle superDT;
 bool meshBeenMade = true;
@@ -323,7 +325,7 @@ void generateBoneLine()
         if(i!=theSetOfInputPoint.size()-1)
             addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
         else
-            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[0]);
+            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[0]);ip
     }
 
     edgePool.clear();
@@ -352,7 +354,22 @@ void generateBoneLine()
         else
             addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[0]);
     }
-    ;
+
+    for()
+    {
+    	if(isCenterTriangle)
+    	{
+    		;
+    	}
+    	else if(isPathTriangle)
+    	{
+    		;
+    	}
+    	else //tri that no need to generate bone
+    	{
+    		;
+    	}
+    }
 }
 
 
