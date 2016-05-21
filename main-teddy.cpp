@@ -135,6 +135,15 @@ void addToTmpEdgePool( vertex v1 , vertex v2 )
     tmp_edgePool.push_back(edgetp);
 }
 
+void addToBoneEdgePool( vertex v1 , vertex v2 )
+{
+    edge edgetp;
+    edgetp.v1 = v1;
+    edgetp.v2 = v2;
+
+    bone_edgePool.push_back(edgetp);
+}
+
 void addToTrianglePool( vertex v1 , vertex v2 , vertex v3 )
 {
     triangle triangletp;
@@ -347,23 +356,40 @@ void generateBoneLine()
     	}
     }
 
-    for(int i=0; i<theSetOfInputPoint.size(); i++)
+    for(int x=0; x<theSetOfInputPoint.size(); x++)
     {
-        if(i!=theSetOfInputPoint.size()-1)
-            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
+        if(x!=theSetOfInputPoint.size()-1)
+            addToTmpEdgePool(theSetOfInputPoint[x],theSetOfInputPoint[x+1]);
         else
-            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[0]);
+            addToTmpEdgePool(theSetOfInputPoint[x],theSetOfInputPoint[0]);
     }
 
-    for()
+    for(int i=0; i<trianglePool.size(); i++)
     {
-    	if(isCenterTriangle)
+    	if( isCenterTriangle(trianglePool[i]) )
     	{
-    		;
+    		center=findCenterPoint();
+    		ep1=findMidPoint();
+    		ep2=findMidPoint();
+    		ep3=findMidPoint();
+    		addToBoneEdgePool(center, ep1);
+    		addToBoneEdgePool(center, ep2);
+    		addToBoneEdgePool(center, ep3);
     	}
-    	else if(isPathTriangle)
+    	else if( isPathTriangle(trianglePool[i]) )
     	{
-    		;
+    		for(int j=0; j<edgePool.size(); j++){
+    			edge;
+    			if( areSameEdges() ){
+    				;
+    			}
+    			else if( areSameEdges() ){
+    				;
+    			}
+    			else if( areSameEdges() ){
+    				;
+    			}
+    		}
     	}
     	else //tri that no need to generate bone
     	{
