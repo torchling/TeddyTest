@@ -115,6 +115,15 @@ triangle findSuperTriangle()
     return super;
 }
 
+vertex findCenterPoint( triangle cencer_triangle )
+{
+	;
+}
+
+vertex findMidPoint( vertex v1, vertex v2 )
+{
+	;
+}
 
 //float might need to be changed
 void addToEdgePool( vertex v1 , vertex v2 )
@@ -326,6 +335,16 @@ bool isPrimeEars( triangle testTri, bool origins_Rotation_Type )
 	return false;
 }
 
+bool isPathTriangle()
+{
+	;
+}
+
+bool isCenterTriangle()
+{
+	;
+}
+
 void generateBoneLine()
 {
 	tmp_edgePool.clear();
@@ -368,10 +387,10 @@ void generateBoneLine()
     {
     	if( isCenterTriangle(trianglePool[i]) )
     	{
-    		center=findCenterPoint();
-    		ep1=findMidPoint();
-    		ep2=findMidPoint();
-    		ep3=findMidPoint();
+    		vertex center = findCenterPoint();
+    		vertex ep1 = findMidPoint(trianglePool[i].v1, trianglePool[i].v2);
+    		vertex ep2 = findMidPoint(trianglePool[i].v2, trianglePool[i].v3);
+    		vertex ep3 = findMidPoint(trianglePool[i].v3, trianglePool[i].v1);
     		addToBoneEdgePool(center, ep1);
     		addToBoneEdgePool(center, ep2);
     		addToBoneEdgePool(center, ep3);
@@ -379,22 +398,47 @@ void generateBoneLine()
     	else if( isPathTriangle(trianglePool[i]) )
     	{
     		for(int j=0; j<edgePool.size(); j++){
-    			edge;
-    			if( areSameEdges() ){
-    				;
+    			
+    			edge tri_edge_1;
+    			edge tri_edge_2;
+    			edge tri_edge_3;
+
+    			tri_edge_1.v1 = trianglePool[i].v1;
+    			tri_edge_1.v2 = trianglePool[i].v2;
+
+    			tri_edge_2.v1 = trianglePool[i].v2;
+    			tri_edge_2.v2 = trianglePool[i].v3;
+    			
+    			tri_edge_3.v1 = trianglePool[i].v3;
+    			tri_edge_3.v2 = trianglePool[i].v1;
+
+    			vertex bone_edge_add_1 = ;
+    			vertex bone_edge_add_2 = ;
+
+    			if( areSameEdges(tri_edge_1, edgePool[j]) )
+    			{
+    				bone_edge_add_1 = findMidPoint(tri_edge_2.v1, tri_edge_2.v2);
+    				bone_edge_add_2 = findMidPoint(tri_edge_3.v1, tri_edge_3.v2);
+    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
     			}
-    			else if( areSameEdges() ){
-    				;
+    			
+    			else if( areSameEdges(tri_edge_2, edgePool[j]) )
+    			{
+    				bone_edge_add_1 = findMidPoint(tri_edge_3.v1, tri_edge_3.v2);
+    				bone_edge_add_2 = findMidPoint(tri_edge_1.v1, tri_edge_1.v2);
+    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
     			}
-    			else if( areSameEdges() ){
-    				;
+
+    			else if( areSameEdges(tri_edge_3, edgePool[j]) )
+    			{
+    				bone_edge_add_1 = findMidPoint(tri_edge_1.v1, tri_edge_1.v2);
+    				bone_edge_add_2 = findMidPoint(tri_edge_2.v1, tri_edge_2.v2);
+    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
     			}
     		}
     	}
     	else //tri that no need to generate bone
-    	{
-    		;
-    	}
+    	{}
     }
 }
 
