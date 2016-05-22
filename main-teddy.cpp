@@ -115,14 +115,26 @@ triangle findSuperTriangle()
     return super;
 }
 
-vertex findCenterPoint( triangle cencer_triangle )
-{
-	;
-}
-
 vertex findMidPoint( vertex v1, vertex v2 )
 {
-	;
+    vertex mid_point;
+    mid_point.x = (v1.x + v2.x)*0.5;
+    mid_point.y = (v1.y + v2.y)*0.5;
+    mid_point.z = 0.0;//or transform to 
+    
+    return mid_point;
+}
+
+vertex findCenterPoint( triangle cencer_triangle )
+{
+	vertex center_point;
+    vertex mid_point;
+    mid_point=findMidPoint(cencer_triangle.v2, cencer_triangle.v3);
+    center_point.x = center_point.x + (center_point.x - mid_point.x)*0.66;
+    center_point.y = center_point.y + (center_point.y - mid_point.y)*0.66;
+    center_point.z = 0.0;//or transform to the plain you want
+
+    return cencer_point;
 }
 
 //float might need to be changed
@@ -335,14 +347,83 @@ bool isPrimeEars( triangle testTri, bool origins_Rotation_Type )
 	return false;
 }
 
-bool isPathTriangle()
+void twoVertexIntoOneEdge(vertex vt1, vertex vt2, edge edge_to_become)
 {
-	;
+    //edge_v1
+    edge_to_become.v1.x = vt1.x;
+    edge_to_become.v1.x = vt1.x;
+    edge_to_become.v1.x = vt1.x;
+    
+    edge_to_become.v1.y = vt1.y;
+    edge_to_become.v1.y = vt1.y;
+    edge_to_become.v1.y = vt1.y;
+
+    edge_to_become.v1.z = 0.0;
+    edge_to_become.v1.z = 0.0;
+    edge_to_become.v1.z = 0.0;
+
+    //edge_v2
+    edge_to_become.v2.x = vt2.x;
+    edge_to_become.v2.x = vt2.x;
+    edge_to_become.v2.x = vt2.x;
+    
+    edge_to_become.v2.y = vt2.y;
+    edge_to_become.v2.y = vt2.y;
+    edge_to_become.v2.y = vt2.y;
+
+    edge_to_become.v2.z = 0.0;
+    edge_to_become.v2.z = 0.0;
+    edge_to_become.v2.z = 0.0;
 }
 
-bool isCenterTriangle()
+bool isPathTriangle(triangle test_triangle)
 {
-	;
+    int count=0;
+    edge e1, e2, e3;
+    
+    twoVertexIntoOneEdge(test_triangle.v1, test_triangle.v2, e1);
+    twoVertexIntoOneEdge(test_triangle.v2, test_triangle.v3, e2);
+    twoVertexIntoOneEdge(test_triangle.v3, test_triangle.v1, e3);
+
+    for(int i=0; i<tmp_edgePool.size(); i++)
+    {
+        if( areSameEdges(e1, tmp_edgePool[i]) )
+            count++;
+        if( areSameEdges(e2, tmp_edgePool[i]) )
+            count++;
+        if( areSameEdges(e3, tmp_edgePool[i]) )
+            count++;
+    }
+    
+    if(count==1)
+        return true;
+
+    return false;
+}
+
+bool isCenterTriangle(triangle test_triangle)
+{
+	int count=0;
+    edge e1, e2, e3;
+    
+    twoVertexIntoOneEdge(test_triangle.v1, test_triangle.v2, e1);
+    twoVertexIntoOneEdge(test_triangle.v2, test_triangle.v3, e2);
+    twoVertexIntoOneEdge(test_triangle.v3, test_triangle.v1, e3);
+
+    for(int i=0; i<tmp_edgePool.size(); i++)
+    {
+        if( areSameEdges(e1, tmp_edgePool[i]) )
+            count++;
+        if( areSameEdges(e2, tmp_edgePool[i]) )
+            count++;
+        if( areSameEdges(e3, tmp_edgePool[i]) )
+            count++;
+    }
+    
+    if(count==0)
+        return true;
+
+    return false;
 }
 
 void generateBoneLine()
@@ -437,7 +518,7 @@ void generateBoneLine()
     			}
     		}
     	}
-    	else //tri that no need to generate bone
+    	else //Do nothing. For triangles that no need to generate bone
     	{}
     }
 }

@@ -1,4 +1,5 @@
 /*
+    GLUT Teddy
     Jui-Cheng,Sung. R.O.C.
     Lyre Mellark.
     Started from 2016.Feb.10
