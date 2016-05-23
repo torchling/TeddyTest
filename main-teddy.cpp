@@ -23,22 +23,25 @@ int Height= 480;
 
 using namespace std;
 
-std::vector< vertex >   theSetOfMouse ;         //.stay                 ;; Original input points 
+std::vector< vertex >   theSetOfMouse ;         //.stay                 ;; Original input points
 std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ;; tmp input set, only used in Delaunay
+std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ;;
 
-std::vector< edge >		edgePool ;              //.clear() when started ;;
-std::vector< edge >		tmp_edgePool ;          //.clear() when started ;;
+std::vector< edge >		edgePool ;              //.clear() when started ; or in the end ;
+std::vector< edge >		tmp_edgePool ;          //.clear() when started ; or in the end ;
 std::vector< edge > 	bone_edgePool ;         //.stay                 ;;
 
 std::vector< triangle > trianglePool ;          //.stay                 ;;
-std::vector< triangle > primeTrianglePool ;     //.stay                 ;;
 std::vector< triangle > badTrianglePool ;       // ???   ;;
+std::vector< triangle > subTrianglePool ;       //.clear() in the end   ;;
 
 triangle superDT;
 
 bool meshBeenMade = true;
 
 int test = 15;
+
+int number;//for bone, isPathTriangles
 
 GLfloat prev_mouse_X=0;
 GLfloat prev_mouse_Y=0;
@@ -125,8 +128,8 @@ vertex findMidPoint( vertex v1, vertex v2 )
     vertex mid_point;
     mid_point.x = (v1.x + v2.x)*0.5;
     mid_point.y = (v1.y + v2.y)*0.5;
-    mid_point.z = 0.0;//or transform to 
-    
+    mid_point.z = 0.0;//or transform to
+
     return mid_point;
 }
 
@@ -135,11 +138,11 @@ vertex findCenterPoint( triangle cencer_triangle )
 	vertex center_point;
     vertex mid_point;
     mid_point=findMidPoint(cencer_triangle.v2, cencer_triangle.v3);
-    center_point.x = center_point.x + (center_point.x - mid_point.x)*0.66;
-    center_point.y = center_point.y + (center_point.y - mid_point.y)*0.66;
+    center_point.x = cencer_triangle.v1.x - (cencer_triangle.v1.x - mid_point.x)*0.66;
+    center_point.y = cencer_triangle.v1.y - (cencer_triangle.v1.y - mid_point.y)*0.66;
     center_point.z = 0.0;//or transform to the plain you want
 
-    return cencer_point;
+    return center_point;
 }
 
 //float might need to be changed
@@ -220,6 +223,9 @@ void deletDoubleEdge()
         }
     }
 }
+
+void cleanTheSubInputSet()
+{}
 
 bool triangulationContainSuperDT( triangle test, triangle super )
 {
@@ -352,40 +358,29 @@ bool isPrimeEars( triangle testTri, bool origins_Rotation_Type )
 	return false;
 }
 
+bool isNotTooSmall(triangle test_triangle)
+{
+	;
+}
+
 void twoVertexIntoOneEdge(vertex vt1, vertex vt2, edge *edge_to_become)
 {
     //edge_v1
-    *edge_to_become.v1.x = vt1.x;
-    *edge_to_become.v1.x = vt1.x;
-    *edge_to_become.v1.x = vt1.x;
-    
-    *edge_to_become.v1.y = vt1.y;
-    *edge_to_become.v1.y = vt1.y;
-    *edge_to_become.v1.y = vt1.y;
-
-    *edge_to_become.v1.z = 0.0;
-    *edge_to_become.v1.z = 0.0;
-    *edge_to_become.v1.z = 0.0;
+    (*edge_to_become).v1.x = vt1.x;
+    (*edge_to_become).v1.y = vt1.y;
+    (*edge_to_become).v1.z = 0.0;
 
     //edge_v2
-    *edge_to_become.v2.x = vt2.x;
-    *edge_to_become.v2.x = vt2.x;
-    *edge_to_become.v2.x = vt2.x;
-    
-    *edge_to_become.v2.y = vt2.y;
-    *edge_to_become.v2.y = vt2.y;
-    *edge_to_become.v2.y = vt2.y;
-
-    *edge_to_become.v2.z = 0.0;
-    *edge_to_become.v2.z = 0.0;
-    *edge_to_become.v2.z = 0.0;
+    (*edge_to_become).v2.x = vt2.x;
+    (*edge_to_become).v2.y = vt2.y;
+    (*edge_to_become).v2.z = 0.0;
 }
 
 bool isPathTriangle(triangle test_triangle)
 {
     int count=0;
     edge e1, e2, e3;
-    
+
     twoVertexIntoOneEdge(test_triangle.v1, test_triangle.v2, &e1);
     twoVertexIntoOneEdge(test_triangle.v2, test_triangle.v3, &e2);
     twoVertexIntoOneEdge(test_triangle.v3, test_triangle.v1, &e3);
@@ -398,10 +393,12 @@ bool isPathTriangle(triangle test_triangle)
             count++;
         if( areSameEdges(e3, tmp_edgePool[i]) )
             count++;
+    	if(count==1)
+    	{
+        	number=i;
+        	return true;
+    	}	
     }
-    
-    if(count==1)
-        return true;
 
     return false;
 }
@@ -410,7 +407,7 @@ bool isCenterTriangle(triangle test_triangle)
 {
 	int count=0;
     edge e1, e2, e3;
-    
+
     twoVertexIntoOneEdge(test_triangle.v1, test_triangle.v2, &e1);
     twoVertexIntoOneEdge(test_triangle.v2, test_triangle.v3, &e2);
     twoVertexIntoOneEdge(test_triangle.v3, test_triangle.v1, &e3);
@@ -424,111 +421,12 @@ bool isCenterTriangle(triangle test_triangle)
         if( areSameEdges(e3, tmp_edgePool[i]) )
             count++;
     }
-    
+
     if(count==0)
         return true;
 
     return false;
 }
-
-void generateBoneLine()
-{
-	tmp_edgePool.clear();
-    for(int i=0; i<theSetOfMouse.size(); i++)
-    {
-        if(i!=theSetOfMouse.size()-1)
-            addToTmpEdgePool(theSetOfMouse[i],theSetOfMouse[i+1]);
-        else
-            addToTmpEdgePool(theSetOfMouse[i],theSetOfMouse[0]);
-    }
-
-    /*
-    edgePool.clear();
-    for(int j=0; j<trianglePool.size(); j++)
-    {
-    	addToEdgePool( trianglePool[j].v1, trianglePool[j].v2 );
-    	addToEdgePool( trianglePool[j].v2, trianglePool[j].v3 );
-    	addToEdgePool( trianglePool[j].v3, trianglePool[j].v1 );
-    }
-
-    for(int k=0; k<edgePool.size(); k++)
-    {
-    	for(int l=0; l<tmp_edgePool.size(); l++)
-    	{  
-    		if( areSameEdges(edgePool[k], tmp_edgePool[l]) ){
-    			;
-    		}
-    		;
-    	}
-    }
-
-    for(int x=0; x<theSetOfMouse.size(); x++)
-    {
-        if(x!=theSetOfMouse.size()-1)
-            addToTmpEdgePool(theSetOfMouse[x],theSetOfMouse[x+1]);
-        else
-            addToTmpEdgePool(theSetOfMouse[x],theSetOfMouse[0]);
-    }*/
-
-    for(int i=0; i<trianglePool.size(); i++)
-    {
-    	if( isCenterTriangle(trianglePool[i]) )
-    	{
-    		vertex center = findCenterPoint();
-    		vertex ep1 = findMidPoint(trianglePool[i].v1, trianglePool[i].v2);
-    		vertex ep2 = findMidPoint(trianglePool[i].v2, trianglePool[i].v3);
-    		vertex ep3 = findMidPoint(trianglePool[i].v3, trianglePool[i].v1);
-    		addToBoneEdgePool(center, ep1);
-    		addToBoneEdgePool(center, ep2);
-    		addToBoneEdgePool(center, ep3);
-    	}
-    	else if( isPathTriangle(trianglePool[i]) )
-    	{
-    		for(int j=0; j<edgePool.size(); j++){
-    			
-    			edge tri_edge_1;
-    			edge tri_edge_2;
-    			edge tri_edge_3;
-
-    			tri_edge_1.v1 = trianglePool[i].v1;
-    			tri_edge_1.v2 = trianglePool[i].v2;
-
-    			tri_edge_2.v1 = trianglePool[i].v2;
-    			tri_edge_2.v2 = trianglePool[i].v3;
-    			
-    			tri_edge_3.v1 = trianglePool[i].v3;
-    			tri_edge_3.v2 = trianglePool[i].v1;
-
-    			vertex bone_edge_add_1 = ;
-    			vertex bone_edge_add_2 = ;
-
-    			if( areSameEdges(tri_edge_1, edgePool[j]) )
-    			{
-    				bone_edge_add_1 = findMidPoint(tri_edge_2.v1, tri_edge_2.v2);
-    				bone_edge_add_2 = findMidPoint(tri_edge_3.v1, tri_edge_3.v2);
-    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
-    			}
-    			
-    			else if( areSameEdges(tri_edge_2, edgePool[j]) )
-    			{
-    				bone_edge_add_1 = findMidPoint(tri_edge_3.v1, tri_edge_3.v2);
-    				bone_edge_add_2 = findMidPoint(tri_edge_1.v1, tri_edge_1.v2);
-    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
-    			}
-
-    			else if( areSameEdges(tri_edge_3, edgePool[j]) )
-    			{
-    				bone_edge_add_1 = findMidPoint(tri_edge_1.v1, tri_edge_1.v2);
-    				bone_edge_add_2 = findMidPoint(tri_edge_2.v1, tri_edge_2.v2);
-    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
-    			}
-    		}
-    	}
-    	else //Do nothing. For triangles that no need to generate bone
-    	{}
-    }
-}
-
 
 void generateDelaunayTriangle()
 {
@@ -605,8 +503,21 @@ void generateDelaunayTriangle()
         }
     }
 
-    //Trimming outside Triangles
+    /*--Trimming those (too small) triangles.--*/
+    for(int g=0; g<trianglePool.size(); g++)
+    {
+    	if( isNotTooSmall(trianglePool[g]) )
+    	{
+    		subInputPointSet.push_back(trianglePool[g].v1);
+    		subInputPointSet.push_back(trianglePool[g].v2);
+    		subInputPointSet.push_back(trianglePool[g].v3);
 
+    		subTrianglePool.push_back(trianglePool[g]);
+    	}
+    	cleanTheSubInputSet();
+    }
+
+    /*--Trimming outside Triangles--*/
     //trim 01 : attached triangle
     edgePool.clear();
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
@@ -640,12 +551,85 @@ void generateDelaunayTriangle()
         }
     }
 
+}
 
+void generateBoneLine()
+{
+
+		tmp_edgePool.clear();
+    	for(int i=0; i<theSetOfMouse.size(); i++)
+    	{
+        	if(i!=theSetOfMouse.size()-1)
+            	addToTmpEdgePool(theSetOfMouse[i],theSetOfMouse[i+1]);
+        	else
+            	addToTmpEdgePool(theSetOfMouse[i],theSetOfMouse[0]);
+    	}
+
+	    for(int i=0; i<trianglePool.size(); i++)
+	    {
+	    	if( isCenterTriangle(trianglePool[i]) )
+	    	{
+	    		vertex center = findCenterPoint(trianglePool[i]);
+	    		vertex mid1 = findMidPoint(trianglePool[i].v1, trianglePool[i].v2);
+	    		vertex mid2 = findMidPoint(trianglePool[i].v2, trianglePool[i].v3);
+	    		vertex mid3 = findMidPoint(trianglePool[i].v3, trianglePool[i].v1);
+	    		addToBoneEdgePool(center, mid1);
+	    		addToBoneEdgePool(center, mid2);
+	    		addToBoneEdgePool(center, mid3);
+	    	}
+	    	if( isPathTriangle(trianglePool[i]) )
+	    	{
+	    			edge tri_edge_1;
+	    			edge tri_edge_2;
+	    			edge tri_edge_3;
+
+	    			tri_edge_1.v1 = trianglePool[i].v1;
+	    			tri_edge_1.v2 = trianglePool[i].v2;
+
+	    			tri_edge_2.v1 = trianglePool[i].v2;
+	    			tri_edge_2.v2 = trianglePool[i].v3;
+
+	    			tri_edge_3.v1 = trianglePool[i].v3;
+	    			tri_edge_3.v2 = trianglePool[i].v1;
+
+	    			vertex bone_edge_add_1;
+	    			vertex bone_edge_add_2;
+
+	    			if( areSameEdges(tri_edge_1, tmp_edgePool[number]) )
+	    			{
+	    				bone_edge_add_1 = findMidPoint(tri_edge_2.v1, tri_edge_2.v2);
+	    				bone_edge_add_2 = findMidPoint(tri_edge_3.v1, tri_edge_3.v2);
+	    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
+	    			}
+
+	    			else if( areSameEdges(tri_edge_2, tmp_edgePool[number]) )
+	    			{
+	    				bone_edge_add_1 = findMidPoint(tri_edge_3.v1, tri_edge_3.v2);
+	    				bone_edge_add_2 = findMidPoint(tri_edge_1.v1, tri_edge_1.v2);
+	    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
+	    			}
+
+	    			else if( areSameEdges(tri_edge_3, tmp_edgePool[number]) )
+	    			{
+	    				bone_edge_add_1 = findMidPoint(tri_edge_1.v1, tri_edge_1.v2);
+	    				bone_edge_add_2 = findMidPoint(tri_edge_2.v1, tri_edge_2.v2);
+	    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
+	    			}
+	    		}
+	    	
+	    }
+		cout<<"test"<<"\n";
+        cout<<"Size of BoneEdge: "<<bone_edgePool.size()<<"\n";
+        cout<<"triangle number: "<<trianglePool.size()<<"\n";
+        cout<<"tmp_edge number: "<<tmp_edgePool.size()<<"\n";
+        cout<<"\n";
+        cout<<"\n";
+	tmp_edgePool.clear();
+	edgePool.clear();
 }
 
 void printTrianglePool()
 {
-    //cout<<trianglePool.size()<<"\n";
     for(int i=0; i<trianglePool.size(); i++)
     {
         glBegin(GL_LINE_LOOP);
@@ -663,8 +647,9 @@ void drawFlatTriangleBase()
         for(int i=0;i<theSetOfMouse.size();i=i+2){
             theSetOfInputPoint.push_back(theSetOfMouse[i]);
         }
-        cout<<"test"<<"\n";
+        //cout<<"test"<<"\n";
         generateDelaunayTriangle();
+        generateBoneLine();
         theSetOfInputPoint.clear();
 
         meshBeenMade=true;
@@ -682,16 +667,18 @@ void mousebutton( int button, int state, int x, int y )
 			case GLUT_UP:
 				drawn = true;
 				cout<<"Size of Stroke: "<<theSetOfMouse.size()<<"\n";
+				
                 cout<<"\n";
                 meshBeenMade = false;
                 drawFlatTriangleBase();
-                theSetOfMouse.clear();
+                // theSetOfMouse.clear();
 				break;
 		}
 	}
 	if(button==GLUT_RIGHT_BUTTON) {
         theSetOfMouse.clear();
         trianglePool.clear();
+        bone_edgePool.clear();
         prev_mouse_X=0;
         prev_mouse_Y=0;
         is_first_time=true;
@@ -736,6 +723,15 @@ void printStroke()
     //}
 }
 
+void printBone()
+{
+	for(int i=0;i<bone_edgePool.size();i++){
+		glBegin(GL_LINE_STRIP);
+			glVertex3f( bone_edgePool[i].v1.x, bone_edgePool[i].v1.y, bone_edgePool[i].v1.z );
+            glVertex3f( bone_edgePool[i].v2.x, bone_edgePool[i].v2.y, bone_edgePool[i].v2.z );
+    	glEnd();
+	}
+}
 
 /* GLUT callback Handlers */
 static void resize(int width, int height)
@@ -773,6 +769,12 @@ static void display(void)
     glPushMatrix();
         glTranslated(0.0,0.0,-30);
         printStroke();
+    glPopMatrix();
+
+    glPushMatrix();
+    	glColor3d(0,0,1);
+        glTranslated(0.0,0.0,-30);
+        printBone();
     glPopMatrix();
 
     glutSwapBuffers();
