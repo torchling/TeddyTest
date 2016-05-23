@@ -88,8 +88,7 @@ bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)
 //according to wiki's data
 vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
 {
-
-
+  
     float xc =(pow(vertex_1.x, 2.0)+pow(vertex_1.y, 2.0))*vertex_2.y +
               (pow(vertex_2.x, 2.0)+pow(vertex_2.y, 2.0))*vertex_3.y +
               (pow(vertex_3.x, 2.0)+pow(vertex_3.y, 2.0))*vertex_1.y -

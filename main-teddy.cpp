@@ -23,21 +23,26 @@ int Height= 480;
 
 using namespace std;
 
-std::vector< vertex >	theSetOfInputPoint ;    //.stay                 ;;
-std::vector< vertex >	theSetOfCenter ;        //.clear() in the end   ;;
-std::vector< edge >		edgePool ;              //.clear() in the end   ;;
-std::vector< edge >		tmp_edgePool ;          //.clear() in the end   ;;
+std::vector< vertex >   theSetOfMouse ;         //.stay                 ;; Original input points 
+std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ;; tmp input set, only used in Delaunay
+
+std::vector< edge >		edgePool ;              //.clear() when started ;;
+std::vector< edge >		tmp_edgePool ;          //.clear() when started ;;
 std::vector< edge > 	bone_edgePool ;         //.stay                 ;;
+
 std::vector< triangle > trianglePool ;          //.stay                 ;;
 std::vector< triangle > primeTrianglePool ;     //.stay                 ;;
 std::vector< triangle > badTrianglePool ;       // ???   ;;
+
 triangle superDT;
+
 bool meshBeenMade = true;
 
 int test = 15;
 
 GLfloat prev_mouse_X=0;
 GLfloat prev_mouse_Y=0;
+
 bool is_first_time = true;
 bool drawn = true;
 
@@ -347,33 +352,33 @@ bool isPrimeEars( triangle testTri, bool origins_Rotation_Type )
 	return false;
 }
 
-void twoVertexIntoOneEdge(vertex vt1, vertex vt2, edge edge_to_become)
+void twoVertexIntoOneEdge(vertex vt1, vertex vt2, edge *edge_to_become)
 {
     //edge_v1
-    edge_to_become.v1.x = vt1.x;
-    edge_to_become.v1.x = vt1.x;
-    edge_to_become.v1.x = vt1.x;
+    *edge_to_become.v1.x = vt1.x;
+    *edge_to_become.v1.x = vt1.x;
+    *edge_to_become.v1.x = vt1.x;
     
-    edge_to_become.v1.y = vt1.y;
-    edge_to_become.v1.y = vt1.y;
-    edge_to_become.v1.y = vt1.y;
+    *edge_to_become.v1.y = vt1.y;
+    *edge_to_become.v1.y = vt1.y;
+    *edge_to_become.v1.y = vt1.y;
 
-    edge_to_become.v1.z = 0.0;
-    edge_to_become.v1.z = 0.0;
-    edge_to_become.v1.z = 0.0;
+    *edge_to_become.v1.z = 0.0;
+    *edge_to_become.v1.z = 0.0;
+    *edge_to_become.v1.z = 0.0;
 
     //edge_v2
-    edge_to_become.v2.x = vt2.x;
-    edge_to_become.v2.x = vt2.x;
-    edge_to_become.v2.x = vt2.x;
+    *edge_to_become.v2.x = vt2.x;
+    *edge_to_become.v2.x = vt2.x;
+    *edge_to_become.v2.x = vt2.x;
     
-    edge_to_become.v2.y = vt2.y;
-    edge_to_become.v2.y = vt2.y;
-    edge_to_become.v2.y = vt2.y;
+    *edge_to_become.v2.y = vt2.y;
+    *edge_to_become.v2.y = vt2.y;
+    *edge_to_become.v2.y = vt2.y;
 
-    edge_to_become.v2.z = 0.0;
-    edge_to_become.v2.z = 0.0;
-    edge_to_become.v2.z = 0.0;
+    *edge_to_become.v2.z = 0.0;
+    *edge_to_become.v2.z = 0.0;
+    *edge_to_become.v2.z = 0.0;
 }
 
 bool isPathTriangle(triangle test_triangle)
@@ -381,9 +386,9 @@ bool isPathTriangle(triangle test_triangle)
     int count=0;
     edge e1, e2, e3;
     
-    twoVertexIntoOneEdge(test_triangle.v1, test_triangle.v2, e1);
-    twoVertexIntoOneEdge(test_triangle.v2, test_triangle.v3, e2);
-    twoVertexIntoOneEdge(test_triangle.v3, test_triangle.v1, e3);
+    twoVertexIntoOneEdge(test_triangle.v1, test_triangle.v2, &e1);
+    twoVertexIntoOneEdge(test_triangle.v2, test_triangle.v3, &e2);
+    twoVertexIntoOneEdge(test_triangle.v3, test_triangle.v1, &e3);
 
     for(int i=0; i<tmp_edgePool.size(); i++)
     {
@@ -406,9 +411,9 @@ bool isCenterTriangle(triangle test_triangle)
 	int count=0;
     edge e1, e2, e3;
     
-    twoVertexIntoOneEdge(test_triangle.v1, test_triangle.v2, e1);
-    twoVertexIntoOneEdge(test_triangle.v2, test_triangle.v3, e2);
-    twoVertexIntoOneEdge(test_triangle.v3, test_triangle.v1, e3);
+    twoVertexIntoOneEdge(test_triangle.v1, test_triangle.v2, &e1);
+    twoVertexIntoOneEdge(test_triangle.v2, test_triangle.v3, &e2);
+    twoVertexIntoOneEdge(test_triangle.v3, test_triangle.v1, &e3);
 
     for(int i=0; i<tmp_edgePool.size(); i++)
     {
@@ -429,14 +434,15 @@ bool isCenterTriangle(triangle test_triangle)
 void generateBoneLine()
 {
 	tmp_edgePool.clear();
-    for(int i=0; i<theSetOfInputPoint.size(); i++)
+    for(int i=0; i<theSetOfMouse.size(); i++)
     {
-        if(i!=theSetOfInputPoint.size()-1)
-            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
+        if(i!=theSetOfMouse.size()-1)
+            addToTmpEdgePool(theSetOfMouse[i],theSetOfMouse[i+1]);
         else
-            addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[0]);ip
+            addToTmpEdgePool(theSetOfMouse[i],theSetOfMouse[0]);
     }
 
+    /*
     edgePool.clear();
     for(int j=0; j<trianglePool.size(); j++)
     {
@@ -456,13 +462,13 @@ void generateBoneLine()
     	}
     }
 
-    for(int x=0; x<theSetOfInputPoint.size(); x++)
+    for(int x=0; x<theSetOfMouse.size(); x++)
     {
-        if(x!=theSetOfInputPoint.size()-1)
-            addToTmpEdgePool(theSetOfInputPoint[x],theSetOfInputPoint[x+1]);
+        if(x!=theSetOfMouse.size()-1)
+            addToTmpEdgePool(theSetOfMouse[x],theSetOfMouse[x+1]);
         else
-            addToTmpEdgePool(theSetOfInputPoint[x],theSetOfInputPoint[0]);
-    }
+            addToTmpEdgePool(theSetOfMouse[x],theSetOfMouse[0]);
+    }*/
 
     for(int i=0; i<trianglePool.size(); i++)
     {
@@ -548,7 +554,7 @@ void generateDelaunayTriangle()
                 test.v2 = trianglePool[j].v2;
                 test.v3 = trianglePool[j].v3;
                 center = centerOfCircumscribedCircle( test.v1 , test.v2 , test.v3 );
-                //theSetOfCenter.push_back(center);
+                //center =
                 radius = radiusOfCCircle( test.v1 , center );
 
                 if( insideTheCircle( theSetOfInputPoint[i] , center , radius ) ){
@@ -654,8 +660,8 @@ void drawFlatTriangleBase()
 {
     if(!meshBeenMade)
     {
-        for(int i=0;i<theSetOfCenter.size();i=i+2){
-            theSetOfInputPoint.push_back(theSetOfCenter[i]);
+        for(int i=0;i<theSetOfMouse.size();i=i+2){
+            theSetOfInputPoint.push_back(theSetOfMouse[i]);
         }
         cout<<"test"<<"\n";
         generateDelaunayTriangle();
@@ -675,16 +681,16 @@ void mousebutton( int button, int state, int x, int y )
 				break;
 			case GLUT_UP:
 				drawn = true;
-				cout<<"Size of Stroke: "<<theSetOfCenter.size()<<"\n";
+				cout<<"Size of Stroke: "<<theSetOfMouse.size()<<"\n";
                 cout<<"\n";
                 meshBeenMade = false;
                 drawFlatTriangleBase();
-                theSetOfCenter.clear();
+                theSetOfMouse.clear();
 				break;
 		}
 	}
 	if(button==GLUT_RIGHT_BUTTON) {
-        theSetOfCenter.clear();
+        theSetOfMouse.clear();
         trianglePool.clear();
         prev_mouse_X=0;
         prev_mouse_Y=0;
@@ -711,7 +717,7 @@ void recordMousePos( int x, int y )
     pre_pos.x=xf;
     pre_pos.y=-yf;
     pre_pos.z=0.0;
-    theSetOfCenter.push_back(pre_pos);
+    theSetOfMouse.push_back(pre_pos);
 /*
     prev_mouse_X = xf;
     prev_mouse_Y = yf;
@@ -723,8 +729,8 @@ void printStroke()
     //if(!drawn)
     //{
     glBegin(GL_LINE_STRIP);
-        for(int i=0;i<theSetOfCenter.size();i++){
-            glVertex3f( theSetOfCenter[i].x, theSetOfCenter[i].y, theSetOfCenter[i].z );
+        for(int i=0;i<theSetOfMouse.size();i++){
+            glVertex3f( theSetOfMouse[i].x, theSetOfMouse[i].y, theSetOfMouse[i].z );
         }
     glEnd();
     //}
