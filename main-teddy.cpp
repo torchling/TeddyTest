@@ -358,9 +358,26 @@ bool isPrimeEars( triangle testTri, bool origins_Rotation_Type )
 	return false;
 }
 
+bool isTooFlat( vertex mid_vertex, vertex long1_vertex, vertex long2_vertex )
+{
+	GLfloat vectorOne[] ={long1_vertex.x - mid_vertex.x, long1_vertex.y - mid_vertex.y, long1_vertex.z - mid_vertex.z};
+	GLfloat vectorTwo[] ={long2_vertex.x - mid_vertex.x, long2_vertex.y - mid_vertex.y, long2_vertex.z - mid_vertex.z};
+	GLfloat vectorBase[]={long2_vertex.x - long1_vertex.x, long2_vertex.y - long1_vertex.y, long2_vertex.z - long1_vertex.z};
+	
+	if()
+		return true;
+	return false;
+}
+
 bool isNotTooSmall(triangle test_triangle)
 {
-	;
+	if(isTooFlat( test_triangle.v1, test_triangle.v2, test_triangle.v3 ))
+		return false;
+	if(isTooFlat( test_triangle.v2, test_triangle.v3, test_triangle.v1 ))
+		return false;
+	if(isTooFlat( test_triangle.v3, test_triangle.v1, test_triangle.v2 ))
+		return false;
+	return true;
 }
 
 void twoVertexIntoOneEdge(vertex vt1, vertex vt2, edge *edge_to_become)
