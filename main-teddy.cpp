@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <math.h>
 
 int Width = 640;
 int Height= 480;
@@ -358,13 +359,25 @@ bool isPrimeEars( triangle testTri, bool origins_Rotation_Type )
 	return false;
 }
 
+void normalize( GLfloat vec[3])
+{
+	float lenth = vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2];
+	lenth = sqrt(lenth);
+	vec[0]= vec[0]/lenth;
+	vec[1]= vec[1]/lenth;
+	vec[2]= vec[2]/lenth;
+}
+
 bool isTooFlat( vertex mid_vertex, vertex long1_vertex, vertex long2_vertex )
 {
 	GLfloat vectorOne[] ={long1_vertex.x - mid_vertex.x, long1_vertex.y - mid_vertex.y, long1_vertex.z - mid_vertex.z};
 	GLfloat vectorTwo[] ={long2_vertex.x - mid_vertex.x, long2_vertex.y - mid_vertex.y, long2_vertex.z - mid_vertex.z};
 	GLfloat vectorBase[]={long2_vertex.x - long1_vertex.x, long2_vertex.y - long1_vertex.y, long2_vertex.z - long1_vertex.z};
+	GLfloat oneDotTwoDotBase;
+
+	oneDotTwoDotBase=
 	
-	if()
+	if(one)
 		return true;
 	return false;
 }
