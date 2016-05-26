@@ -370,14 +370,18 @@ void normalize( GLfloat vec[3])
 
 bool isTooFlat( vertex mid_vertex, vertex long1_vertex, vertex long2_vertex )
 {
-	GLfloat vectorOne[] ={long1_vertex.x - mid_vertex.x, long1_vertex.y - mid_vertex.y, long1_vertex.z - mid_vertex.z};
+	GLfloat vectorOne[] ={mid_vertex.x - long1_vertex.x, mid_vertex.y - long1_vertex.y, mid_vertex.z - long1_vertex.z};
 	GLfloat vectorTwo[] ={long2_vertex.x - mid_vertex.x, long2_vertex.y - mid_vertex.y, long2_vertex.z - mid_vertex.z};
 	GLfloat vectorBase[]={long2_vertex.x - long1_vertex.x, long2_vertex.y - long1_vertex.y, long2_vertex.z - long1_vertex.z};
-	GLfloat oneDotTwoDotBase;
+	GLfloat oneDotTwo;
 
-	oneDotTwoDotBase=
+	normalize(vectorOne);
+	normalize(vectorTwo);
+	normalize(vectorBase);
 	
-	if(one)
+	oneDotTwo = vectorOne[0]*vectorTwo[0] + vectorOne[1]*vectorTwo[1] + vectorOne[2]*vectorTwo[2];
+	
+	if(fabs(oneDotTwo-1)<0.05)
 		return true;
 	return false;
 }
