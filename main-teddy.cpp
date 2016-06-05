@@ -226,7 +226,20 @@ void deletDoubleEdge()
 }
 
 void cleanTheSubInputSet()
-{}
+{
+    for(){
+        for(){
+            if(isSameVertex())
+                deletDoubleVertex;
+        }
+    }
+    for(){
+        for(){
+            if(isSameVertex())
+                rearrange;
+        }
+    }
+}
 
 bool triangulationContainSuperDT( triangle test, triangle super )
 {
@@ -744,7 +757,7 @@ void recordMousePos( int x, int y )
     prev_mouse_Y = yf;
 */
 }
-
+ 
 void printStroke()
 {
     //if(!drawn)
