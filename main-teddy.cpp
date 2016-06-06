@@ -255,7 +255,7 @@ void cleanTheSubInputSet()
             }
         }
     }
-    
+
     tmp_PointSet.clear();
 
     for(int i2=0; i2<theSetOfInputPoint.size(); i2++){
@@ -266,11 +266,11 @@ void cleanTheSubInputSet()
     }
 
     subInputPointSet.clear();
-    
+
     for(int m; m<tmp_PointSet.size(); m++){
     	subInputPointSet.push_back(tmp_PointSet[m]);
     }
-    
+
     tmp_PointSet.clear();
 }
 
@@ -424,10 +424,10 @@ bool isTooFlat( vertex mid_vertex, vertex long1_vertex, vertex long2_vertex )
 	normalize(vectorOne);
 	normalize(vectorTwo);
 	normalize(vectorBase);
-	
+
 	oneDotTwo = vectorOne[0]*vectorTwo[0] + vectorOne[1]*vectorTwo[1] + vectorOne[2]*vectorTwo[2];
-	
-	if(fabs(oneDotTwo-1)<0.05)
+
+	if(fabs(oneDotTwo-1)<0.005)
 		return true;
 	return false;
 }
@@ -456,6 +456,41 @@ void twoVertexIntoOneEdge(vertex vt1, vertex vt2, edge *edge_to_become)
     (*edge_to_become).v2.z = 0.0;
 }
 
+void substitudeTheInputSetWithSubInputSet()
+{
+	theSetOfInputPoint.clear();
+
+    for(int m; m<subInputPointSet.size(); m++){
+    	theSetOfInputPoint.push_back(subInputPointSet[m]);
+    }
+    subInputPointSet.clear();
+/*----------------------------------*/
+    trianglePool.clear();
+
+    for(int m; m<subTrianglePool.size(); m++){
+    	trianglePool.push_back(subTrianglePool[m]);
+    }
+    subTrianglePool.clear();
+/*----------------------------------*/
+    edgePool.clear();
+
+    edge tmp_edge;
+    int size;
+    size = theSetOfInputPoint.size();
+    for(int m; m<theSetOfInputPoint.size(); m++){
+    	//twoVertexIntoOneEdge(theSetOfInputPoint[m],theSetOfInputPoint[(m+1)%size],tmp_edge);
+    	tmp_edge.v1.x = theSetOfInputPoint[m].x;
+        tmp_edge.v1.y = theSetOfInputPoint[m].y;
+        tmp_edge.v1.z = 0.0;
+
+        tmp_edge.v2.x = theSetOfInputPoint[(m+1)%size].x;
+        tmp_edge.v2.y = theSetOfInputPoint[(m+1)%size].y;
+        tmp_edge.v2.z = 0.0;
+    	edgePool.push_back(tmp_edge);
+    }
+
+}
+
 bool isPathTriangle(triangle test_triangle)
 {
     int count=0;
@@ -477,7 +512,7 @@ bool isPathTriangle(triangle test_triangle)
     	{
         	number=i;
         	return true;
-    	}	
+    	}
     }
 
     return false;
@@ -584,6 +619,7 @@ void generateDelaunayTriangle()
     }
 
     /*--Trimming those (too small) triangles.--*/
+/*
     for(int g=0; g<trianglePool.size(); g++)
     {
     	if( isNotTooSmall(trianglePool[g]) )
@@ -597,6 +633,8 @@ void generateDelaunayTriangle()
     	cleanTheSubInputSet();
     }
 
+    substitudeTheInputSetWithSubInputSet();
+*/
     /*--Trimming outside Triangles--*/
     //trim 01 : attached triangle
     edgePool.clear();
@@ -637,12 +675,12 @@ void generateBoneLine()
 {
 
 		tmp_edgePool.clear();
-    	for(int i=0; i<theSetOfMouse.size(); i++)
+    	for(int i=0; i<theSetOfInputPoint.size(); i++)
     	{
-        	if(i!=theSetOfMouse.size()-1)
-            	addToTmpEdgePool(theSetOfMouse[i],theSetOfMouse[i+1]);
+        	if(i!=theSetOfInputPoint.size()-1)
+            	addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
         	else
-            	addToTmpEdgePool(theSetOfMouse[i],theSetOfMouse[0]);
+            	addToTmpEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[0]);
     	}
 
 	    for(int i=0; i<trianglePool.size(); i++)
@@ -696,7 +734,7 @@ void generateBoneLine()
 	    				addToBoneEdgePool(bone_edge_add_1, bone_edge_add_2);
 	    			}
 	    		}
-	    	
+
 	    }
 		cout<<"test"<<"\n";
         cout<<"Size of BoneEdge: "<<bone_edgePool.size()<<"\n";
@@ -747,7 +785,7 @@ void mousebutton( int button, int state, int x, int y )
 			case GLUT_UP:
 				drawn = true;
 				cout<<"Size of Stroke: "<<theSetOfMouse.size()<<"\n";
-				
+
                 cout<<"\n";
                 meshBeenMade = false;
                 drawFlatTriangleBase();
@@ -757,7 +795,9 @@ void mousebutton( int button, int state, int x, int y )
 	}
 	if(button==GLUT_RIGHT_BUTTON) {
         theSetOfMouse.clear();
+        theSetOfInputPoint.clear();
         trianglePool.clear();
+        edgePool.clear();
         bone_edgePool.clear();
         prev_mouse_X=0;
         prev_mouse_Y=0;
@@ -790,7 +830,7 @@ void recordMousePos( int x, int y )
     prev_mouse_Y = yf;
 */
 }
- 
+
 void printStroke()
 {
     //if(!drawn)
