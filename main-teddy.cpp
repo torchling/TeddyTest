@@ -27,6 +27,7 @@ using namespace std;
 std::vector< vertex >   theSetOfMouse ;         //.stay                 ;; Original input points
 std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ;; tmp input set, only used in Delaunay
 std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ;;
+std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ;;
 
 std::vector< edge >		edgePool ;              //.clear() when started ; or in the end ;
 std::vector< edge >		tmp_edgePool ;          //.clear() when started ; or in the end ;
@@ -227,18 +228,50 @@ void deletDoubleEdge()
 
 void cleanTheSubInputSet()
 {
-    for(){
-        for(){
-            if(isSameVertex())
-                deletDoubleVertex;
+	int i;
+    int j;
+    int k;
+    int h;
+
+    start2:
+    for(i=0;i<subInputPointSet.size();i++)
+    {
+        for(j=0; j < subInputPointSet.size(); j++)
+        {
+            if( isSameVertex(subInputPointSet[i],subInputPointSet[j]) && (i!=j) )
+            {
+
+                for(k=0; k<subInputPointSet.size(); k++){
+                    if((k!=i)&&(k!=j))
+                    tmp_PointSet.push_back(subInputPointSet[k]);
+                }
+
+                subInputPointSet.clear();
+                for(h=0; h < tmp_PointSet.size(); h++){
+                    subInputPointSet.push_back(tmp_PointSet[h]);
+                }
+                tmp_PointSet.clear();
+                goto start2;
+            }
         }
     }
-    for(){
-        for(){
-            if(isSameVertex())
-                rearrange;
+    
+    tmp_PointSet.clear();
+
+    for(int i2=0; i2<theSetOfInputPoint.size(); i2++){
+        for(int j2=0; j2<subInputPointSet.size(); j2++){
+            if(isSameVertex(theSetOfInputPoint[i2],subInputPointSet[j2]))
+                tmp_PointSet.push_back(subInputPointSet[j2]);
         }
     }
+
+    subInputPointSet.clear();
+    
+    for(int m; m<tmp_PointSet.size(); m++){
+    	subInputPointSet.push_back(tmp_PointSet[m]);
+    }
+    
+    tmp_PointSet.clear();
 }
 
 bool triangulationContainSuperDT( triangle test, triangle super )
