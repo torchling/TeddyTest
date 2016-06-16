@@ -26,8 +26,8 @@ using namespace std;
 
 std::vector< vertex >   theSetOfMouse ;         //.stay                 ;; Original input points
 std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ;; tmp input set, only used in Delaunay
-std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ;;
-std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ;;
+//std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ;;
+//std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ;;
 
 std::vector< edge >		edgePool ;              //.clear() when started ; or in the end ;
 std::vector< edge >		tmp_edgePool ;          //.clear() when started ; or in the end ;
@@ -225,7 +225,7 @@ void deletDoubleEdge()
         }
     }
 }
-
+/*
 void cleanTheSubInputSet()
 {
 	int i;
@@ -273,7 +273,7 @@ void cleanTheSubInputSet()
 
     tmp_PointSet.clear();
 }
-
+*/
 bool triangulationContainSuperDT( triangle test, triangle super )
 {
     vertex s1 = super.v1;
@@ -455,7 +455,7 @@ void twoVertexIntoOneEdge(vertex vt1, vertex vt2, edge *edge_to_become)
     (*edge_to_become).v2.y = vt2.y;
     (*edge_to_become).v2.z = 0.0;
 }
-
+/*
 void substitudeTheInputSetWithSubInputSet()
 {
 	theSetOfInputPoint.clear();
@@ -464,14 +464,14 @@ void substitudeTheInputSetWithSubInputSet()
     	theSetOfInputPoint.push_back(subInputPointSet[m]);
     }
     subInputPointSet.clear();
-/*----------------------------------*/
+/*----------------------------------/
     trianglePool.clear();
 
     for(int m; m<subTrianglePool.size(); m++){
     	trianglePool.push_back(subTrianglePool[m]);
     }
     subTrianglePool.clear();
-/*----------------------------------*/
+/*----------------------------------/
     edgePool.clear();
 
     edge tmp_edge;
@@ -490,7 +490,7 @@ void substitudeTheInputSetWithSubInputSet()
     }
 
 }
-
+*/
 bool isPathTriangle(triangle test_triangle)
 {
     int count=0;
@@ -656,6 +656,7 @@ void generateDelaunayTriangle()
     }
 
     //trim 02 : prime triangle
+    /*
     bool originRtype = check_inputPonits_rotationtype();
     for (int ad=0; ad<trianglePool.size(); ad++)
     {
@@ -668,7 +669,7 @@ void generateDelaunayTriangle()
             trianglePool.pop_back();
         }
     }
-
+*/
 }
 
 void generateBoneLine()
@@ -744,6 +745,21 @@ void generateBoneLine()
         cout<<"\n";
 	tmp_edgePool.clear();
 	edgePool.clear();
+}
+
+void generateMesh()
+{
+/*
+	calculate the height of each bone line;
+	for(each vertex in bone line){
+		for(each edge in edge Pool){
+			if(edge near bone line){
+				generate mesh;
+				store mesh into mesh pool
+			}
+		}
+	}
+*/
 }
 
 void printTrianglePool()
