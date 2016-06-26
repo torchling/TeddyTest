@@ -749,17 +749,24 @@ void generateBoneLine()
 	edgePool.clear();
 }
 
+void convert_bone_edge_to_vertex()
+{
+	;
+}
+
 void generateu_uper_edgepool()
 {
-	for(){
-		;
+	for(int i=0; i<edgePool.size(); i++){
+		if(){
+			;
+		}
 	}
 	;
 }
 
 void generateu_lower_edgepool()
 {
-	for(){
+	for(int i=0; i<edgePool.size(); i++){
 		;
 	}
 	;
@@ -767,10 +774,12 @@ void generateu_lower_edgepool()
 
 void generateMesh()
 {
-
 	//calculate the height of each bone line;
+	convert_bone_edge_to_vertex();
 	generateu_uper_edgepool();
 	generateu_lower_edgepool();
+	edgePool.clear;
+
 	for(each vertex in bone line){
 		for(each edge in edge Pool){
 			if(edge near bone line){
