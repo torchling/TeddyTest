@@ -32,6 +32,8 @@ std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ;; tmp inp
 std::vector< edge >		edgePool ;              //.clear() when started ; or in the end ;
 std::vector< edge >		tmp_edgePool ;          //.clear() when started ; or in the end ;
 std::vector< edge > 	bone_edgePool ;         //.stay                 ;;
+std::vector< edge > 	bone_loweer_ePool ;     //.stay                 ;;00
+std::vector< edge > 	bone_uper_ePool ;       //.stay                 ;;00
 
 std::vector< triangle > trianglePool ;          //.stay                 ;;
 std::vector< triangle > badTrianglePool ;       // ???   ;;
@@ -747,10 +749,28 @@ void generateBoneLine()
 	edgePool.clear();
 }
 
+void generateu_uper_edgepool()
+{
+	for(){
+		;
+	}
+	;
+}
+
+void generateu_lower_edgepool()
+{
+	for(){
+		;
+	}
+	;
+}
+
 void generateMesh()
 {
-/*
-	calculate the height of each bone line;
+
+	//calculate the height of each bone line;
+	generateu_uper_edgepool();
+	generateu_lower_edgepool();
 	for(each vertex in bone line){
 		for(each edge in edge Pool){
 			if(edge near bone line){
@@ -759,7 +779,7 @@ void generateMesh()
 			}
 		}
 	}
-*/
+
 }
 
 void printTrianglePool()
