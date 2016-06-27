@@ -28,12 +28,15 @@ std::vector< vertex >   theSetOfMouse ;         //.stay                 ;; Origi
 std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ;; tmp input set, only used in Delaunay
 //std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ;;
 //std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ;;
+std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ;; warping
+std::vector< vertex >	bone_prime_vPool ;		//.clear() in the end   ;; warping
 
-std::vector< edge >		edgePool ;              //.clear() when started ; or in the end ;
-std::vector< edge >		tmp_edgePool ;          //.clear() when started ; or in the end ;
-std::vector< edge > 	bone_edgePool ;         //.stay                 ;;
-std::vector< edge > 	bone_loweer_ePool ;     //.stay                 ;;00
-std::vector< edge > 	bone_uper_ePool ;       //.stay                 ;;00
+
+std::vector< edge >		edgePool ;              //.clear() when started ;; or in the end ;
+std::vector< edge >		tmp_edgePool ;          //.clear() when started ;; or in the end ;
+std::vector< edge > 	bone_edgePool ;         //.stay                 ;; 
+std::vector< edge > 	bone_loweer_ePool ;     //.stay                 ;; warping
+std::vector< edge > 	bone_uper_ePool ;       //.stay                 ;; warping
 
 std::vector< triangle > trianglePool ;          //.stay                 ;;
 std::vector< triangle > badTrianglePool ;       // ???   ;;
@@ -749,9 +752,34 @@ void generateBoneLine()
 	edgePool.clear();
 }
 
-void convert_bone_edge_to_vertex()
+bool is_in_triangle_but_not_on_the_edge(vertex test_vertex, triangle test_triangle)
+{
+	if(outsideTheTriangle(test_vertex, test_triangle.v1, test_triangle.v2, test_triangle.v3))
+		return false;
+	return true;
+}
+
+bool is_a_prime_bone_line_vertex(vertex cand)
+{
+	for(int i=0; i<trianglePool.size(); i++){
+		if( is_in_triangle_but_not_on_the_edge(cand, trianglePool[i]) ){
+			return true;
+		}
+	}
+}
+
+void clean_bone_vertex_pool()
 {
 	;
+}
+
+void convert_bone_edge_to_vertex()
+{
+	for(int i=0; i<bone_edgePool.size(); i++){
+		bone_vertex_pool.push_back(bone_edgePool[i].v1);
+		bone_vertex_pool.push_back(bone_edgePool[i].v2);
+	}
+	clean_bone_vertex_pool();
 }
 
 void generateu_uper_edgepool()

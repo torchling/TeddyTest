@@ -40,21 +40,48 @@ struct triangle
     vertex v3;
 };
 
-
-bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
+bool onTheEdge(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
 {
+	//calculate y distance from test point to line.
     if(line_start.x!=line_end.x)
     {
         float vx = line_start.x-line_end.x;
         float vy = line_start.y-line_end.y;
 
-        if( (test_point.y - (line_start.y + vy*(test_point.x-line_start.x)/vx))*
+        if( (test_point.y - ( line_start.y + vy*(test_point.x-line_start.x)/vx))*
+           (compare_point.y - (line_start.y + vy*(compare_point.x-line_start.x)/vx)) == 0 )
+            return false;
+
+        return true;
+    }
+
+    //calculate x distance from test point to line.
+    if(line_start.x==line_end.x)
+    {
+        if( (test_point.x-line_start.x)*(compare_point.x-line_start.x) == 0 )
+            return false;
+
+        return true;
+    }
+
+}
+
+bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
+{
+	//calculate y distance from test point to line.
+    if(line_start.x!=line_end.x)
+    {
+        float vx = line_start.x-line_end.x;
+        float vy = line_start.y-line_end.y;
+
+        if( (test_point.y - ( line_start.y + vy*(test_point.x-line_start.x)/vx))*
            (compare_point.y - (line_start.y + vy*(compare_point.x-line_start.x)/vx)) <= 0 )
             return false;
 
         return true;
     }
 
+    //calculate x distance from test point to line.
     if(line_start.x==line_end.x)
     {
         if( (test_point.x-line_start.x)*(compare_point.x-line_start.x) <= 0 )
