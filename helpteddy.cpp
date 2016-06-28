@@ -40,32 +40,6 @@ struct triangle
     vertex v3;
 };
 
-bool onTheEdge(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
-{
-	//calculate y distance from test point to line.
-    if(line_start.x!=line_end.x)
-    {
-        float vx = line_start.x-line_end.x;
-        float vy = line_start.y-line_end.y;
-
-        if( (test_point.y - ( line_start.y + vy*(test_point.x-line_start.x)/vx))*
-           (compare_point.y - (line_start.y + vy*(compare_point.x-line_start.x)/vx)) == 0 )
-            return false;
-
-        return true;
-    }
-
-    //calculate x distance from test point to line.
-    if(line_start.x==line_end.x)
-    {
-        if( (test_point.x-line_start.x)*(compare_point.x-line_start.x) == 0 )
-            return false;
-
-        return true;
-    }
-
-}
-
 bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
 {
 	//calculate y distance from test point to line.
@@ -100,6 +74,41 @@ bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, verte
         return false;
 
     return true;
+}
+
+bool onTheEdge(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
+{
+	//calculate y distance from test point to line.
+    if(line_start.x!=line_end.x)
+    {
+        float vx = line_start.x-line_end.x;
+        float vy = line_start.y-line_end.y;
+
+        if( abs(test_point.y - ( line_start.y + vy*(test_point.x-line_start.x)/vx)) <=0.00000001  )
+            return true;
+
+        return false;
+    }
+
+    //calculate x distance from test point to line.
+    if(line_start.x==line_end.x)
+    {
+        if( abs(test_point.x-line_start.x) <= 0.0000001 )
+            return true;
+
+        return false;
+    }
+
+}
+
+bool onTheTriangleEdges(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
+{
+    if( onTheEdge(testvertex, vertex1, vertex2, vertex3) ||
+        onTheEdge(testvertex, vertex3, vertex1, vertex2) ||
+        onTheEdge(testvertex, vertex2, vertex3, vertex1) )
+        return true;
+
+    return false;
 }
 
 bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)

@@ -47,6 +47,7 @@ std::vector< triangle > trianglePool ;*/
 bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
 bool onTheEdge(vertex test_point, vertex line_start, vertex line_end, vertex compare_point);
 bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
+bool onTheTriangleEdges(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3);
 bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius);
 vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3);
 GLfloat radiusOfCCircle(vertex testvertex, vertex center);

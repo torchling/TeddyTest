@@ -24,19 +24,18 @@ int Height= 480;
 
 using namespace std;
 
-std::vector< vertex >   theSetOfMouse ;         //.stay                 ;; Original input points
-std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ;; tmp input set, only used in Delaunay
-//std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ;;
-//std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ;;
-std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ;; warping
-std::vector< vertex >	bone_prime_vPool ;		//.clear() in the end   ;; warping
+std::vector< vertex >   theSetOfMouse ;         //.stay                 ; ; Original input points
+std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ; ; tmp input set, only used in Delaunay
+//std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ; ;
+//std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ; ;
+std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ; ; warping
+std::vector< vertex >	bone_prime_vPool ;		//.clear() in the end   ; ; warping
 
-
-std::vector< edge >		edgePool ;              //.clear() when started ;; or in the end ;
-std::vector< edge >		tmp_edgePool ;          //.clear() when started ;; or in the end ;
-std::vector< edge > 	bone_edgePool ;         //.stay                 ;; 
-std::vector< edge > 	bone_loweer_ePool ;     //.stay                 ;; warping
-std::vector< edge > 	bone_uper_ePool ;       //.stay                 ;; warping
+std::vector< edge >		edgePool ;              //.clear() when started ; ; or in the end ;
+std::vector< edge >		tmp_edgePool ;          //.clear() when started ; ; or in the end ;
+std::vector< edge > 	bone_edgePool ;         //.stay                 ; ; 
+std::vector< edge > 	bone_loweer_ePool ;     //.stay                 ; ; warping
+std::vector< edge > 	bone_uper_ePool ;       //.stay                 ; ; warping
 
 std::vector< triangle > trianglePool ;          //.stay                 ;;
 std::vector< triangle > badTrianglePool ;       // ???   ;;
@@ -754,47 +753,95 @@ void generateBoneLine()
 
 bool is_in_triangle_but_not_on_the_edge(vertex test_vertex, triangle test_triangle)
 {
-	if(outsideTheTriangle(test_vertex, test_triangle.v1, test_triangle.v2, test_triangle.v3))
-		return false;
-	return true;
+	if(!outsideTheTriangle(test_vertex, test_triangle.v1, test_triangle.v2, test_triangle.v3)){
+		if(onTheTriangleEdges(test_vertex, test_triangle.v1, test_triangle.v2, test_triangle.v3))
+			return false;
+		return true;
+	}
+	return false;
 }
 
-bool is_a_prime_bone_line_vertex(vertex cand)
+bool is_a_prime_bone_line_vertex(vertex candidate)
 {
 	for(int i=0; i<trianglePool.size(); i++){
-		if( is_in_triangle_but_not_on_the_edge(cand, trianglePool[i]) ){
+		if( is_in_triangle_but_not_on_the_edge(candidate, trianglePool[i]) ){
 			return true;
 		}
 	}
+	return false;
 }
 
-void clean_bone_vertex_pool()
+void delete_double_bone_vertex() // Clean the bone vertex pool, delete the double vertex
 {
-	;
+	int i;
+    int j;
+    int k;
+    int h;
+
+    start780:
+    for(i=0;i<bone_vertex_pool.size();i++)
+    {
+        for(j=0;j<bone_vertex_pool.size();j++)
+        {
+            if( isSameVertex(bone_vertex_pool[i], bone_vertex_pool[j]) && (i!=j) )
+            {
+
+                for(k=0; k<bone_vertex_pool.size(); k++){
+                    if((k!=i)&&(k!=j))
+                    bone_prime_vPool.push_back(bone_vertex_pool[k]);
+                }
+
+                bone_vertex_pool.clear();
+                for(h=0; h<tmp_edgePool.size(); h++){
+                    bone_vertex_pool.push_back(bone_prime_vPool[h]);
+                }
+                bone_prime_vPool.clear();
+                goto start780;
+            }
+        }
+    }
+}
+
+void in_prime_bone_vpool(vertex test_v)
+{
+	for(int i=0; i<bone_prime_vPool.size(); i++)
+	{
+		if(isSameVertex(teat_v, bone_prime_vPool[i]))
+			return true;
+	}
+	return false;
 }
 
 void convert_bone_edge_to_vertex()
 {
-	for(int i=0; i<bone_edgePool.size(); i++){
+	for(int i=0; i<bone_edgePool.size(); i++)
+	{
 		bone_vertex_pool.push_back(bone_edgePool[i].v1);
 		bone_vertex_pool.push_back(bone_edgePool[i].v2);
 	}
-	clean_bone_vertex_pool();
+	delete_double_bone_vertex();
+	
+	//Add prime vertex to bone_prime_vPool
+	for (int i = 0; i < bone_vertex_pool.size(); i++)
+	{
+		if(is_a_prime_bone_line_vertex(bone_vertex_pool[i]))
+			bone_prime_vPool.push_back(bone_vertex_pool[i]);
+	}
 }
 
-void generateu_uper_edgepool()
+void generate_uper_edgepool()
 {
-	for(int i=0; i<edgePool.size(); i++){
-		if(){
+	for(int i=0; i<bone_vertex_pool.size(); i++){
+		if(in_prime_bone_vpool(bone_vertex_pool[i])){
 			;
 		}
+		;
 	}
-	;
 }
 
-void generateu_lower_edgepool()
+void generate_lower_edgepool()
 {
-	for(int i=0; i<edgePool.size(); i++){
+	for(int i=0; i<bone_vertex_pool.size(); i++){
 		;
 	}
 	;
@@ -806,8 +853,9 @@ void generateMesh()
 	convert_bone_edge_to_vertex();
 	generateu_uper_edgepool();
 	generateu_lower_edgepool();
-	edgePool.clear;
+	/*bone_edgePool.clear();*/
 
+	//draw arch
 	for(each vertex in bone line){
 		for(each edge in edge Pool){
 			if(edge near bone line){
@@ -921,7 +969,7 @@ void printBone()
 	for(int i=0;i<bone_edgePool.size();i++){
 		glBegin(GL_LINE_STRIP);
 			glVertex3f( bone_edgePool[i].v1.x, bone_edgePool[i].v1.y, bone_edgePool[i].v1.z );
-            glVertex3f( bone_edgePool[i].v2.x, bone_edgePool[i].v2.y, bone_edgePool[i].v2.z );
+            glVertex3f( bone_edge Pool[i].v2.x, bone_edgePool[i].v2.y, bone_edgePool[i].v2.z );
     	glEnd();
 	}
 }
