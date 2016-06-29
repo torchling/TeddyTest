@@ -65,7 +65,6 @@ bool onTheSameSide(vertex test_point, vertex line_start, vertex line_end, vertex
     }
 
 }
-
 bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
 {
     if( onTheSameSide(testvertex, vertex1, vertex2, vertex3) &&
@@ -100,7 +99,6 @@ bool onTheEdge(vertex test_point, vertex line_start, vertex line_end, vertex com
     }
 
 }
-
 bool onTheTriangleEdges(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
 {
     if( onTheEdge(testvertex, vertex1, vertex2, vertex3) ||
