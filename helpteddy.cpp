@@ -75,7 +75,7 @@ bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, verte
     return true;
 }
 
-bool onTheEdge(vertex test_point, vertex line_start, vertex line_end, vertex compare_point)
+bool onTheEdge(vertex test_point, vertex line_start, vertex line_end)
 {
 	//calculate y distance from test point to line.
     if(line_start.x!=line_end.x)
@@ -83,7 +83,7 @@ bool onTheEdge(vertex test_point, vertex line_start, vertex line_end, vertex com
         float vx = line_start.x-line_end.x;
         float vy = line_start.y-line_end.y;
 
-        if( abs(test_point.y - ( line_start.y + vy*(test_point.x-line_start.x)/vx)) <=0.00000001  )
+        if( fabs(test_point.y - ( line_start.y + vy*(test_point.x-line_start.x)/vx)) <=0.00000001  )
             return true;
 
         return false;
@@ -92,7 +92,7 @@ bool onTheEdge(vertex test_point, vertex line_start, vertex line_end, vertex com
     //calculate x distance from test point to line.
     if(line_start.x==line_end.x)
     {
-        if( abs(test_point.x-line_start.x) <= 0.0000001 )
+        if( fabs(test_point.x-line_start.x) <= 0.0000001 )
             return true;
 
         return false;
@@ -101,9 +101,9 @@ bool onTheEdge(vertex test_point, vertex line_start, vertex line_end, vertex com
 }
 bool onTheTriangleEdges(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
 {
-    if( onTheEdge(testvertex, vertex1, vertex2, vertex3) ||
-        onTheEdge(testvertex, vertex3, vertex1, vertex2) ||
-        onTheEdge(testvertex, vertex2, vertex3, vertex1) )
+    if( onTheEdge(testvertex, vertex1, vertex2) ||
+        onTheEdge(testvertex, vertex3, vertex1) ||
+        onTheEdge(testvertex, vertex2, vertex3) )
         return true;
 
     return false;
@@ -122,7 +122,7 @@ bool insideTheCircle(vertex test_vertex, vertex center_of_circle, float radius)
 //according to wiki's data
 vertex centerOfCircumscribedCircle(vertex vertex_1, vertex vertex_2, vertex vertex_3)
 {
-  
+
     float xc =(pow(vertex_1.x, 2.0)+pow(vertex_1.y, 2.0))*vertex_2.y +
               (pow(vertex_2.x, 2.0)+pow(vertex_2.y, 2.0))*vertex_3.y +
               (pow(vertex_3.x, 2.0)+pow(vertex_3.y, 2.0))*vertex_1.y -
