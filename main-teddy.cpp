@@ -48,21 +48,30 @@ std::vector< triangle > subTrianglePool ;       //.clear() in the end   ;;
 
 std::vector< triangle > meshPool ;       		//.stay                 ;;
 
+std::vector< bool > edge_sharpness_Pool ;       //.stay                 ;;
+std::vector< vertex > sharp_bone_vPool ;       //.stay                 ;;
+
+//--------------------------------------------------------------------------------------------------------------//
+
 triangle superDT;
 
-bool meshDrawn = false;
-
-bool meshBeenMade = true;
-
-int test = 15;
-
+int test = 15;//early use
 int number;//for bone, isPathTriangles
 
 GLfloat prev_mouse_X=0;
 GLfloat prev_mouse_Y=0;
 
+bool meshDrawn = false;
+bool meshBeenMade = true;
 bool is_first_time = true;
 bool drawn = true;
+bool mode_2_on = false;
+
+//from cubeword
+int yRotated = 0; 	//from cubeword
+int zRotated = 0;	//from cubeword
+
+//--------------------------------------------------------------------------------------------------------------//
 
 //BowyerWatson
 bool isSameVertex( vertex A , vertex B )
@@ -871,13 +880,13 @@ void convert_bone_edge_to_vertex()
 GLfloat distanceOfVertex(vertex a, vertex b)
 {
 	float x,y,z,dist;
-	
+
 	x = (a.x-b.x)*(a.x-b.x);
 	y = (a.y-b.y)*(a.y-b.y);
 	z = (a.z-b.z)*(a.z-b.z);
-	
+
 	dist = sqrt(x+y+z);
-	
+
 	return dist;
 }
 
@@ -887,21 +896,21 @@ void create_uper_vpool()
 		for(int j=0; j<trianglePool.size(); j++){
 			if(onTheEdge(bone_vertex_pool[i],trianglePool[j].v1,trianglePool[j].v2))
 			{
-				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1);
+				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1)/1.5;
 			}
 
 			if(onTheEdge(bone_vertex_pool[i],trianglePool[j].v2,trianglePool[j].v3))
 			{
-				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v2);
+				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v2)/1.5;
 			}
 
 			if(onTheEdge(bone_vertex_pool[i],trianglePool[j].v3,trianglePool[j].v1))
 			{
-				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1);
+				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1)/1.5;
 			}
 
-			if(in_prime_bone_vpool(bone_vertex_pool[i])){
-				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1);
+			if(in_prime_bone_vpool(bone_vertex_pool[i])&&!outsideTheTriangle(bone_vertex_pool[i], trianglePool[j].v1, trianglePool[j].v2, trianglePool[j].v3)){
+				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1)/1.5;
 			}
 		}
 	}
@@ -917,21 +926,21 @@ void create_lower_vpool()
 		for(int j=0; j<trianglePool.size(); j++){
 			if(onTheEdge(bone_vertex_pool[i],trianglePool[j].v1,trianglePool[j].v2))
 			{
-				bone_vertex_pool[i].z = 0.0 - distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1);
+				bone_vertex_pool[i].z = 0.0 - distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1)/1.5;
 			}
 
 			if(onTheEdge(bone_vertex_pool[i],trianglePool[j].v2,trianglePool[j].v3))
 			{
-				bone_vertex_pool[i].z = 0.0 - distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v2);
+				bone_vertex_pool[i].z = 0.0 - distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v2)/1.5;
 			}
 
 			if(onTheEdge(bone_vertex_pool[i],trianglePool[j].v3,trianglePool[j].v1))
 			{
-				bone_vertex_pool[i].z = 0.0 - distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1);
+				bone_vertex_pool[i].z = 0.0 - distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1)/1.5;
 			}
 
-			if(in_prime_bone_vpool(bone_vertex_pool[i])){
-				bone_vertex_pool[i].z = 0.0 - distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1);
+			if(in_prime_bone_vpool(bone_vertex_pool[i])&&!outsideTheTriangle(bone_vertex_pool[i], trianglePool[j].v1, trianglePool[j].v2, trianglePool[j].v3)){
+				bone_vertex_pool[i].z = 0.0 - distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1)/1.5;
 			}
 		}
 	}
@@ -957,17 +966,17 @@ void addArch_stitch_store(vertex top, vertex ground, vertex top_2, vertex ground
 	a14.y = top.y + (ground.y - top.y)*0.923; // 0.923 = (2.414/2.613)
 	a14.z = ground.z + (top.z - ground.z)*0.3827; // 0.3827 = (1/2.613);
 
-	a22.x = top.x + (ground.x - top.x)*0.3827; // 0.3827 = (1/2.613);
-	a22.y = top.y + (ground.y - top.y)*0.3827; // 0.3827 = (1/2.613);
-	a22.z = ground.z + (top.z - ground.z)*0.923; // 0.923 = (2.414/2.613)
+	a22.x = top_2.x + (ground_2.x - top_2.x)*0.3827; // 0.3827 = (1/2.613);
+	a22.y = top_2.y + (ground_2.y - top_2.y)*0.3827; // 0.3827 = (1/2.613);
+	a22.z = ground_2.z + (top_2.z - ground_2.z)*0.923; // 0.923 = (2.414/2.613)
 
-	a23.x = top.x + (ground.x - top.x)*0.707; // 0.707 = (1/1.414);
-	a23.y = top.y + (ground.y - top.y)*0.707; // 0.707 = (1/1.414);
-	a23.z = ground.z + (top.z - ground.z)*0.707; // 0.707 = (1/1.414);
+	a23.x = top_2.x + (ground_2.x - top_2.x)*0.707; // 0.707 = (1/1.414);
+	a23.y = top_2.y + (ground_2.y - top_2.y)*0.707; // 0.707 = (1/1.414);
+	a23.z = ground_2.z + (top_2.z - ground_2.z)*0.707; // 0.707 = (1/1.414);
 
-	a24.x = top.x + (ground.x - top.x)*0.923; // 0.923 = (2.414/2.613)
-	a24.y = top.y + (ground.y - top.y)*0.923; // 0.923 = (2.414/2.613)
-	a24.z = ground.z + (top.z - ground.z)*0.3827; // 0.3827 = (1/2.613);
+	a24.x = top_2.x + (ground_2.x - top_2.x)*0.923; // 0.923 = (2.414/2.613)
+	a24.y = top_2.y + (ground_2.y - top_2.y)*0.923; // 0.923 = (2.414/2.613)
+	a24.z = ground_2.z + (top_2.z - ground_2.z)*0.3827; // 0.3827 = (1/2.613);
 
 	arch_pool_1.push_back(top);
 	arch_pool_1.push_back(a12);
@@ -998,7 +1007,7 @@ void addArch_stitch_store(vertex top, vertex ground, vertex top_2, vertex ground
 	else if(isSameVertex(arch_pool_1[4], arch_pool_2[4])){
 		for(int i=0; i<arch_pool_1.size()-1; i++)
 		{
-			if(i==arch_pool_1.size()-2){
+			if(i==arch_pool_1.size()-1){
 				addToMeshPool(arch_pool_1[i], arch_pool_2[i], arch_pool_2[i+1]);
 			}
 			else{
@@ -1015,7 +1024,13 @@ void addArch_stitch_store(vertex top, vertex ground, vertex top_2, vertex ground
 			addToMeshPool(arch_pool_1[i], arch_pool_2[i+1], arch_pool_1[i+1]);
 		}
 	}
-
+	/*
+	for(int i=0; i<arch_pool_1.size()-1; i++)
+		{
+			addToMeshPool(arch_pool_1[i], arch_pool_2[i], arch_pool_2[i+1]);
+			addToMeshPool(arch_pool_1[i], arch_pool_2[i+1], arch_pool_1[i+1]);
+		}
+*/
 	arch_pool_1.clear();
 	arch_pool_2.clear();
 }
@@ -1036,8 +1051,12 @@ void generateMesh()
     cout<<"Size of bone_uper_vPool: "<<bone_uper_vPool.size()<<"\n";
     cout<<"Size of bone_lower_vPool: "<<bone_lower_vPool.size()<<"\n";
     cout<<"\n";
-	
-	//draw uper part
+
+    int end=0;
+	int path=0;
+	int prime=0;
+
+	//draw mesh (once uper part)
 	for(int i=0; i<bone_edgePool.size(); i++)
 	{
 		int set=0;
@@ -1050,35 +1069,37 @@ void generateMesh()
 			if(isSameVertex2(bone_edgePool[i].v2, bone_vertex_pool[j])){ let_j=j; set++; }//set=2
 		}
 		//cout<<"test_set: "<< set <<"\n";
+		/*
 		for(int j=0; j<bone_vertex_pool.size(); j++)
-		{
+		{*/
 			//set=1 means End Edge
 			if(set==1){
+				end++;
 				//cout<<"test_set_1"<<"\n";
 				for(int k=0; k<trianglePool.size(); k++) //這裡k++我原本打成j++
 				{
-					if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v1, trianglePool[k].v2)){
-						addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[j], trianglePool[k].v3 );
-						addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[j], trianglePool[k].v3 );
+					if(onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v1, trianglePool[k].v2)){
+						addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v1, bone_uper_vPool[let_i], trianglePool[k].v3 );
+						addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v2, bone_uper_vPool[let_i], trianglePool[k].v3 );
 
-						addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[j], trianglePool[k].v3 );
-						addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[j], trianglePool[k].v3 );
+						addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v1, bone_lower_vPool[let_i], trianglePool[k].v3 );
+						addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v2, bone_lower_vPool[let_i], trianglePool[k].v3 );
 					}
 
-					if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v2, trianglePool[k].v3)){
-						addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[j], trianglePool[k].v1 );
-						addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[j], trianglePool[k].v1 );
+					if(onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v2, trianglePool[k].v3)){
+						addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v2, bone_uper_vPool[let_i], trianglePool[k].v1 );
+						addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v3, bone_uper_vPool[let_i], trianglePool[k].v1 );
 
-						addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[j], trianglePool[k].v1 );
-						addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[j], trianglePool[k].v1 );
+						addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v2, bone_lower_vPool[let_i], trianglePool[k].v1 );
+						addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v3, bone_lower_vPool[let_i], trianglePool[k].v1 );
 					}
 
-					if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v3, trianglePool[k].v1)){
-						addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[j], trianglePool[k].v2 );
-						addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[j], trianglePool[k].v2 );
+					if(onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v3, trianglePool[k].v1)){
+						addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v3, bone_uper_vPool[let_i], trianglePool[k].v2 );
+						addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v1, bone_uper_vPool[let_i], trianglePool[k].v2 );
 
-						addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[j], trianglePool[k].v2 );
-						addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[j], trianglePool[k].v2 );
+						addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v3, bone_lower_vPool[let_i], trianglePool[k].v2 );
+						addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v1, bone_lower_vPool[let_i], trianglePool[k].v2 );
 					}
 				}
 			}
@@ -1089,7 +1110,7 @@ void generateMesh()
 				short set_2 = 0;
 				short set_v = 0;
 
-				for(int p=0; p<bone_prime_vPool.size();p++)// Decide Bone_Edge is (Prime Edge / Prime-Path Edge)
+				for(int p=0; p<bone_prime_vPool.size();p++)// Decide Bone_Edge is (Path Edge / Prime-Path Edge)
 				{
 					if( isSameVertex2(bone_edgePool[i].v1, bone_prime_vPool[p]) ){
 						set_2 = 1;
@@ -1104,60 +1125,61 @@ void generateMesh()
 
 				if( set_2 == 0 ){// Path Edge
 					//cout<<"test_path"<<"\n";
-					if(let_i==j)
+					path++;
+					if(let_i==let_i)//==j
 					{
 						//cout<<"test_let_i"<<"\n";
 						for(int k=0; k<trianglePool.size(); k++) //這裡k++我原本打成j++
 						{
 							//cout<<"test_k"<<"\n";
-							if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v1, trianglePool[k].v2)&&onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v2, trianglePool[k].v3)){
+							if(onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v1, trianglePool[k].v2)&&onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v2, trianglePool[k].v3)){
 							//cout<<"xtgog"<<"\n";
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v2 );//22
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v3 );//13
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v2 );//22
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v3 );//13
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v2 );//22
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v3 );//13
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v2 );//22
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v3 );//13
 							//cout<<"test_Edge"<<"\n";
 							}
 
-							if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v2, trianglePool[k].v3)&&onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v3, trianglePool[k].v1)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v3 );//33
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v1 );//21
+							if(onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v2, trianglePool[k].v3)&&onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v3, trianglePool[k].v1)){
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v3 );//33
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v1 );//21
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v3 );//33
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v1 );//21
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v3 );//33
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v1 );//21
 							}
 
-							if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v3, trianglePool[k].v1)&&onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v1, trianglePool[k].v2)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v1 );//11
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v2 );//32
+							if(onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v3, trianglePool[k].v1)&&onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v1, trianglePool[k].v2)){
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v1 );//11
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v2 );//32
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v1 );//11
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v2 );//32
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v1 );//11
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v2 );//32
 							}
 
-							if(onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v1, trianglePool[k].v2)&&onTheEdge(bone_vertex_pool[j], trianglePool[k].v2, trianglePool[k].v3)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v2 );//22
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v1 );//31
+							if(onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v1, trianglePool[k].v2)&&onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v2, trianglePool[k].v3)){
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v2 );//22
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v1 );//31
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v2 );//22
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v1 );//31
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v2 );//22
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v1 );//31
 							}
 
-							if(onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v2, trianglePool[k].v3)&&onTheEdge(bone_vertex_pool[j], trianglePool[k].v3, trianglePool[k].v1)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v3 );//33
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v2 );//12
+							if(onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v2, trianglePool[k].v3)&&onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v3, trianglePool[k].v1)){
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v3 );//33
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v2 );//12
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v3 );//33
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v2 );//12
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v3 );//33
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v2 );//12
 							}
 
-							if(onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v3, trianglePool[k].v1)&&onTheEdge(bone_vertex_pool[j], trianglePool[k].v1, trianglePool[k].v2)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v1 );//11
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v3 );//23
+							if(onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v3, trianglePool[k].v1)&&onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v1, trianglePool[k].v2)){
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v1 );//11
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v3 );//23
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v1 );//11
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v3 );//23
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v1 );//11
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v3 );//23
 							}
 						}
 					}
@@ -1165,65 +1187,66 @@ void generateMesh()
 
 				if( set_2 == 1 ){// Prime-Path Edge
 					//cout<<"test_Prime-Path"<<"\n";
+					prime++;
 					for(int k=0; k<trianglePool.size(); k++) //這裡k++我原本打成j++,結果跑不出來
 					{
-						if(let_i==j && set_v==2)
+						if(set_v==2)//(let_i==j && set_v==2)
 						{
-							if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v1, trianglePool[k].v2)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v1 );
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v2 );
+							if(onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v1, trianglePool[k].v2)){
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v1 );
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v2 );
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v1 );
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v2 );
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v1 );
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v2 );
 							}//Arch_stitch_store( edge_bone_v, trianglePool.v2, prime_bone_v, trianglePool.v2 );
 
-							if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v2, trianglePool[k].v3)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v2 );
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v3 );
+							if(onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v2, trianglePool[k].v3)){
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v2, bone_uper_vPool[let_j], trianglePool[k].v2 );
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v3 );
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v2 );
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v3 );
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v2, bone_lower_vPool[let_j], trianglePool[k].v2 );
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v3 );
 							}//Arch_stitch_store( edge_bone_v, trianglePool.v2, prime_bone_v, trianglePool.v2 );
 
-							if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v3, trianglePool[k].v1)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v3 );
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v1 );
+							if(onTheEdge(bone_vertex_pool[let_i], trianglePool[k].v3, trianglePool[k].v1)){
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v3, bone_uper_vPool[let_j], trianglePool[k].v3 );
+							addArch_stitch_store( bone_uper_vPool[let_i], trianglePool[k].v1, bone_uper_vPool[let_j], trianglePool[k].v1 );
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v3 );
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v1 );
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v3, bone_lower_vPool[let_j], trianglePool[k].v3 );
+							addArch_stitch_store( bone_lower_vPool[let_i], trianglePool[k].v1, bone_lower_vPool[let_j], trianglePool[k].v1 );
 							}//Arch_stitch_store( edge_bone_v, trianglePool.v2, prime_bone_v, trianglePool.v2 );
 						}
-						if(let_j==j && set_v==1)
+						if(set_v==1)//(let_j==j && set_v==1)
 						{
-							if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v1, trianglePool[k].v2)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[let_i], trianglePool[k].v1 );
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[let_i], trianglePool[k].v2 );
+							if(onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v1, trianglePool[k].v2)){
+							addArch_stitch_store( bone_uper_vPool[let_j], trianglePool[k].v1, bone_uper_vPool[let_i], trianglePool[k].v1 );
+							addArch_stitch_store( bone_uper_vPool[let_j], trianglePool[k].v2, bone_uper_vPool[let_i], trianglePool[k].v2 );
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[let_i], trianglePool[k].v1 );
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[let_i], trianglePool[k].v2 );
+							addArch_stitch_store( bone_lower_vPool[let_j], trianglePool[k].v1, bone_lower_vPool[let_i], trianglePool[k].v1 );
+							addArch_stitch_store( bone_lower_vPool[let_j], trianglePool[k].v2, bone_lower_vPool[let_i], trianglePool[k].v2 );
 							}//Arch_stitch_store( edge_bone_v, trianglePool.v2, prime_bone_v, trianglePool.v2 );
 
-							if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v2, trianglePool[k].v3)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v2, bone_uper_vPool[let_i], trianglePool[k].v2 );
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[let_i], trianglePool[k].v3 );
+							if(onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v2, trianglePool[k].v3)){
+							addArch_stitch_store( bone_uper_vPool[let_j], trianglePool[k].v2, bone_uper_vPool[let_i], trianglePool[k].v2 );
+							addArch_stitch_store( bone_uper_vPool[let_j], trianglePool[k].v3, bone_uper_vPool[let_i], trianglePool[k].v3 );
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v2, bone_lower_vPool[let_i], trianglePool[k].v2 );
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[let_i], trianglePool[k].v3 );
+							addArch_stitch_store( bone_lower_vPool[let_j], trianglePool[k].v2, bone_lower_vPool[let_i], trianglePool[k].v2 );
+							addArch_stitch_store( bone_lower_vPool[let_j], trianglePool[k].v3, bone_lower_vPool[let_i], trianglePool[k].v3 );
 							}//Arch_stitch_store( edge_bone_v, trianglePool.v2, prime_bone_v, trianglePool.v2 );
 
-							if(onTheEdge(bone_vertex_pool[j], trianglePool[k].v3, trianglePool[k].v1)){
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v3, bone_uper_vPool[let_i], trianglePool[k].v3 );
-							addArch_stitch_store( bone_uper_vPool[j], trianglePool[k].v1, bone_uper_vPool[let_i], trianglePool[k].v1 );
+							if(onTheEdge(bone_vertex_pool[let_j], trianglePool[k].v3, trianglePool[k].v1)){
+							addArch_stitch_store( bone_uper_vPool[let_j], trianglePool[k].v3, bone_uper_vPool[let_i], trianglePool[k].v3 );
+							addArch_stitch_store( bone_uper_vPool[let_j], trianglePool[k].v1, bone_uper_vPool[let_i], trianglePool[k].v1 );
 
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v3, bone_lower_vPool[let_i], trianglePool[k].v3 );
-							addArch_stitch_store( bone_lower_vPool[j], trianglePool[k].v1, bone_lower_vPool[let_i], trianglePool[k].v1 );
+							addArch_stitch_store( bone_lower_vPool[let_j], trianglePool[k].v3, bone_lower_vPool[let_i], trianglePool[k].v3 );
+							addArch_stitch_store( bone_lower_vPool[let_j], trianglePool[k].v1, bone_lower_vPool[let_i], trianglePool[k].v1 );
 							}//Arch_stitch_store( edge_bone_v, trianglePool.v2, prime_bone_v, trianglePool.v2 );
 						}
 					}
 				}
 			}
 
-		}
+		/*}*/
 
 	}
 
@@ -1245,6 +1268,9 @@ void generateMesh()
 
 	cout<<"test"<<"\n";
     cout<<"Size of Mesh: "<<meshPool.size()<<"\n";
+    cout<<"Size of End: "<< end <<"\n";
+    cout<<"Size of Path: "<< path <<"\n";
+    cout<<"Size of Prime: "<< prime <<"\n";
     cout<<"\n";
     cout<<"\n";
 	bone_vertex_pool.clear();
@@ -1312,6 +1338,7 @@ void mousebutton( int button, int state, int x, int y )
         prev_mouse_X=0;
         prev_mouse_Y=0;
         is_first_time=true;
+        meshBeenMade = false;
 	}
 }
 
@@ -1398,32 +1425,38 @@ static void display(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
 
-    //glBegin(GL_TRIANGLES);
-
     glPushMatrix();
-
         glTranslated(0.0,0.0,-30);
-        printTrianglePool();
-
-
+        glRotated(yRotated, 0, 1, 0);
+        glRotated(zRotated, 1, 0, 0);
+        printStroke();
     glPopMatrix();
 
+if (meshDrawn==false)
+{
     glPushMatrix();
         glTranslated(0.0,0.0,-30);
-        printStroke();
+        glRotated(yRotated, 0, 1, 0);
+        glRotated(zRotated, 1, 0, 0);
+        printTrianglePool();
     glPopMatrix();
 
     glPushMatrix();
     	glColor3d(0,0,1);
         glTranslated(0.0,0.0,-30);
+        glRotated(yRotated, 0, 1, 0);
+        glRotated(zRotated, 1, 0, 0);
         printBone();
     glPopMatrix();
+}
 
 if (meshDrawn==true)
 {
 	glPushMatrix();
-    	glColor3d(0,0,1);
+    	glColor3d(0.5,0.5,0.5);
         glTranslated(0.0,0.0,-30);
+        glRotated(yRotated, 0, 1, 0);
+        glRotated(zRotated, 1, 0, 0);
         printMesh();
     glPopMatrix();
 }
@@ -1458,10 +1491,54 @@ static void key(unsigned char key, int x, int y)
             drawFlatTriangleBase();
             break;
 
+
         case 'a':
             meshBeenMade=false;
             test=15;
             break;
+
+        case 'j':
+            /*  */
+            //latiRotate-=0.1;
+            yRotated-=1;//0.01;
+            yRotated=yRotated%360;
+            //if(latiRotate<0)latiRotate=160+latiRotate;
+            break;
+        case 'k':
+            /* return */
+            //latiRotate=0;
+            //longRotate=0;
+            yRotated=0.0;
+            zRotated=0.0;
+            break;
+        case 'l':
+            /*  */
+            //latiRotate+=0.1;
+            yRotated+=1;//0.01;
+            yRotated=yRotated%360;
+            //if(latiRotate>=160)latiRotate=latiRotate%160;
+            break;
+        case 'i':
+            /*  */
+            //longRotate-=0.1;
+            zRotated-=1;
+            zRotated=zRotated%360;
+            //if(longRotate<0)longRotate=160+longRotate;
+            break;
+        case ',':
+            /*  */
+            //longRotate+=0.1;
+            zRotated+=1;
+            zRotated=zRotated%360;
+            //if(longRotate>=160)longRotate=longRotate%160;
+            break;
+
+        case 'm':
+        	if(mode_2_on == true)
+        		mode_2_on = false;
+        	if(mode_2_on == false)
+        		mode_2_on = true;
+        	break;
     }
 
     glutPostRedisplay();
@@ -1469,6 +1546,7 @@ static void key(unsigned char key, int x, int y)
 
 static void idle(void)
 {
+	//_sleep(1000);
     glutPostRedisplay();
 }
 
@@ -1490,10 +1568,10 @@ int main(int argc, char *argv[])
 
     glutInit(&argc, argv);
     glutInitWindowSize(Width,Height);
-    glutInitWindowPosition(10,10);
+    glutInitWindowPosition(500,100);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-    glutCreateWindow("GLUT Shapes");
+    glutCreateWindow("Teddy Test");
 
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
