@@ -25,9 +25,11 @@ int Height= 480;
 using namespace std;
 
 std::vector< vertex >   theSetOfMouse ;         //.stay                 ; ; Original input points
+std::vector< vertex >   theSet2OfMouse ;         //.stay                 ; ; Original input points
 std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ; ; tmp input set, only used in Delaunay
 //std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ; ;
-//std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ; ;
+std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ; ;
+
 std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ; ; warping
 std::vector< vertex >	bone_prime_vPool ;		//.clear() in the end   ; ; warping
 std::vector< vertex > 	bone_lower_vPool ;     	//.stay                 ; ; warping
@@ -48,9 +50,11 @@ std::vector< triangle > subTrianglePool ;       //.clear() in the end   ;;
 
 std::vector< triangle > meshPool ;       		//.stay                 ;;
 
-std::vector< bool > edge_sharpness_Pool ;       //.stay                 ;;
+std::vector< edge > edge_sharp_Pool ;       //.stay                 ;;
 std::vector< vertex > sharp_bone_vPool ;       //.stay                 ;;
 
+
+/* Paremeters */
 //--------------------------------------------------------------------------------------------------------------//
 
 triangle superDT;
@@ -66,12 +70,15 @@ bool meshBeenMade = true;
 bool is_first_time = true;
 bool drawn = true;
 bool mode_2_on = false;
+bool mark_done = false;
 
 //from cubeword
 int yRotated = 0; 	//from cubeword
 int zRotated = 0;	//from cubeword
 
-//--------------------------------------------------------------------------------------------------------------//
+
+/* Shared function */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 //BowyerWatson
 bool isSameVertex( vertex A , vertex B )
@@ -234,6 +241,9 @@ void addToMeshPool( vertex v1 , vertex v2 , vertex v3 )
 
     meshPool.push_back(triangletp);
 }
+
+/* Triangle Base */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 void deletDoubleEdge()
 {
@@ -440,7 +450,9 @@ bool isPrimeEars( triangle testTri, bool origins_Rotation_Type )
     p.x = theSetOfInputPoint[t1].x+theSetOfInputPoint[t2].y-theSetOfInputPoint[t1].y;
     p.y = theSetOfInputPoint[t1].y+theSetOfInputPoint[t1].x-theSetOfInputPoint[t2].x;
     p.z = 0.0;
-	if( onTheSameSide( p, theSetOfInputPoint[t1], theSetOfInputPoint[t2], theSetOfInputPoint[t3] )&&( ( ((t2-t1)!=1)&&((t3-t2)!=1) ) &&((t1-t3)!=1) ) )//theSetOfInputPoint[t1+(t2-t1)/2]
+	if( onTheSameSide( p, theSetOfInputPoint[t1], theSetOfInputPoint[t2], theSetOfInputPoint[t3] )
+					 &&
+					 ( ( ((t2-t1)!=1)&&((t3-t2)!=1) ) &&((t1-t3)!=1) ) )//theSetOfInputPoint[t1+(t2-t1)/2]
 		return true;
 	return false;
 }
@@ -679,7 +691,8 @@ void generateDelaunayTriangle()
     //trim 01 : attached triangle
     edgePool.clear();
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
-        addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[(cot+1)%theSetOfInputPoint.size()] ); //(cot+1)%theSetOfInputPoint.size()
+        addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[(cot+1)%theSetOfInputPoint.size()] );
+        //(cot+1)%theSetOfInputPoint.size()
     }
     for (int cnt=0; cnt<edgePool.size(); cnt++) // done inserting points, now clean up
     {
@@ -711,6 +724,10 @@ void generateDelaunayTriangle()
     }
 */
 }
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 void generateBoneLine()
 {
@@ -785,6 +802,8 @@ void generateBoneLine()
 	tmp_edgePool.clear();
 	//edgePool.clear();
 }
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 bool is_in_triangle_but_not_on_the_edge(vertex test_vertex, triangle test_triangle)
 {
@@ -953,7 +972,20 @@ void create_lower_vpool()
 void addArch_stitch_store(vertex top, vertex ground, vertex top_2, vertex ground_2)
 {
 	vertex a12, a13, a14, a22, a23, a24;
+	bool top_is_infected = false;
+	bool top_2_is_infected = false;
+	for(int i=0; i<sharp_bone_vPool.size(); i++)
+	{
+		if(isSameVertex2(top, sharp_bone_vPool[i])){
+			top_is_infected = true;
+		}
 
+		if(isSameVertex2(top_2, sharp_bone_vPool[i])){
+			top_2_is_infected = true;
+		}
+	}
+
+if( !top_is_infected ){
 	a12.x = top.x + (ground.x - top.x)*0.3827; // 0.3827 = (1/2.613);
 	a12.y = top.y + (ground.y - top.y)*0.3827; // 0.3827 = (1/2.613);
 	a12.z = ground.z + (top.z - ground.z)*0.923; // 0.923 = (2.414/2.613)
@@ -965,7 +997,22 @@ void addArch_stitch_store(vertex top, vertex ground, vertex top_2, vertex ground
 	a14.x = top.x + (ground.x - top.x)*0.923; // 0.923 = (2.414/2.613)
 	a14.y = top.y + (ground.y - top.y)*0.923; // 0.923 = (2.414/2.613)
 	a14.z = ground.z + (top.z - ground.z)*0.3827; // 0.3827 = (1/2.613);
+}
+if( top_is_infected ){
+	a12.x = top.x + (ground.x - top.x)*0.1; // 0.3827 = (1/2.613);
+	a12.y = top.y + (ground.y - top.y)*0.1; // 0.3827 = (1/2.613);
+	a12.z = ground.z + (top.z - ground.z)*0.61; // 0.923 = (2.414/2.613)
 
+	a13.x = top.x + (ground.x - top.x)*0.3; // 0.707 = (1/1.414);
+	a13.y = top.y + (ground.y - top.y)*0.3; // 0.707 = (1/1.414);
+	a13.z = ground.z + (top.z - ground.z)*0.3; // 0.707 = (1/1.414);
+
+	a14.x = top.x + (ground.x - top.x)*0.61; // 0.923 = (2.414/2.613)
+	a14.y = top.y + (ground.y - top.y)*0.61; // 0.923 = (2.414/2.613)
+	a14.z = ground.z + (top.z - ground.z)*0.1; // 0.3827 = (1/2.613);
+}
+
+if( !top_2_is_infected ){
 	a22.x = top_2.x + (ground_2.x - top_2.x)*0.3827; // 0.3827 = (1/2.613);
 	a22.y = top_2.y + (ground_2.y - top_2.y)*0.3827; // 0.3827 = (1/2.613);
 	a22.z = ground_2.z + (top_2.z - ground_2.z)*0.923; // 0.923 = (2.414/2.613)
@@ -977,6 +1024,20 @@ void addArch_stitch_store(vertex top, vertex ground, vertex top_2, vertex ground
 	a24.x = top_2.x + (ground_2.x - top_2.x)*0.923; // 0.923 = (2.414/2.613)
 	a24.y = top_2.y + (ground_2.y - top_2.y)*0.923; // 0.923 = (2.414/2.613)
 	a24.z = ground_2.z + (top_2.z - ground_2.z)*0.3827; // 0.3827 = (1/2.613);
+}
+if( top_2_is_infected ){
+	a22.x = top_2.x + (ground_2.x - top_2.x)*0.1; // 0.3827 = (1/2.613);
+	a22.y = top_2.y + (ground_2.y - top_2.y)*0.1; // 0.3827 = (1/2.613);
+	a22.z = ground_2.z + (top_2.z - ground_2.z)*0.61; // 0.923 = (2.414/2.613)
+
+	a23.x = top_2.x + (ground_2.x - top_2.x)*0.3; // 0.707 = (1/1.414);
+	a23.y = top_2.y + (ground_2.y - top_2.y)*0.3; // 0.707 = (1/1.414);
+	a23.z = ground_2.z + (top_2.z - ground_2.z)*0.3; // 0.707 = (1/1.414);
+
+	a24.x = top_2.x + (ground_2.x - top_2.x)*0.61; // 0.923 = (2.414/2.613)
+	a24.y = top_2.y + (ground_2.y - top_2.y)*0.61; // 0.923 = (2.414/2.613)
+	a24.z = ground_2.z + (top_2.z - ground_2.z)*0.1; // 0.3827 = (1/2.613);
+}
 
 	arch_pool_1.push_back(top);
 	arch_pool_1.push_back(a12);
@@ -1273,12 +1334,15 @@ void generateMesh()
     cout<<"Size of Prime: "<< prime <<"\n";
     cout<<"\n";
     cout<<"\n";
-	bone_vertex_pool.clear();
+	//bone_vertex_pool.clear();
 	bone_prime_vPool.clear();
 	bone_lower_vPool.clear();
 	bone_uper_vPool.clear();
 	meshDrawn = true;
 }
+
+/* Printing block */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 void printTrianglePool()
 {
@@ -1307,65 +1371,6 @@ void drawFlatTriangleBase()
 
         meshBeenMade=true;
     }
-}
-
-//Mouse draw
-void mousebutton( int button, int state, int x, int y )
-{
-    if(button==GLUT_LEFT_BUTTON) {
-        switch(state) {
-			case GLUT_DOWN:
-				drawn = false;
-				break;
-			case GLUT_UP:
-				drawn = true;
-				cout<<"Size of Stroke: "<<theSetOfMouse.size()<<"\n";
-
-                cout<<"\n";
-                meshBeenMade = false;
-                drawFlatTriangleBase();
-                // theSetOfMouse.clear();
-				break;
-		}
-	}
-	if(button==GLUT_RIGHT_BUTTON) {
-        theSetOfMouse.clear();
-        theSetOfInputPoint.clear();
-        trianglePool.clear();
-        edgePool.clear();
-        bone_edgePool.clear();
-        meshPool.clear();
-        prev_mouse_X=0;
-        prev_mouse_Y=0;
-        is_first_time=true;
-        meshBeenMade = false;
-	}
-}
-
-void recordMousePos( int x, int y )
-{
-    vertex pre_pos;
-    GLfloat xf,yf;
-
-    xf = x;
-    yf = y;
-    xf = (xf-Width/2)/(Width/40);
-    yf = (yf-Height/2)/(Height/30);
-/*
-    GLfloat deltaX = xf - prev_mouse_X;
-    GLfloat deltaY = yf - prev_mouse_Y;
-
-    xf = xf + deltaX/1.25;
-    yf = yf + deltaY/1.25;
-*/
-    pre_pos.x=xf;
-    pre_pos.y=-yf;
-    pre_pos.z=0.0;
-    theSetOfMouse.push_back(pre_pos);
-/*
-    prev_mouse_X = xf;
-    prev_mouse_Y = yf;
-*/
 }
 
 void printStroke()
@@ -1402,7 +1407,184 @@ void printMesh()
     }
 }
 
-/* GLUT callback Handlers */
+void printMesh2()
+{
+	for(int i=0; i<meshPool.size(); i++)
+    {
+        glBegin(GL_TRIANGLE_STRIP);
+            glVertex3f( meshPool[i].v1.x, meshPool[i].v1.y, meshPool[i].v1.z );
+            glVertex3f( meshPool[i].v2.x, meshPool[i].v2.y, meshPool[i].v2.z );
+            glVertex3f( meshPool[i].v3.x, meshPool[i].v3.y, meshPool[i].v3.z );
+        glEnd();
+        glBegin(GL_TRIANGLE_STRIP);
+            glVertex3f( meshPool[i].v3.x, meshPool[i].v3.y, meshPool[i].v3.z );
+            glVertex3f( meshPool[i].v2.x, meshPool[i].v2.y, meshPool[i].v2.z );
+            glVertex3f( meshPool[i].v1.x, meshPool[i].v1.y, meshPool[i].v1.z );
+        glEnd();
+    }
+}
+
+void printSharpE()
+{
+    //if(!drawn)
+    //{
+    for(int i=0;i<edge_sharp_Pool.size();i++){
+		glBegin(GL_POLYGON);
+			glVertex3f( edge_sharp_Pool[i].v1.x, edge_sharp_Pool[i].v1.y, edge_sharp_Pool[i].v1.z );
+            glVertex3f( edge_sharp_Pool[i].v2.x, edge_sharp_Pool[i].v2.y, edge_sharp_Pool[i].v2.z );
+    	glEnd();
+	}
+    //}
+}
+
+
+/* Generate Mesh */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
+
+GLfloat between_edge_Mark(vertex tV1, vertex tV2, vertex markP)
+{
+	float distance;
+
+	float vx = tV1.x-tV2.x;
+    float vy = tV1.y-tV2.y;
+
+	if(tV1.x!=tV2.x)
+    {
+        distance = fabs(markP.y - ( tV1.y + vy*(markP.x-tV1.x)/vx));
+    }
+
+    //calculate x distance from test point to line.
+    if(tV1.x==tV2.x)
+    {
+        distance = fabs(markP.x-tV1.x);
+    }
+
+    distance = distance - sqrt(pow(vx, 2.0)+pow(vy, 2.0)) +
+    					  sqrt(pow(tV1.x-markP.x, 2.0)+pow(tV1.y-markP.y, 2.0)) +
+    					  sqrt(pow(tV2.x-markP.x, 2.0)+pow(tV2.y-markP.y, 2.0));
+
+    return distance;
+}
+
+bool triangleContain(vertex bV, edge sE, triangle testTriangle)
+{
+	edge e1, e2, e3;
+	e1.v1 = testTriangle.v1;
+	e1.v2 = testTriangle.v2;
+	e2.v1 = testTriangle.v2;
+	e2.v2 = testTriangle.v3;
+	e3.v1 = testTriangle.v3;
+	e3.v2 = testTriangle.v1;
+
+	if(
+		(areSameEdges(sE,e1)||areSameEdges(sE,e2)||areSameEdges(sE,e3))
+		&&
+		(onTheEdge(bV, e1.v1, e1.v2)||onTheEdge(bV, e2.v1, e2.v2)||onTheEdge(bV, e3.v1, e3.v2))
+	) return true;
+
+	return false;
+}
+
+bool boneV_near_sharpE(vertex boneV, edge sharpE)
+{
+	for(int i=0; i<trianglePool.size(); i++)
+	{
+		if(triangleContain(boneV, sharpE, trianglePool[i]))
+			return true;
+	}
+	return false;
+}
+
+void mark_sharp_edge()
+{
+	cout<<"\n";
+   	cout<<"Size of tri: "<< trianglePool.size()<<"\n";
+	cout<<"Size of BVpool: "<< bone_vertex_pool.size()<<"\n";
+
+	theSetOfInputPoint.clear();
+	for(int i=0;i<theSetOfMouse.size();i=i+2){
+            theSetOfInputPoint.push_back(theSetOfMouse[i]);
+    }
+
+    for(int i=0;i<theSet2OfMouse.size();i=i+2){
+        tmp_PointSet.push_back(theSet2OfMouse[i]);
+    }
+
+    /*if(mark_done)
+    {*/
+    //start to label
+    	for(int i=0;i<tmp_PointSet.size();i=i+2)
+    	{
+    		int record_j=0;
+    		GLfloat between_edge_and_Mark = between_edge_Mark(theSetOfInputPoint[0], theSetOfInputPoint[1], tmp_PointSet[i]);
+    		edge tmp_sE;
+    		for(int j=0; j < theSetOfInputPoint.size();j++)
+    		{
+    			if( between_edge_Mark(theSetOfInputPoint[j], theSetOfInputPoint[j+1], tmp_PointSet[i]) < between_edge_and_Mark ){
+    				record_j = j;
+    				between_edge_and_Mark = between_edge_Mark(theSetOfInputPoint[j], theSetOfInputPoint[j+1], tmp_PointSet[i]);
+    			}
+    		}
+    		tmp_sE.v1 = theSetOfInputPoint[record_j];
+    		tmp_sE.v2 = theSetOfInputPoint[record_j+1];
+
+    		edge_sharp_Pool.push_back( tmp_sE );
+    	}
+
+    	for(int i=0; i<bone_vertex_pool.size(); i++)
+    	{
+    		for(int j=0; j < edge_sharp_Pool.size(); j++)
+    		{
+    			if( boneV_near_sharpE( bone_vertex_pool[i], edge_sharp_Pool[j] ) ){
+    				sharp_bone_vPool.push_back(bone_vertex_pool[i]);
+    			}
+    		}
+    	}
+
+    	cout<<"\n";
+    	cout<<"Size of ESP: "<< edge_sharp_Pool.size()<<"\n";
+        cout<<"Size of SBVP: "<< sharp_bone_vPool.size()<<"\n";
+        cout<<"Size of InputSet: "<< theSetOfInputPoint.size()<<"\n";
+        generateMesh();
+        theSetOfInputPoint.clear();
+    //}
+}
+
+/* Callback function */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
+
+void recordMousePos( int x, int y )
+{
+    vertex pre_pos;
+    GLfloat xf,yf;
+
+    xf = x;
+    yf = y;
+    xf = (xf-Width/2)/(Width/40);
+    yf = (yf-Height/2)/(Height/30);
+/*
+    GLfloat deltaX = xf - prev_mouse_X;
+    GLfloat deltaY = yf - prev_mouse_Y;
+
+    xf = xf + deltaX/1.25;
+    yf = yf + deltaY/1.25;
+*/
+    pre_pos.x=xf;
+    pre_pos.y=-yf;
+    pre_pos.z=0.0;
+if(!mode_2_on)
+    theSetOfMouse.push_back(pre_pos);
+if(mode_2_on)
+	theSet2OfMouse.push_back(pre_pos);
+/*
+    prev_mouse_X = xf;
+    prev_mouse_Y = yf;
+*/
+}
+
+/* glut function */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
+
 static void resize(int width, int height)
 {
     const float ar = (float) width / (float) height;
@@ -1423,15 +1605,23 @@ static void display(void)
     const double a = t*90.0;*/
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColor3d(1,0,0);
 
     glPushMatrix();
+    	glColor3d(1,0,0);
         glTranslated(0.0,0.0,-30);
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
         printStroke();
     glPopMatrix();
 
+    glPushMatrix();
+    	glColor3d(0,1,0);
+        glTranslated(0.0,0.0,-30);
+        glRotated(yRotated, 0, 1, 0);
+        glRotated(zRotated, 1, 0, 0);
+        printSharpE();
+    glPopMatrix();
+/*
 if (meshDrawn==false)
 {
     glPushMatrix();
@@ -1448,20 +1638,89 @@ if (meshDrawn==false)
         glRotated(zRotated, 1, 0, 0);
         printBone();
     glPopMatrix();
-}
+}*/
 
 if (meshDrawn==true)
 {
 	glPushMatrix();
-    	glColor3d(0.5,0.5,0.5);
+    	glColor3d(0.0,0.0,0.0);
         glTranslated(0.0,0.0,-30);
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
         printMesh();
     glPopMatrix();
+
+    
 }
 
+	glPushMatrix();
+    	glColor3d(1.0,1.0,1.0);
+        glTranslated(0.0,0.0,-30);
+        glRotated(yRotated, 0, 1, 0);
+        glRotated(zRotated, 1, 0, 0);
+        printMesh2();
+    glPopMatrix();
+
     glutSwapBuffers();
+}
+
+
+/* Control button */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
+
+//Mouse draw
+void mousebutton( int button, int state, int x, int y )
+{
+    if(button==GLUT_LEFT_BUTTON) {
+        switch(state) {
+
+			case GLUT_DOWN:
+				if(mode_2_on==false){
+					drawn = false;
+				}
+				if(mode_2_on==true){
+					mark_done = false;
+					//mark_sharp_edge();
+				}
+				break;
+
+			case GLUT_UP:
+				if(mode_2_on==false){//mode_1_on
+					drawn = true;
+					cout<<"Size of Stroke: "<<theSetOfMouse.size()<<"\n";
+                	cout<<"\n";
+                	meshBeenMade = false;
+                	drawFlatTriangleBase();
+                }
+                if(mode_2_on==true){
+                	mark_done = true;
+					mark_sharp_edge();
+
+				}
+				break;
+		}
+	}
+	if(button==GLUT_RIGHT_BUTTON) {
+        if(mode_2_on==false){//mode_1_on
+        	theSetOfMouse.clear();
+        	theSetOfInputPoint.clear();
+        	trianglePool.clear();
+        	edgePool.clear();
+        	bone_edgePool.clear();
+        	meshPool.clear();
+        	prev_mouse_X=0;
+        	prev_mouse_Y=0;
+        	is_first_time=true;
+        	meshBeenMade = false;
+        }
+        if(mode_2_on==true){
+			mark_done = false;
+			theSet2OfMouse.clear();
+			edge_sharp_Pool.clear();
+			//sharp_bone_vPool.clear();
+		}
+
+	}
 }
 
 static void key(unsigned char key, int x, int y)
@@ -1536,13 +1795,16 @@ static void key(unsigned char key, int x, int y)
         case 'm':
         	if(mode_2_on == true)
         		mode_2_on = false;
-        	if(mode_2_on == false)
+        	else
         		mode_2_on = true;
         	break;
     }
 
     glutPostRedisplay();
 }
+
+/* Lighting */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 static void idle(void)
 {
@@ -1560,7 +1822,8 @@ const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
 const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
 const GLfloat high_shininess[] = { 100.0f };
 
-/* Program entry point */
+/* main */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 int main(int argc, char *argv[])
 {
