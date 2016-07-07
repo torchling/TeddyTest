@@ -25,7 +25,7 @@ int Height= 480;
 using namespace std;
 
 std::vector< vertex >   theSetOfMouse ;         //.stay                 ; ; Original input points
-std::vector< vertex >   theSet2OfMouse ;         //.stay                 ; ; Original input points
+std::vector< vertex >   theSet2OfMouse ;        //.stay                 ; ; Original input points
 std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ; ; tmp input set, only used in Delaunay
 //std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ; ;
 std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ; ;
@@ -45,17 +45,17 @@ std::vector< edge > 	bone_edgePool ;         //.stay                 ; ;
 //std::vector< edge > 	bone_uper_ePool ;       //.stay                 ; ; warping
 
 std::vector< triangle > trianglePool ;          //.stay                 ;;
-std::vector< triangle > badTrianglePool ;       // ???   ;;
+std::vector< triangle > badTrianglePool ;       // ???                  ;;
 std::vector< triangle > subTrianglePool ;       //.clear() in the end   ;;
 
 std::vector< triangle > meshPool ;       		//.stay                 ;;
 
-std::vector< edge > edge_sharp_Pool ;       //.stay                 ;;
-std::vector< vertex > sharp_bone_vPool ;       //.stay                 ;;
+std::vector< edge > edge_sharp_Pool ;           //.stay                 ;;
+std::vector< vertex > sharp_bone_vPool ;        //.stay                 ;;
 
 
 /* Paremeters */
-//--------------------------------------------------------------------------------------------------------------//
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 triangle superDT;
 
@@ -176,7 +176,7 @@ vertex findCenterPoint( triangle cencer_triangle )
 {
 	vertex center_point;
     vertex mid_point;
-    mid_point=findMidPoint(cencer_triangle.v2, cencer_triangle.v3);
+    mid_point = findMidPoint(cencer_triangle.v2, cencer_triangle.v3);
     center_point.x = cencer_triangle.v1.x - (cencer_triangle.v1.x - mid_point.x)*0.66;
     center_point.y = cencer_triangle.v1.y - (cencer_triangle.v1.y - mid_point.y)*0.66;
     center_point.z = 0.0;//or transform to the plain you want
@@ -242,6 +242,7 @@ void addToMeshPool( vertex v1 , vertex v2 , vertex v3 )
     meshPool.push_back(triangletp);
 }
 
+
 /* Triangle Base */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -275,55 +276,7 @@ void deletDoubleEdge()
         }
     }
 }
-/*
-void cleanTheSubInputSet()
-{
-	int i;
-    int j;
-    int k;
-    int h;
 
-    start2:
-    for(i=0;i<subInputPointSet.size();i++)
-    {
-        for(j=0; j < subInputPointSet.size(); j++)
-        {
-            if( isSameVertex(subInputPointSet[i],subInputPointSet[j]) && (i!=j) )
-            {
-
-                for(k=0; k<subInputPointSet.size(); k++){
-                    if((k!=i)&&(k!=j))
-                    tmp_PointSet.push_back(subInputPointSet[k]);
-                }
-
-                subInputPointSet.clear();
-                for(h=0; h < tmp_PointSet.size(); h++){
-                    subInputPointSet.push_back(tmp_PointSet[h]);
-                }
-                tmp_PointSet.clear();
-                goto start2;
-            }
-        }
-    }
-
-    tmp_PointSet.clear();
-
-    for(int i2=0; i2<theSetOfInputPoint.size(); i2++){
-        for(int j2=0; j2<subInputPointSet.size(); j2++){
-            if(isSameVertex(theSetOfInputPoint[i2],subInputPointSet[j2]))
-                tmp_PointSet.push_back(subInputPointSet[j2]);
-        }
-    }
-
-    subInputPointSet.clear();
-
-    for(int m; m<tmp_PointSet.size(); m++){
-    	subInputPointSet.push_back(tmp_PointSet[m]);
-    }
-
-    tmp_PointSet.clear();
-}
-*/
 bool triangulationContainSuperDT( triangle test, triangle super )
 {
     vertex s1 = super.v1;
@@ -507,42 +460,7 @@ void twoVertexIntoOneEdge(vertex vt1, vertex vt2, edge *edge_to_become)
     (*edge_to_become).v2.y = vt2.y;
     (*edge_to_become).v2.z = 0.0;
 }
-/*
-void substitudeTheInputSetWithSubInputSet()
-{
-	theSetOfInputPoint.clear();
 
-    for(int m; m<subInputPointSet.size(); m++){
-    	theSetOfInputPoint.push_back(subInputPointSet[m]);
-    }
-    subInputPointSet.clear();
-/*----------------------------------/
-    trianglePool.clear();
-
-    for(int m; m<subTrianglePool.size(); m++){
-    	trianglePool.push_back(subTrianglePool[m]);
-    }
-    subTrianglePool.clear();
-/*----------------------------------/
-    edgePool.clear();
-
-    edge tmp_edge;
-    int size;
-    size = theSetOfInputPoint.size();
-    for(int m; m<theSetOfInputPoint.size(); m++){
-    	//twoVertexIntoOneEdge(theSetOfInputPoint[m],theSetOfInputPoint[(m+1)%size],tmp_edge);
-    	tmp_edge.v1.x = theSetOfInputPoint[m].x;
-        tmp_edge.v1.y = theSetOfInputPoint[m].y;
-        tmp_edge.v1.z = 0.0;
-
-        tmp_edge.v2.x = theSetOfInputPoint[(m+1)%size].x;
-        tmp_edge.v2.y = theSetOfInputPoint[(m+1)%size].y;
-        tmp_edge.v2.z = 0.0;
-    	edgePool.push_back(tmp_edge);
-    }
-
-}
-*/
 bool isPathTriangle(triangle test_triangle)
 {
     int count=0;
@@ -670,23 +588,6 @@ void generateDelaunayTriangle()
         }
     }
 
-    /*--Trimming those (too small) triangles.--*/
-/*
-    for(int g=0; g<trianglePool.size(); g++)
-    {
-    	if( isNotTooSmall(trianglePool[g]) )
-    	{
-    		subInputPointSet.push_back(trianglePool[g].v1);
-    		subInputPointSet.push_back(trianglePool[g].v2);
-    		subInputPointSet.push_back(trianglePool[g].v3);
-
-    		subTrianglePool.push_back(trianglePool[g]);
-    	}
-    	cleanTheSubInputSet();
-    }
-
-    substitudeTheInputSetWithSubInputSet();
-*/
     /*--Trimming outside Triangles--*/
     //trim 01 : attached triangle
     edgePool.clear();
@@ -726,7 +627,7 @@ void generateDelaunayTriangle()
 }
 
 
-
+/* Bone line Finding*/
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 void generateBoneLine()
@@ -803,6 +704,8 @@ void generateBoneLine()
 	//edgePool.clear();
 }
 
+
+/* Generate Mesh */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 bool is_in_triangle_but_not_on_the_edge(vertex test_vertex, triangle test_triangle)
@@ -1341,6 +1244,7 @@ void generateMesh()
 	meshDrawn = true;
 }
 
+
 /* Printing block */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -1353,23 +1257,6 @@ void printTrianglePool()
             glVertex3f( trianglePool[i].v2.x, trianglePool[i].v2.y, trianglePool[i].v2.z );
             glVertex3f( trianglePool[i].v3.x, trianglePool[i].v3.y, trianglePool[i].v3.z );
         glEnd();
-    }
-}
-
-void drawFlatTriangleBase()
-{
-    if(!meshBeenMade)
-    {
-        for(int i=0;i<theSetOfMouse.size();i=i+2){
-            theSetOfInputPoint.push_back(theSetOfMouse[i]);
-        }
-        //cout<<"test"<<"\n";
-        generateDelaunayTriangle();
-        generateBoneLine();
-        generateMesh();
-        theSetOfInputPoint.clear();
-
-        meshBeenMade=true;
     }
 }
 
@@ -1438,7 +1325,7 @@ void printSharpE()
 }
 
 
-/* Generate Mesh */
+/* Adjust Mesh */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 GLfloat between_edge_Mark(vertex tV1, vertex tV2, vertex markP)
@@ -1550,6 +1437,7 @@ void mark_sharp_edge()
     //}
 }
 
+
 /* Callback function */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -1582,8 +1470,26 @@ if(mode_2_on)
 */
 }
 
+
 /* glut function */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
+
+void teddy_test()
+{
+    if(!meshBeenMade)
+    {
+        for(int i=0;i<theSetOfMouse.size();i=i+2){
+            theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
+        }
+        //cout<<"test"<<"\n";
+        generateDelaunayTriangle();
+        generateBoneLine();
+        generateMesh();
+        theSetOfInputPoint.clear();
+
+        meshBeenMade=true;
+    }
+}
 
 static void resize(int width, int height)
 {
@@ -1690,7 +1596,7 @@ void mousebutton( int button, int state, int x, int y )
 					cout<<"Size of Stroke: "<<theSetOfMouse.size()<<"\n";
                 	cout<<"\n";
                 	meshBeenMade = false;
-                	drawFlatTriangleBase();
+                	teddy_test();
                 }
                 if(mode_2_on==true){
                 	mark_done = true;
@@ -1738,7 +1644,7 @@ static void key(unsigned char key, int x, int y)
             test=test%16;
             if(test%16==0)
                 test=5;
-            drawFlatTriangleBase();
+            teddy_test();
             break;
 
         case 'e':
@@ -1747,7 +1653,7 @@ static void key(unsigned char key, int x, int y)
             test=test%16;
             if(test%16<0)
                 test=15;
-            drawFlatTriangleBase();
+            teddy_test();
             break;
 
 
@@ -1803,6 +1709,7 @@ static void key(unsigned char key, int x, int y)
     glutPostRedisplay();
 }
 
+
 /* Lighting */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -1822,12 +1729,13 @@ const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
 const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
 const GLfloat high_shininess[] = { 100.0f };
 
+
 /* main */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 int main(int argc, char *argv[])
 {
-    drawFlatTriangleBase();// all, not only FlatTriangleBase
+    teddy_test();//drawFlatTriangleBase() all, not only FlatTriangleBase
 
     glutInit(&argc, argv);
     glutInitWindowSize(Width,Height);
@@ -1840,7 +1748,7 @@ int main(int argc, char *argv[])
     glutDisplayFunc(display);
     glutKeyboardFunc(key);
 
-    glutMouseFunc( mousebutton );           // when mouse moves
+    glutMouseFunc( mousebutton );           // when mouse button pressed
     glutMotionFunc( recordMousePos );       // when mouse drags around
 
     glutIdleFunc(idle);
