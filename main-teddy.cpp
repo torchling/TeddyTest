@@ -1476,12 +1476,14 @@ if(mode_2_on)
 
 void teddy_test()
 {
+    int jump = 2;
     if(!meshBeenMade)
     {
-        for(int i=0;i<theSetOfMouse.size();i=i+2){
-            theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
-        }
+        jump = theSetOfMouse.size()%500 + 1;
+        for(int i=0; i<theSetOfMouse.size(); i=i+jump){
+        theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
         //cout<<"test"<<"\n";
+        }
         generateDelaunayTriangle();
         generateBoneLine();
         generateMesh();
@@ -1555,10 +1557,8 @@ if (meshDrawn==true)
         glRotated(zRotated, 1, 0, 0);
         printMesh();
     glPopMatrix();
-
-    
 }
-
+/*
 	glPushMatrix();
     	glColor3d(1.0,1.0,1.0);
         glTranslated(0.0,0.0,-30);
@@ -1566,7 +1566,7 @@ if (meshDrawn==true)
         glRotated(zRotated, 1, 0, 0);
         printMesh2();
     glPopMatrix();
-
+*/
     glutSwapBuffers();
 }
 
