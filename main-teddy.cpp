@@ -878,18 +878,21 @@ void addArch_stitch_store(vertex top, vertex ground, vertex top_2, vertex ground
 	vertex a12, a13, a14, a22, a23, a24;
 	bool top_is_infected = false;
 	bool top_2_is_infected = false;
+
 	for(int i=0; i<sharp_bone_vPool.size(); i++)
 	{
 		if(isSameVertex2(top, sharp_bone_vPool[i])){
 			top_is_infected = true;
+            //cout <<"Wow!"<<"\n";
 		}
 
 		if(isSameVertex2(top_2, sharp_bone_vPool[i])){
 			top_2_is_infected = true;
-		}
+		    //cout <<"Wow!"<<"\n";
+        }
 	}
 
-if( !top_is_infected ){
+if( top_is_infected==false ){
 	a12.x = top.x + (ground.x - top.x)*0.3827; // 0.3827 = (1/2.613);
 	a12.y = top.y + (ground.y - top.y)*0.3827; // 0.3827 = (1/2.613);
 	a12.z = ground.z + (top.z - ground.z)*0.923; // 0.923 = (2.414/2.613)
@@ -902,7 +905,7 @@ if( !top_is_infected ){
 	a14.y = top.y + (ground.y - top.y)*0.923; // 0.923 = (2.414/2.613)
 	a14.z = ground.z + (top.z - ground.z)*0.3827; // 0.3827 = (1/2.613);
 }
-if( top_is_infected ){
+if( top_is_infected==true ){
 	a12.x = top.x + (ground.x - top.x)*0.1; // 0.3827 = (1/2.613);
 	a12.y = top.y + (ground.y - top.y)*0.1; // 0.3827 = (1/2.613);
 	a12.z = ground.z + (top.z - ground.z)*0.61; // 0.923 = (2.414/2.613)
@@ -916,7 +919,7 @@ if( top_is_infected ){
 	a14.z = ground.z + (top.z - ground.z)*0.1; // 0.3827 = (1/2.613);
 }
 
-if( !top_2_is_infected ){
+if( top_2_is_infected==false ){
 	a22.x = top_2.x + (ground_2.x - top_2.x)*0.3827; // 0.3827 = (1/2.613);
 	a22.y = top_2.y + (ground_2.y - top_2.y)*0.3827; // 0.3827 = (1/2.613);
 	a22.z = ground_2.z + (top_2.z - ground_2.z)*0.923; // 0.923 = (2.414/2.613)
@@ -929,7 +932,7 @@ if( !top_2_is_infected ){
 	a24.y = top_2.y + (ground_2.y - top_2.y)*0.923; // 0.923 = (2.414/2.613)
 	a24.z = ground_2.z + (top_2.z - ground_2.z)*0.3827; // 0.3827 = (1/2.613);
 }
-if( top_2_is_infected ){
+if( top_2_is_infected==true ){
 	a22.x = top_2.x + (ground_2.x - top_2.x)*0.1; // 0.3827 = (1/2.613);
 	a22.y = top_2.y + (ground_2.y - top_2.y)*0.1; // 0.3827 = (1/2.613);
 	a22.z = ground_2.z + (top_2.z - ground_2.z)*0.61; // 0.923 = (2.414/2.613)
@@ -1317,7 +1320,7 @@ void printSharpE()
     //if(!drawn)
     //{
     for(int i=0;i<edge_sharp_Pool.size();i++){
-		glBegin(GL_POLYGON);
+		glBegin(GL_LINE_STRIP);
 			glVertex3f( edge_sharp_Pool[i].v1.x, edge_sharp_Pool[i].v1.y, edge_sharp_Pool[i].v1.z );
             glVertex3f( edge_sharp_Pool[i].v2.x, edge_sharp_Pool[i].v2.y, edge_sharp_Pool[i].v2.z );
     	glEnd();
@@ -1325,118 +1328,6 @@ void printSharpE()
     //}
 }
 
-
-/* Adjust Mesh */
-//-------------------------------------------------------------------------------------------------------------------------------------------------//
-
-GLfloat between_edge_Mark(vertex tV1, vertex tV2, vertex markP)
-{
-	float distance;
-
-	float vx = tV1.x-tV2.x;
-    float vy = tV1.y-tV2.y;
-
-	if(tV1.x!=tV2.x)
-    {
-        distance = fabs(markP.y - ( tV1.y + vy*(markP.x-tV1.x)/vx));
-    }
-
-    //calculate x distance from test point to line.
-    if(tV1.x==tV2.x)
-    {
-        distance = fabs(markP.x-tV1.x);
-    }
-
-    distance = distance - sqrt(pow(vx, 2.0)+pow(vy, 2.0)) +
-    					  sqrt(pow(tV1.x-markP.x, 2.0)+pow(tV1.y-markP.y, 2.0)) +
-    					  sqrt(pow(tV2.x-markP.x, 2.0)+pow(tV2.y-markP.y, 2.0));
-
-    return distance;
-}
-
-bool triangleContain(vertex bV, edge sE, triangle testTriangle)
-{
-	edge e1, e2, e3;
-	e1.v1 = testTriangle.v1;
-	e1.v2 = testTriangle.v2;
-	e2.v1 = testTriangle.v2;
-	e2.v2 = testTriangle.v3;
-	e3.v1 = testTriangle.v3;
-	e3.v2 = testTriangle.v1;
-
-	if(
-		(areSameEdges(sE,e1)||areSameEdges(sE,e2)||areSameEdges(sE,e3))
-		&&
-		(onTheEdge(bV, e1.v1, e1.v2)||onTheEdge(bV, e2.v1, e2.v2)||onTheEdge(bV, e3.v1, e3.v2))
-	) return true;
-
-	return false;
-}
-
-bool boneV_near_sharpE(vertex boneV, edge sharpE)
-{
-	for(int i=0; i<trianglePool.size(); i++)
-	{
-		if(triangleContain(boneV, sharpE, trianglePool[i]))
-			return true;
-	}
-	return false;
-}
-
-void mark_sharp_edge()
-{
-	cout<<"\n";
-   	cout<<"Size of tri: "<< trianglePool.size()<<"\n";
-	cout<<"Size of BVpool: "<< bone_vertex_pool.size()<<"\n";
-
-	theSetOfInputPoint.clear();
-	for(int i=0;i<theSetOfMouse.size();i=i+2){
-            theSetOfInputPoint.push_back(theSetOfMouse[i]);
-    }
-
-    for(int i=0;i<theSet2OfMouse.size();i=i+2){
-        tmp_PointSet.push_back(theSet2OfMouse[i]);
-    }
-
-    /*if(mark_done)
-    {*/
-    //start to label
-    	for(int i=0;i<tmp_PointSet.size();i=i+2)
-    	{
-    		int record_j=0;
-    		GLfloat between_edge_and_Mark = between_edge_Mark(theSetOfInputPoint[0], theSetOfInputPoint[1], tmp_PointSet[i]);
-    		edge tmp_sE;
-    		for(int j=0; j < theSetOfInputPoint.size();j++)
-    		{
-    			if( between_edge_Mark(theSetOfInputPoint[j], theSetOfInputPoint[j+1], tmp_PointSet[i]) < between_edge_and_Mark ){
-    				record_j = j;
-    				between_edge_and_Mark = between_edge_Mark(theSetOfInputPoint[j], theSetOfInputPoint[j+1], tmp_PointSet[i]);
-    			}
-    		}
-    		tmp_sE.v1 = theSetOfInputPoint[record_j];
-    		tmp_sE.v2 = theSetOfInputPoint[record_j+1];
-
-    		edge_sharp_Pool.push_back( tmp_sE );
-    	}
-
-    	for(int i=0; i<bone_vertex_pool.size(); i++)
-    	{
-    		for(int j=0; j < edge_sharp_Pool.size(); j++)
-    		{
-    			if( boneV_near_sharpE( bone_vertex_pool[i], edge_sharp_Pool[j] ) ){
-    				sharp_bone_vPool.push_back(bone_vertex_pool[i]);
-    			}
-    		}
-    	}
-
-    	cout<<"\n";
-    	cout<<"Size of ESP: "<< edge_sharp_Pool.size()<<"\n";
-        cout<<"Size of SBVP: "<< sharp_bone_vPool.size()<<"\n";
-        cout<<"Size of InputSet: "<< theSetOfInputPoint.size()<<"\n";
-        generateMesh();
-        theSetOfInputPoint.clear();
-    //}
-}
 
 
 /* Callback function */
@@ -1525,14 +1416,13 @@ static void display(void)
 
     glPushMatrix();
     	glColor3d(0,1,0);
-        glTranslated(0.0,0.0,-30);
+        glTranslated(1.0,0.0,-30);
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
         printSharpE();
     glPopMatrix();
+
 /*
-if (meshDrawn==false)
-{
     glPushMatrix();
         glTranslated(0.0,0.0,-30);
         glRotated(yRotated, 0, 1, 0);
@@ -1547,7 +1437,7 @@ if (meshDrawn==false)
         glRotated(zRotated, 1, 0, 0);
         printBone();
     glPopMatrix();
-}*/
+*/
 
 if (meshDrawn==true)
 {
@@ -1557,20 +1447,156 @@ if (meshDrawn==true)
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
         printMesh();
-    glPopMatrix();
-}
-/*
-	glPushMatrix();
-    	glColor3d(1.0,1.0,1.0);
-        glTranslated(0.0,0.0,-30);
-        glRotated(yRotated, 0, 1, 0);
-        glRotated(zRotated, 1, 0, 0);
+        glColor3d(1.0,1.0,1.0);
         printMesh2();
     glPopMatrix();
-*/
+}
+
     glutSwapBuffers();
 }
 
+
+/* Adjust Mesh */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
+
+GLfloat between_edge_Mark(vertex tV1, vertex tV2, vertex markP)
+{
+    float distance;
+
+    float vx = tV1.x-tV2.x;
+    float vy = tV1.y-tV2.y;
+
+    if(tV1.x!=tV2.x)
+    {
+        distance = fabs(markP.y - ( tV1.y + vy*(markP.x-tV1.x)/vx));
+    }
+
+    //calculate x distance from test point to line.
+    if(tV1.x==tV2.x)
+    {
+        distance = fabs(markP.x-tV1.x);
+    }
+
+    distance = distance - sqrt(pow(vx, 2.0)+pow(vy, 2.0)) +
+                          sqrt(pow(tV1.x-markP.x, 2.0)+pow(tV1.y-markP.y, 2.0)) +
+                          sqrt(pow(tV2.x-markP.x, 2.0)+pow(tV2.y-markP.y, 2.0));
+
+    return distance;
+}
+
+bool triangleContain(vertex bV, edge sE, triangle testTriangle)
+{
+    edge e1, e2, e3;
+    e1.v1 = testTriangle.v1;
+    e1.v2 = testTriangle.v2;
+    e2.v1 = testTriangle.v2;
+    e2.v2 = testTriangle.v3;
+    e3.v1 = testTriangle.v3;
+    e3.v2 = testTriangle.v1;
+
+    if(
+        (areSameEdges(sE,e1)||areSameEdges(sE,e2)||areSameEdges(sE,e3))
+        &&
+        (onTheEdge(bV, e1.v1, e1.v2)||onTheEdge(bV, e2.v1, e2.v2)||onTheEdge(bV, e3.v1, e3.v2))
+    ) return true;
+
+    return false;
+}
+
+bool boneV_near_sharpE(vertex boneV, edge sharpE)
+{
+    for(int i=0; i<trianglePool.size(); i++)
+    {
+        if(triangleContain(boneV, sharpE, trianglePool[i]))
+            return true;
+    }
+    return false;
+}
+
+void mark_sharp_edge()
+{
+    cout<<"\n";
+    cout<<"Size of tri: "<< trianglePool.size()<<"\n";
+    cout<<"Size of BVpool: "<< bone_vertex_pool.size()<<"\n";
+    int jumpAg = 2;
+    jumpAg = theSetOfMouse.size()/50 + 1;
+    theSetOfInputPoint.clear();
+    for(int i=0;i<theSetOfMouse.size();i=i+jumpAg){
+            theSetOfInputPoint.push_back(theSetOfMouse[i]);
+    }
+
+    for(int i=0;i<theSet2OfMouse.size();i=i+jumpAg){
+        tmp_PointSet.push_back(theSet2OfMouse[i]);
+    }
+
+    if(mark_done)
+    {
+    //start to label
+        for(int i=0;i<tmp_PointSet.size();i++)
+        {
+            int record_j=0;
+            GLfloat between_edge_and_Mark = between_edge_Mark(theSetOfInputPoint[0], theSetOfInputPoint[1], tmp_PointSet[i]);
+            edge tmp_sE;
+
+            for(int j=0; j < theSetOfInputPoint.size();j++)
+            {
+                if( between_edge_Mark(theSetOfInputPoint[j], theSetOfInputPoint[j+1], tmp_PointSet[i]) < between_edge_and_Mark ){
+                    record_j = j;
+                    between_edge_and_Mark = between_edge_Mark(theSetOfInputPoint[j], theSetOfInputPoint[j+1], tmp_PointSet[i]);
+                }
+            }
+            tmp_sE.v1 = theSetOfInputPoint[record_j];
+            tmp_sE.v2 = theSetOfInputPoint[record_j+1];
+
+            edge_sharp_Pool.push_back( tmp_sE );
+        }
+
+        for(int i=0; i<bone_vertex_pool.size(); i++)
+        {
+            for(int j=0; j < edge_sharp_Pool.size(); j++)
+            {
+                if( boneV_near_sharpE( bone_vertex_pool[i], edge_sharp_Pool[j] ) ){
+                    sharp_bone_vPool.push_back(bone_vertex_pool[i]);
+                }
+            }
+        }
+
+
+        int num123 = 0;
+        /*
+        for(int i=0; i<bone_vertex_pool.size(); i++)
+        {
+            for(int j=0; j < sharp_bone_vPool.size(); j++)
+            {
+                if( isSameVertex2( bone_vertex_pool[i], sharp_bone_vPool[j] ) ){
+                    num123++;
+                }
+            }
+        }
+        */
+        meshPool.clear();
+        trianglePool.clear();
+        
+        bone_edgePool.clear();
+        bone_vertex_pool.clear();
+        bone_uper_vPool.clear();
+        bone_lower_vPool.clear();
+
+        meshBeenMade=false;
+        generateDelaunayTriangle();
+        generateBoneLine();
+        generateMesh();
+
+        cout<<"\n";
+        cout<<"Size of ESP: "<< edge_sharp_Pool.size()<<"\n";
+        cout<<"Size of SBVP: "<< sharp_bone_vPool.size()<<"\n";
+        cout<<"BVP = SBVP: "<< num123<<"\n";
+        //cout<<"Size of InputSet: "<< theSetOfInputPoint.size()<<"\n";
+
+        theSetOfInputPoint.clear();
+        tmp_PointSet.clear();
+    }
+}
 
 /* Control button */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -1602,7 +1628,7 @@ void mousebutton( int button, int state, int x, int y )
                 if(mode_2_on==true){
                 	mark_done = true;
 					mark_sharp_edge();
-
+                    //teddy_test();
 				}
 				break;
 		}
@@ -1619,11 +1645,16 @@ void mousebutton( int button, int state, int x, int y )
         	prev_mouse_Y=0;
         	is_first_time=true;
         	meshBeenMade = false;
+            yRotated=0.0;
+            zRotated=0.0;
         }
         if(mode_2_on==true){
 			mark_done = false;
 			theSet2OfMouse.clear();
 			edge_sharp_Pool.clear();
+            sharp_bone_vPool.clear();
+            mark_done = true;
+            mark_sharp_edge();
 			//sharp_bone_vPool.clear();
 		}
 
@@ -1705,6 +1736,10 @@ static void key(unsigned char key, int x, int y)
         	else
         		mode_2_on = true;
         	break;
+
+        case 'p':
+            teddy_test();
+            break;
     }
 
     glutPostRedisplay();
