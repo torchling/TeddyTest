@@ -696,6 +696,7 @@ void generateBoneLine()
 
 	    }
 		cout<<"test"<<"\n";
+        cout<<"InputPointSet: "<<theSetOfInputPoint.size()<<"\n";
         cout<<"Size of BoneEdge: "<<bone_edgePool.size()<<"\n";
         cout<<"triangle number: "<<trianglePool.size()<<"\n";
         cout<<"tmp_edge number: "<<tmp_edgePool.size()<<"\n";
@@ -1479,7 +1480,7 @@ void teddy_test()
     int jump = 2;
     if(!meshBeenMade)
     {
-        jump = theSetOfMouse.size()%500 + 1;
+        jump = theSetOfMouse.size()/50 + 1;
         for(int i=0; i<theSetOfMouse.size(); i=i+jump){
         theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
         //cout<<"test"<<"\n";
