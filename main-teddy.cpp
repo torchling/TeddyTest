@@ -61,6 +61,7 @@ triangle superDT;
 
 int test = 15;//early use
 int number;//for bone, isPathTriangles
+int more = 0;
 
 GLfloat prev_mouse_X=0;
 GLfloat prev_mouse_Y=0;
@@ -80,8 +81,7 @@ int zRotated = 0;	//from cubeword
 /* Shared function */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
-//BowyerWatson
-bool isSameVertex( vertex A , vertex B )
+bool isSameVertex( vertex A , vertex B )//("are" some vertecies) Using "is" is easier to distinguish between two functions.
 {
 	if(((A.x == B.x)&&(A.y == B.y))&&(A.z == B.z))
 		return true;
@@ -89,7 +89,7 @@ bool isSameVertex( vertex A , vertex B )
 	return false;
 }
 
-bool isSameVertex2( vertex A , vertex B )
+bool isSameVertex2( vertex A , vertex B )//("are" some vertecies) Using "is" is easier to distinguish between two functions.
 {
 	if((A.x == B.x)&&(A.y == B.y))
 		return true;
@@ -1371,7 +1371,7 @@ void teddy_test()
     int jump = 2;
     if(!meshBeenMade)
     {
-        jump = theSetOfMouse.size()/50 + 1;
+        jump = theSetOfMouse.size()/100 + 1 + more;
         for(int i=0; i<theSetOfMouse.size(); i=i+jump){
         theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
         //cout<<"test"<<"\n";
@@ -1519,7 +1519,7 @@ void mark_sharp_edge()
     cout<<"Size of tri: "<< trianglePool.size()<<"\n";
     cout<<"Size of BVpool: "<< bone_vertex_pool.size()<<"\n";
     int jumpAg = 2;
-    jumpAg = theSetOfMouse.size()/50 + 1;
+    jumpAg = theSetOfMouse.size()/100 + 1 + more;
     theSetOfInputPoint.clear();
     for(int i=0;i<theSetOfMouse.size();i=i+jumpAg){
             theSetOfInputPoint.push_back(theSetOfMouse[i]);
@@ -1595,10 +1595,35 @@ void mark_sharp_edge()
 
         theSetOfInputPoint.clear();
         tmp_PointSet.clear();
+
     }
 }
 
-/* Control button */
+
+/* Operation on Object Surface */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
+
+void draw()
+{
+    ;
+}
+
+void change_curvature()
+{
+    ;
+}
+
+
+/* Generate a new Limb on surface. */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
+
+void limb()
+{
+    ;
+}
+
+
+/* Control buttoms */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
 //Mouse draw
@@ -1739,6 +1764,21 @@ static void key(unsigned char key, int x, int y)
 
         case 'p':
             teddy_test();
+            break;
+
+        case '1':
+            more = more + 1;
+
+            mark_done = true;
+            mark_sharp_edge();
+            break;
+
+        case '2':
+            more = more - 1;
+            if(more<0)more=0;
+            
+            mark_done = true;
+            mark_sharp_edge();
             break;
     }
 
