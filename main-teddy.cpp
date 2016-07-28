@@ -1605,9 +1605,16 @@ void mark_sharp_edge()
 /* Operation on Object Surface */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
-GLfloat distancePnM(vertex v1, vertex v2)
+GLfloat distancePnM(vertex tV1, vertex tV2)
 {
-    ;
+    float distance;
+
+    float vx = tV1.x-tV2.x;
+    float vy = tV1.y-tV2.y;
+
+    distance = sqrt(pow(vx, 2.0)+pow(vy, 2.0));
+
+    return distance;
 }
 
 void draw()
@@ -1699,7 +1706,74 @@ void draw()
 void change_curvature()
 {
     //for(){}
-    ;
+    if(0/*something*/)
+    {
+        //draw
+        for(int i=0;i<theSetOfNotedVertex.size();i++)
+        {
+            int record_j = 0;
+            int record_v = 0;
+            /*
+            GLfloat distance_P_and_M = 100.0;
+            //edge tmp_sE;
+            */
+            for(int j=0; j < meshPool.size(); j++)
+            {
+                if( isSameVertex2( tmp_PointSet[i], meshPool[j].v1 ) ){
+                    record_j = j;
+                    record_v = 1;
+                }
+                if( isSameVertex2( tmp_PointSet[i], meshPool[j].v1 ) ){
+                    record_j = j;
+                    record_v = 2;
+                }
+                if( isSameVertex2( tmp_PointSet[i], meshPool[j].v1 ) ){
+                    record_j = j;
+                    record_v = 3;
+                }
+            }
+
+            if(record_v==1){
+                theSetOfNotedVertex.push_back( meshPool[record_j].v1 );
+            }
+            if(record_v==2){
+                theSetOfNotedVertex.push_back( meshPool[record_j].v2 );
+            }
+            if(record_v==3){
+                theSetOfNotedVertex.push_back( meshPool[record_j].v3 );
+            }
+
+        }
+        /*
+        //deform
+        for(int i=0; i<bone_vertex_pool.size(); i++)
+        {
+            for(int j=0; j < edge_sharp_Pool.size(); j++)
+            {
+                if( boneV_near_sharpE( bone_vertex_pool[i], edge_sharp_Pool[j] ) ){
+                    sharp_bone_vPool.push_back(bone_vertex_pool[i]);
+                }
+            }
+        }
+
+        meshPool.clear();
+        trianglePool.clear();
+
+        bone_edgePool.clear();
+        bone_vertex_pool.clear();
+        bone_uper_vPool.clear();
+        bone_lower_vPool.clear();
+
+        meshBeenMade=false;
+        generateDelaunayTriangle();
+        generateBoneLine();
+        generateMesh();
+*/
+        theSet2OfMouse.clear();
+        tmp_PointSet.clear();
+
+    }
+
 }
 
 /* Generate a new Limb on surface. */
