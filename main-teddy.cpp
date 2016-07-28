@@ -29,6 +29,7 @@ std::vector< vertex >   theSet2OfMouse ;        //.stay                 ; ; Orig
 std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ; ; tmp input set, only used in Delaunay
 //std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ; ;
 std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ; ;
+std::vector< vertex >   theSetOfNotedVertex ;   //.stay                 ; ; Original input points
 
 std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ; ; warping
 std::vector< vertex >	bone_prime_vPool ;		//.clear() in the end   ; ; warping
@@ -71,6 +72,7 @@ bool meshBeenMade = true;
 bool is_first_time = true;
 bool drawn = true;
 bool mode_2_on = false;
+bool mode_3_on = false;
 bool mark_done = false;
 
 //from cubeword
@@ -1371,7 +1373,7 @@ void teddy_test()
     int jump = 2;
     if(!meshBeenMade)
     {
-        jump = theSetOfMouse.size()/100 + 1 + more;
+        jump = theSetOfMouse.size()/50 + 1 + more;
         for(int i=0; i<theSetOfMouse.size(); i=i+jump){
         theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
         //cout<<"test"<<"\n";
@@ -1519,7 +1521,7 @@ void mark_sharp_edge()
     cout<<"Size of tri: "<< trianglePool.size()<<"\n";
     cout<<"Size of BVpool: "<< bone_vertex_pool.size()<<"\n";
     int jumpAg = 2;
-    jumpAg = theSetOfMouse.size()/100 + 1 + more;
+    jumpAg = theSetOfMouse.size()/50 + 1 + more;
     theSetOfInputPoint.clear();
     for(int i=0;i<theSetOfMouse.size();i=i+jumpAg){
             theSetOfInputPoint.push_back(theSetOfMouse[i]);
@@ -1535,7 +1537,7 @@ void mark_sharp_edge()
         for(int i=0;i<tmp_PointSet.size();i++)
         {
             int record_j=0;
-            GLfloat between_edge_and_Mark = between_edge_Mark(theSetOfInputPoint[0], theSetOfInputPoint[1], tmp_PointSet[i]);
+            GLfloat between_edge_and_Mark = 100.0;//between_edge_Mark(theSetOfInputPoint[0], theSetOfInputPoint[1], tmp_PointSet[i]);
             edge tmp_sE;
 
             for(int j=0; j < theSetOfInputPoint.size();j++)
@@ -1576,7 +1578,7 @@ void mark_sharp_edge()
         */
         meshPool.clear();
         trianglePool.clear();
-        
+
         bone_edgePool.clear();
         bone_vertex_pool.clear();
         bone_uper_vPool.clear();
@@ -1603,20 +1605,104 @@ void mark_sharp_edge()
 /* Operation on Object Surface */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
+GLfloat distancePnM(vertex v1, vertex v2)
+{
+    ;
+}
+
 void draw()
 {
-    ;
+    int jumpAg = 2;
+    jumpAg = theSet2OfMouse.size()/75 + 1 + more;
+
+    //theSetOfInputPoint.clear();
+    /*
+    for(int i=0;i<theSetOfMouse.size();i=i+jumpAg){
+            theSetOfInputPoint.push_back(theSetOfMouse[i]);
+    }
+    */
+
+    for(int i=0;i<theSet2OfMouse.size();i=i+jumpAg){
+        tmp_PointSet.push_back(theSet2OfMouse[i]);
+    }
+
+    if(0/*something*/)
+    {
+        //draw
+        for(int i=0;i<tmp_PointSet.size();i++)
+        {
+            int record_j = 0;
+            int record_v = 0;
+            GLfloat distance_P_and_M = 100.0;
+            //edge tmp_sE;
+
+            for(int j=0; j < meshPool.size(); j++)
+            {
+                if( distancePnM( tmp_PointSet[i], meshPool[j].v1 ) < distance_P_and_M ){
+                    record_j = j;
+                    record_v = 1;
+                }
+                if( distancePnM( tmp_PointSet[i], meshPool[j].v2 ) < distance_P_and_M ){
+                    record_j = j;
+                    record_v = 2;
+                }
+                if( distancePnM( tmp_PointSet[i], meshPool[j].v3 ) < distance_P_and_M ){
+                    record_j = j;
+                    record_v = 3;
+                }
+            }
+
+            if(record_v==1){
+                theSetOfNotedVertex.push_back( meshPool[record_j].v1 );
+            }
+            if(record_v==2){
+                theSetOfNotedVertex.push_back( meshPool[record_j].v2 );
+            }
+            if(record_v==3){
+                theSetOfNotedVertex.push_back( meshPool[record_j].v3 );
+            }
+
+        }
+        /*
+        //deform
+        for(int i=0; i<bone_vertex_pool.size(); i++)
+        {
+            for(int j=0; j < edge_sharp_Pool.size(); j++)
+            {
+                if( boneV_near_sharpE( bone_vertex_pool[i], edge_sharp_Pool[j] ) ){
+                    sharp_bone_vPool.push_back(bone_vertex_pool[i]);
+                }
+            }
+        }
+
+        meshPool.clear();
+        trianglePool.clear();
+
+        bone_edgePool.clear();
+        bone_vertex_pool.clear();
+        bone_uper_vPool.clear();
+        bone_lower_vPool.clear();
+
+        meshBeenMade=false;
+        generateDelaunayTriangle();
+        generateBoneLine();
+        generateMesh();
+*/
+        theSet2OfMouse.clear();
+        tmp_PointSet.clear();
+
+    }
+
 }
 
+/*deform*/
 void change_curvature()
 {
+    //for(){}
     ;
 }
 
-
 /* Generate a new Limb on surface. */
-//-------------------------------------------------------------------------------------------------------------------------------------------------//
-
 void limb()
 {
     ;
@@ -1755,28 +1841,35 @@ static void key(unsigned char key, int x, int y)
             //if(longRotate>=160)longRotate=longRotate%160;
             break;
 
-        case 'm':
+        case '2':
         	if(mode_2_on == true)
         		mode_2_on = false;
         	else
         		mode_2_on = true;
         	break;
 
+        case '3':
+            if(mode_3_on == true)
+                mode_3_on = false;
+            else
+                mode_3_on = true;
+            break;
+
         case 'p':
             teddy_test();
             break;
 
-        case '1':
+        case '-':
             more = more + 1;
 
             mark_done = true;
             mark_sharp_edge();
             break;
 
-        case '2':
+        case '+':
             more = more - 1;
             if(more<0)more=0;
-            
+
             mark_done = true;
             mark_sharp_edge();
             break;
