@@ -1418,7 +1418,7 @@ static void display(void)
 
     glPushMatrix();
     	glColor3d(0,1,0);
-        glTranslated(1.0,0.0,-30);
+        glTranslated(0.0,0.0,-50);
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
         printSharpE();
@@ -1693,7 +1693,7 @@ void draw()
         meshBeenMade=false;
         generateDelaunayTriangle();
         generateBoneLine();
-        generateMesh();
+         generateMesh();
 */
         theSet2OfMouse.clear();
         tmp_PointSet.clear();
@@ -1719,28 +1719,34 @@ void change_curvature()
             */
             for(int j=0; j < meshPool.size(); j++)
             {
-                if( isSameVertex2( tmp_PointSet[i], meshPool[j].v1 ) ){
+                if( isSameVertex2( theSetOfNotedVertex[i], meshPool[j].v1 ) ){
                     record_j = j;
                     record_v = 1;
                 }
-                if( isSameVertex2( tmp_PointSet[i], meshPool[j].v1 ) ){
+                if( isSameVertex2( theSetOfNotedVertex[i], meshPool[j].v1 ) ){
                     record_j = j;
                     record_v = 2;
                 }
-                if( isSameVertex2( tmp_PointSet[i], meshPool[j].v1 ) ){
+                if( isSameVertex2( theSetOfNotedVertex[i], meshPool[j].v1 ) ){
                     record_j = j;
                     record_v = 3;
                 }
             }
 
             if(record_v==1){
-                theSetOfNotedVertex.push_back( meshPool[record_j].v1 );
+                meshPool[j].v1.x = theSetOfNotedVertex[i].x;
+                meshPool[j].v1.y = theSetOfNotedVertex[i].y;
+                meshPool[j].v1.z = theSetOfNotedVertex[i].z;
             }
             if(record_v==2){
-                theSetOfNotedVertex.push_back( meshPool[record_j].v2 );
+                meshPool[j].v2.x = theSetOfNotedVertex[i].x;
+                meshPool[j].v2.y = theSetOfNotedVertex[i].y;
+                meshPool[j].v2.z = theSetOfNotedVertex[i].z;
             }
             if(record_v==3){
-                theSetOfNotedVertex.push_back( meshPool[record_j].v3 );
+                meshPool[j].v3.x = theSetOfNotedVertex[i].x;
+                meshPool[j].v3.y = theSetOfNotedVertex[i].y;
+                meshPool[j].v3.z = theSetOfNotedVertex[i].z;
             }
 
         }
