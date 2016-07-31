@@ -834,8 +834,12 @@ void create_uper_vpool()
 				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1)/1.5;
 			}
 
-			if(in_prime_bone_vpool(bone_vertex_pool[i])&&!outsideTheTriangle(bone_vertex_pool[i], trianglePool[j].v1, trianglePool[j].v2, trianglePool[j].v3)){
-				bone_vertex_pool[i].z = distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1)/1.5;
+			if( in_prime_bone_vpool(bone_vertex_pool[i]) && !outsideTheTriangle(bone_vertex_pool[i], trianglePool[j].v1, trianglePool[j].v2, trianglePool[j].v3) ){
+				bone_vertex_pool[i].z = (
+                    distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1) +
+                    distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v2) +
+                    distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v3)
+                    )/4.5;
 			}
 		}
 	}
@@ -865,7 +869,11 @@ void create_lower_vpool()
 			}
 
 			if(in_prime_bone_vpool(bone_vertex_pool[i])&&!outsideTheTriangle(bone_vertex_pool[i], trianglePool[j].v1, trianglePool[j].v2, trianglePool[j].v3)){
-				bone_vertex_pool[i].z = 0.0 - distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1)/1.5;
+				bone_vertex_pool[i].z = 0.0 - (
+                    distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v1) +
+                    distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v2) +
+                    distanceOfVertex(bone_vertex_pool[i], trianglePool[j].v3)
+                    )/4.5;
 			}
 		}
 	}
@@ -1330,8 +1338,6 @@ void printSharpE()
     //}
 }
 
-
-
 /* Callback function */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -1364,6 +1370,82 @@ if(mode_2_on)
 */
 }
 
+/* even the set of mouse */
+//-------------------------------------------------------------------------------------------------------------------------------------------------//
+
+GLfloat distanceVnV(vertex tV1, vertex tV2)
+{
+    float distance;
+
+    float vx = tV1.x-tV2.x;
+    float vy = tV1.y-tV2.y;
+
+    distance = sqrt(pow(vx, 2.0)+pow(vy, 2.0));
+
+    return distance;
+}
+
+void evendistance()
+{
+    GLfloat distance_1 = 0.0;
+    int size = theSetOfMouse.size();
+
+    if(theSetOfMouse.size()!=0)
+    {
+        for(int i=0; i<size; i++)
+        {
+            if( i != size-1 )
+                distance_1 = distance_1 + distanceVnV( theSetOfMouse[i], theSetOfMouse[i+1] );
+        }
+        distance_1 = distance_1 / size;
+    }
+
+    if( distanceVnV(theSetOfMouse[size-1], theSetOfMouse[0]) > distance_1 )
+    {
+        int count=0;
+        count = distanceVnV(theSetOfMouse[size-1], theSetOfMouse[0]) / distance_1;
+
+        vertex tmp;
+        float vx = (theSetOfMouse[0].x-theSetOfMouse[size-1].x) / (count + 1);
+        float vy = (theSetOfMouse[0].y-theSetOfMouse[size-1].y) / (count + 1);
+
+        for(int i=0; i<count; i++)
+        {
+            tmp.x = theSetOfMouse[size-1].x + vx*(i+1);
+            tmp.y = theSetOfMouse[size-1].y + vy*(i+1);
+            tmp.z = 0.0;
+            theSetOfMouse.push_back(tmp);
+            //cout<<"10101 "<<theSetOfMouse.size()<<"\n";
+        }
+        //cout<<"size size "<<size<<"\n";
+        //cout<<"real size "<<theSetOfMouse.size()<<"\n";
+    }
+
+    int j = 0;
+    float tmp_lenth = distance_1 / 10.0;
+    tmp_PointSet.push_back( theSetOfMouse[0] );
+
+    for(int i=1; i<theSetOfMouse.size(); i++)
+    {
+        j = i;
+        again522:
+        if( (i!=theSetOfMouse.size()-1) && distanceVnV(theSetOfMouse[j-1], theSetOfMouse[i]) < distance_1 ){
+            i++;
+            goto again522;
+        }
+        if( i!=theSetOfMouse.size()-1 )
+            tmp_PointSet.push_back( theSetOfMouse[i] );
+
+    }
+
+    theSetOfMouse.clear();
+
+    for(int i=0; i<tmp_PointSet.size(); i++){
+        theSetOfMouse.push_back(tmp_PointSet[i]);
+    }
+
+    tmp_PointSet.clear();
+}
 
 /* glut function */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -1373,6 +1455,8 @@ void teddy_test()
     int jump = 2;
     if(!meshBeenMade)
     {
+        evendistance();
+
         jump = theSetOfMouse.size()/50 + 1 + more;
         for(int i=0; i<theSetOfMouse.size(); i=i+jump){
         theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
@@ -1424,7 +1508,7 @@ static void display(void)
         printSharpE();
     glPopMatrix();
 
-/*
+
     glPushMatrix();
         glTranslated(0.0,0.0,-30);
         glRotated(yRotated, 0, 1, 0);
@@ -1439,7 +1523,8 @@ static void display(void)
         glRotated(zRotated, 1, 0, 0);
         printBone();
     glPopMatrix();
-*/
+
+
 
 if (meshDrawn==true)
 {
@@ -1449,8 +1534,8 @@ if (meshDrawn==true)
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
         printMesh();
-        glColor3d(1.0,1.0,1.0);
-        printMesh2();
+        //glColor3d(1.0,1.0,1.0);
+        //printMesh2();
     glPopMatrix();
 }
 
@@ -1734,19 +1819,19 @@ void change_curvature()
             }
 
             if(record_v==1){
-                meshPool[j].v1.x = theSetOfNotedVertex[i].x;
-                meshPool[j].v1.y = theSetOfNotedVertex[i].y;
-                meshPool[j].v1.z = theSetOfNotedVertex[i].z;
+                meshPool[record_j].v1.x = theSetOfNotedVertex[i].x;
+                meshPool[record_j].v1.y = theSetOfNotedVertex[i].y;
+                meshPool[record_j].v1.z = theSetOfNotedVertex[i].z;
             }
             if(record_v==2){
-                meshPool[j].v2.x = theSetOfNotedVertex[i].x;
-                meshPool[j].v2.y = theSetOfNotedVertex[i].y;
-                meshPool[j].v2.z = theSetOfNotedVertex[i].z;
+                meshPool[record_j].v2.x = theSetOfNotedVertex[i].x;
+                meshPool[record_j].v2.y = theSetOfNotedVertex[i].y;
+                meshPool[record_j].v2.z = theSetOfNotedVertex[i].z;
             }
             if(record_v==3){
-                meshPool[j].v3.x = theSetOfNotedVertex[i].x;
-                meshPool[j].v3.y = theSetOfNotedVertex[i].y;
-                meshPool[j].v3.z = theSetOfNotedVertex[i].z;
+                meshPool[record_j].v3.x = theSetOfNotedVertex[i].x;
+                meshPool[record_j].v3.y = theSetOfNotedVertex[i].y;
+                meshPool[record_j].v3.z = theSetOfNotedVertex[i].z;
             }
 
         }
@@ -1810,6 +1895,7 @@ void mousebutton( int button, int state, int x, int y )
 
 			case GLUT_UP:
 				if(mode_2_on==false){//mode_1_on
+                    //evendistance();
 					drawn = true;
 					cout<<"Size of Stroke: "<<theSetOfMouse.size()<<"\n";
                 	cout<<"\n";
