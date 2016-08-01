@@ -77,7 +77,8 @@ bool outsideTheTriangle(vertex testvertex, vertex vertex1, vertex vertex2, verte
 
 bool onTheEdge(vertex test_point, vertex line_start, vertex line_end)
 {
-	//calculate y distance from test point to line.
+    
+    //calculate y distance from test point to line.
     if(line_start.x!=line_end.x)
     {
         float vx = line_start.x-line_end.x;
@@ -99,6 +100,43 @@ bool onTheEdge(vertex test_point, vertex line_start, vertex line_end)
     }
 
 }
+
+bool onTheEdgeMid(vertex test_point, vertex line_start, vertex line_end)
+{
+    /*
+	//calculate y distance from test point to line.
+    if(line_start.x!=line_end.x)
+    {
+        float vx = line_start.x-line_end.x;
+        float vy = line_start.y-line_end.y;
+
+        if( fabs(test_point.y - ( line_start.y + vy*(test_point.x-line_start.x)/vx)) <=0.00000001  )
+            return true;
+
+        return false;
+    }
+
+    //calculate x distance from test point to line.
+    if(line_start.x==line_end.x)
+    {
+        if( fabs(test_point.x-line_start.x) <= 0.0000001 )
+            return true;
+
+        return false;
+    }
+    */
+    vertex mid_point;
+    mid_point.x = (line_start.x + line_end.x)*0.5;
+    mid_point.y = (line_start.y + line_end.y)*0.5;
+    //mid_point.z = 0.0;//or transform to
+
+    if((mid_point.x == test_point.x)&&(mid_point.y == test_point.y))
+        return true;
+
+    return false;
+
+}
+
 bool onTheTriangleEdges(vertex testvertex, vertex vertex1, vertex vertex2, vertex vertex3)
 {
     if( onTheEdge(testvertex, vertex1, vertex2) ||
