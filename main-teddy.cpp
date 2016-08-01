@@ -78,6 +78,7 @@ bool on = true;
 bool on8 = false;
 bool on7 = true;
 bool mark_done = false;
+bool draw_done = false;
 
 //from cubeword
 int yRotated = 0; 	//from cubeword
@@ -1487,6 +1488,15 @@ void printSharpE()
     //}
 }
 
+void printNoted()
+{
+    glBegin(GL_LINE_STRIP);
+        for(int i=0;i<theSetOfNotedVertex.size();i++){
+            glVertex3f( theSetOfNotedVertex[i].x, theSetOfNotedVertex[i].y, theSetOfNotedVertex[i].z );
+        }        
+    glEnd();   
+}
+
 /* Callback function */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -1596,6 +1606,68 @@ void evendistance()
     tmp_PointSet.clear();
 }
 
+void evendistance2()
+{
+    GLfloat distance_1 = 0.0;
+    int size = theSet2OfMouse.size();
+
+    if(theSet2OfMouse.size()!=0)
+    {
+        for(int i=0; i<size; i++)
+        {
+            if( i != size-1 )
+                distance_1 = distance_1 + distanceVnV( theSet2OfMouse[i], theSet2OfMouse[i+1] );
+        }
+        distance_1 = distance_1 / size;
+    }
+
+    if( distanceVnV(theSet2OfMouse[size-1], theSet2OfMouse[0]) > distance_1 )
+    {
+        int count=0;
+        count = distanceVnV(theSet2OfMouse[size-1], theSet2OfMouse[0]) / distance_1;
+
+        vertex tmp;
+        float vx = (theSet2OfMouse[0].x-theSet2OfMouse[size-1].x) / (count + 1);
+        float vy = (theSet2OfMouse[0].y-theSet2OfMouse[size-1].y) / (count + 1);
+
+        for(int i=0; i<count-1; i++)
+        {
+            tmp.x = theSet2OfMouse[size-1].x + vx*(i+1);
+            tmp.y = theSet2OfMouse[size-1].y + vy*(i+1);
+            tmp.z = 0.0;
+            theSet2OfMouse.push_back(tmp);
+            //cout<<"10101 "<<theSet2OfMouse.size()<<"\n";
+        }
+        //cout<<"size size "<<size<<"\n";
+        //cout<<"real size "<<theSet2OfMouse.size()<<"\n";
+    }
+
+    int j = 0;
+    float tmp_lenth = distance_1 / 10.0;
+    tmp_PointSet.push_back( theSet2OfMouse[0] );
+
+    for(int i=1; i<theSet2OfMouse.size(); i++)
+    {
+        j = i;
+        again5478:
+        if( (i!=theSet2OfMouse.size()-1) && distanceVnV(theSet2OfMouse[j-1], theSet2OfMouse[i]) < distance_1 ){
+            i++;
+            goto again5478;
+        }
+        if( i!=theSet2OfMouse.size()-1 )
+            tmp_PointSet.push_back( theSet2OfMouse[i] );
+
+    }
+
+    theSet2OfMouse.clear();
+
+    for(int i=0; i<tmp_PointSet.size(); i++){
+        theSet2OfMouse.push_back(tmp_PointSet[i]);
+    }
+
+    tmp_PointSet.clear();
+}
+
 /* glut function */
 //-------------------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -1641,8 +1713,8 @@ static void display(void)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-if (meshDrawn==false)
-{
+    if (meshDrawn==false)
+    {
     glPushMatrix();
     	glColor3d(1,0,0);
         glTranslated(0.0,0.0,-30);
@@ -1650,7 +1722,8 @@ if (meshDrawn==false)
         glRotated(zRotated, 1, 0, 0);
         printStroke();
     glPopMatrix();
-}
+    }
+    
     glPushMatrix();
     	glColor3d(0,1,0);
         glTranslated(0.0,0.0,-50);
@@ -1659,8 +1732,19 @@ if (meshDrawn==false)
         printSharpE();
     glPopMatrix();
 
-if (on8)
-{
+    if(mode_3_on)
+    {
+    glPushMatrix();
+        glColor3d(0,1,0);
+        glTranslated(0.0,0.0,-50);
+        glRotated(yRotated, 0, 1, 0);
+        glRotated(zRotated, 1, 0, 0);
+        printNoted();
+    glPopMatrix();
+    }
+    
+    if (on8)
+    {
     glPushMatrix();
         glTranslated(0.0,0.0,-30);
         glRotated(yRotated, 0, 1, 0);
@@ -1675,11 +1759,11 @@ if (on8)
         glRotated(zRotated, 1, 0, 0);
         printBone();
     glPopMatrix();
-}
+    }
 
 
-if (meshDrawn&&on)
-{
+    if (meshDrawn&&on)
+    {
 	glPushMatrix();
     	glColor3d(0.0,0.0,0.0);
         glTranslated(0.0,0.0,-30);
@@ -1690,7 +1774,7 @@ if (meshDrawn&&on)
         glColor3d(1.0,1.0,1.0);
         printMesh2();}
     glPopMatrix();
-}
+    }
 
     glutSwapBuffers();
 }
@@ -1866,12 +1950,12 @@ void draw()
             theSetOfInputPoint.push_back(theSetOfMouse[i]);
     }
     */
-
+    evendistance2();
     for(int i=0;i<theSet2OfMouse.size();i=i+jumpAg){
         tmp_PointSet.push_back(theSet2OfMouse[i]);
     }
 
-    if(0/*something*/)
+    if(draw_done/*something*/)
     {
         //draw
         for(int i=0;i<tmp_PointSet.size();i++)
@@ -1884,14 +1968,17 @@ void draw()
             for(int j=0; j < meshPool.size(); j++)
             {
                 if( distancePnM( tmp_PointSet[i], meshPool[j].v1 ) < distance_P_and_M ){
+                    distance_P_and_M = distancePnM( tmp_PointSet[i], meshPool[j].v1 );
                     record_j = j;
                     record_v = 1;
                 }
                 if( distancePnM( tmp_PointSet[i], meshPool[j].v2 ) < distance_P_and_M ){
+                    distance_P_and_M = distancePnM( tmp_PointSet[i], meshPool[j].v2 );
                     record_j = j;
                     record_v = 2;
                 }
                 if( distancePnM( tmp_PointSet[i], meshPool[j].v3 ) < distance_P_and_M ){
+                    distance_P_and_M = distancePnM( tmp_PointSet[i], meshPool[j].v3 );
                     record_j = j;
                     record_v = 3;
                 }
@@ -2037,7 +2124,7 @@ void mousebutton( int button, int state, int x, int y )
         switch(state) {
 
 			case GLUT_DOWN:
-				if(mode_2_on==false){
+				if(mode_2_on==false&&mode_3_on==false){
 					drawn = false;
                     meshDrawn=false;
 				}
@@ -2045,10 +2132,14 @@ void mousebutton( int button, int state, int x, int y )
 					mark_done = false;
 					//mark_sharp_edge();
 				}
+                if(mode_3_on==true){
+                    draw_done = false;
+                    //mark_sharp_edge();
+                }
 				break;
 
 			case GLUT_UP:
-				if(mode_2_on==false){//mode_1_on
+				if(mode_2_on==false&&mode_3_on==false){//mode_1_on
                     //evendistance();
 					drawn = true;
 					cout<<"Size of Stroke: "<<theSetOfMouse.size()<<"\n";
@@ -2059,13 +2150,18 @@ void mousebutton( int button, int state, int x, int y )
                 if(mode_2_on==true){
                 	mark_done = true;
 					mark_sharp_edge();
-                    //teddy_test();
+                    //teddy_test(); 
 				}
+                if(mode_3_on==true){
+                    draw_done = true;
+                    draw();
+                    //teddy_test();
+                }
 				break;
 		}
 	}
 	if(button==GLUT_RIGHT_BUTTON) {
-        if(mode_2_on==false){//mode_1_on
+        if(mode_2_on==false&&mode_3_on==false){//mode_1_on
         	theSetOfMouse.clear();
         	theSetOfInputPoint.clear();
         	trianglePool.clear();
@@ -2089,6 +2185,15 @@ void mousebutton( int button, int state, int x, int y )
             mark_sharp_edge();
 			//sharp_bone_vPool.clear();
 		}
+        if(mode_3_on==true){
+            draw_done = false;
+            theSet2OfMouse.clear();
+            tmp_PointSet.clear();
+            theSetOfNotedVertex.clear();
+            draw_done = true;
+            draw();
+            //sharp_bone_vPool.clear();
+        }
 
 	}
 }
