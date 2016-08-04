@@ -1519,10 +1519,12 @@ void recordMousePos( int x, int y )
     pre_pos.x=xf;
     pre_pos.y=-yf;
     pre_pos.z=0.0;
-if(!mode_2_on)
+if(!mode_2_on && !mode_3_on)
     theSetOfMouse.push_back(pre_pos);
-if(mode_2_on)
+if(mode_2_on && !mode_3_on)
 	theSet2OfMouse.push_back(pre_pos);
+if(mode_3_on && !mode_2_on)
+    theSet2OfMouse.push_back(pre_pos);
 /*
     prev_mouse_X = xf;
     prev_mouse_Y = yf;
@@ -1677,8 +1679,8 @@ void teddy_test()
     if(!meshBeenMade)
     {
         evendistance();
-
-        jump = theSetOfMouse.size()/50 + 1 + more;
+        int hjhkjhk;
+        jump = theSetOfMouse.size()/70 + 1 + more;
         for(int i=0; i<theSetOfMouse.size(); i=i+jump){
         theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
         //cout<<"test"<<"\n";
@@ -1732,11 +1734,11 @@ static void display(void)
         printSharpE();
     glPopMatrix();
 
-    if(mode_3_on)
-    {
+    if(draw_done==false)
+    {    
     glPushMatrix();
-        glColor3d(0,1,0);
-        glTranslated(0.0,0.0,-50);
+        glColor3d(1,0,0);
+        glTranslated(0.0,0.0,-30);
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
         printNoted();
@@ -1760,7 +1762,6 @@ static void display(void)
         printBone();
     glPopMatrix();
     }
-
 
     if (meshDrawn&&on)
     {
@@ -1843,7 +1844,7 @@ void mark_sharp_edge()
     cout<<"Size of tri: "<< trianglePool.size()<<"\n";
     cout<<"Size of BVpool: "<< bone_vertex_pool.size()<<"\n";
     int jumpAg = 2;
-    jumpAg = theSetOfMouse.size()/50 + 1 + more;
+    jumpAg = theSetOfMouse.size()/70 + 1 + more;
     theSetOfInputPoint.clear();
     for(int i=0;i<theSetOfMouse.size();i=i+jumpAg){
             theSetOfInputPoint.push_back(theSetOfMouse[i]);
@@ -1931,8 +1932,8 @@ GLfloat distancePnM(vertex tV1, vertex tV2)
 {
     float distance;
 
-    float vx = tV1.x-tV2.x;
-    float vy = tV1.y-tV2.y;
+    float vx = fabs(tV1.x-tV2.x);
+    float vy = fabs(tV1.y-tV2.y);
 
     distance = sqrt(pow(vx, 2.0)+pow(vy, 2.0));
 
@@ -1941,6 +1942,10 @@ GLfloat distancePnM(vertex tV1, vertex tV2)
 
 void draw()
 {
+    theSetOfNotedVertex.clear();
+    if(draw_done/*something*/)
+    {
+
     int jumpAg = 2;
     jumpAg = theSet2OfMouse.size()/75 + 1 + more;
 
@@ -1955,8 +1960,7 @@ void draw()
         tmp_PointSet.push_back(theSet2OfMouse[i]);
     }
 
-    if(draw_done/*something*/)
-    {
+   
         //draw
         for(int i=0;i<tmp_PointSet.size();i++)
         {
@@ -1995,6 +1999,7 @@ void draw()
             }
 
         }
+        cout<<"Noted size"<<theSetOfNotedVertex.size()<<"\n";
         /*
         //deform
         for(int i=0; i<bone_vertex_pool.size(); i++)
@@ -2128,11 +2133,11 @@ void mousebutton( int button, int state, int x, int y )
 					drawn = false;
                     meshDrawn=false;
 				}
-				if(mode_2_on==true){
+				if(mode_2_on==true&&mode_3_on==false){
 					mark_done = false;
 					//mark_sharp_edge();
 				}
-                if(mode_3_on==true){
+                if(mode_3_on==true&&mode_2_on==false){
                     draw_done = false;
                     //mark_sharp_edge();
                 }
@@ -2147,14 +2152,16 @@ void mousebutton( int button, int state, int x, int y )
                 	meshBeenMade = false;
                 	teddy_test();
                 }
-                if(mode_2_on==true){
+                if(mode_2_on==true&&mode_3_on==false){
                 	mark_done = true;
 					mark_sharp_edge();
                     //teddy_test(); 
 				}
-                if(mode_3_on==true){
+                if(mode_3_on==true&&mode_2_on==false){
                     draw_done = true;
                     draw();
+                    draw_done = false;
+
                     //teddy_test();
                 }
 				break;
@@ -2176,7 +2183,7 @@ void mousebutton( int button, int state, int x, int y )
             yRotated=0.0;
             zRotated=0.0;
         }
-        if(mode_2_on==true){
+        if(mode_2_on==true&&mode_3_on==false){
 			mark_done = false;
 			theSet2OfMouse.clear();
 			edge_sharp_Pool.clear();
@@ -2185,13 +2192,13 @@ void mousebutton( int button, int state, int x, int y )
             mark_sharp_edge();
 			//sharp_bone_vPool.clear();
 		}
-        if(mode_3_on==true){
+        if(mode_3_on==true&&mode_2_on==false){
             draw_done = false;
             theSet2OfMouse.clear();
             tmp_PointSet.clear();
             theSetOfNotedVertex.clear();
-            draw_done = true;
-            draw();
+            //draw_done = true;
+            //draw();
             //sharp_bone_vPool.clear();
         }
 
@@ -2300,21 +2307,21 @@ static void key(unsigned char key, int x, int y)
             mark_sharp_edge();
             break;
 
-        case '7':
+        case '9':
             if(on7 == true)
                 on7 = false;
             else
                 on7 = true;
             break;
 
-        case '8':
+        case '7':
             if(on8 == true)
                 on8 = false;
             else
                 on8 = true;
             break;
 
-        case '9':
+        case '8':
             if(on == true)
                 on = false;
             else
