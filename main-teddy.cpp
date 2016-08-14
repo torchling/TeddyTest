@@ -29,6 +29,8 @@ std::vector< vertex >   theSet2OfMouse ;        //.stay                 ; ; Orig
 std::vector< vertex >	theSetOfInputPoint ;    //.clear() in the end   ; ; tmp input set, only used in Delaunay
 //std::vector< vertex >	subInputPointSet ;		//.clear() in the end   ; ;
 std::vector< vertex >	tmp_PointSet ;			//.clear() in the end   ; ;
+std::vector< vertex >   tmp_PointSet_2 ;        //.clear() in the end   ; ;
+std::vector< vertex >   tmp_PointSet_3 ;        //.clear() in the end   ; ;
 std::vector< vertex >   theSetOfNotedVertex ;   //.stay                 ; ; Original input points
 
 std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ; ; warping
@@ -51,6 +53,7 @@ std::vector< triangle > badTrianglePool ;       // ???                  ;;
 std::vector< triangle > subTrianglePool ;       //.clear() in the end   ;;
 
 std::vector< triangle > meshPool ;       		//.stay                 ;;
+std::vector< triangle > tmp_meshPool ;          //.stay tmp             ;;
 
 std::vector< edge > edge_sharp_Pool ;           //.stay                 ;;
 std::vector< vertex > sharp_bone_vPool ;        //.stay                 ;;
@@ -1679,7 +1682,7 @@ void teddy_test()
     if(!meshBeenMade)
     {
         evendistance();
-        int hjhkjhk;
+        
         jump = theSetOfMouse.size()/70 + 1 + more;
         for(int i=0; i<theSetOfMouse.size(); i=i+jump){
         theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
@@ -1943,7 +1946,7 @@ GLfloat distancePnM(vertex tV1, vertex tV2)
 void draw()
 {
     theSetOfNotedVertex.clear();
-    if(draw_done/*something*/)
+    if( draw_done )
     {
 
     int jumpAg = 2;
@@ -1960,47 +1963,103 @@ void draw()
         tmp_PointSet.push_back(theSet2OfMouse[i]);
     }
 
-   
-        //draw
-        for(int i=0;i<tmp_PointSet.size();i++)
+    //draw
+    for(int i=0;i<tmp_PointSet.size();i++)
+    {
+        int record_j = 0;
+        int record_v = 0;
+        GLfloat distance_P_and_M = 100.0;
+        //edge tmp_sE;
+
+        for(int j=0; j < meshPool.size(); j++)
         {
-            int record_j = 0;
-            int record_v = 0;
-            GLfloat distance_P_and_M = 100.0;
-            //edge tmp_sE;
-
-            for(int j=0; j < meshPool.size(); j++)
-            {
-                if( distancePnM( tmp_PointSet[i], meshPool[j].v1 ) < distance_P_and_M ){
-                    distance_P_and_M = distancePnM( tmp_PointSet[i], meshPool[j].v1 );
-                    record_j = j;
-                    record_v = 1;
-                }
-                if( distancePnM( tmp_PointSet[i], meshPool[j].v2 ) < distance_P_and_M ){
-                    distance_P_and_M = distancePnM( tmp_PointSet[i], meshPool[j].v2 );
-                    record_j = j;
-                    record_v = 2;
-                }
-                if( distancePnM( tmp_PointSet[i], meshPool[j].v3 ) < distance_P_and_M ){
-                    distance_P_and_M = distancePnM( tmp_PointSet[i], meshPool[j].v3 );
-                    record_j = j;
-                    record_v = 3;
-                }
+            if( distancePnM( tmp_PointSet[i], meshPool[j].v1 ) < distance_P_and_M ){
+                distance_P_and_M = distancePnM( tmp_PointSet[i], meshPool[j].v1 );
+                record_j = j;
+                record_v = 1;
             }
-
-            if(record_v==1){
-                theSetOfNotedVertex.push_back( meshPool[record_j].v1 );
+            if( distancePnM( tmp_PointSet[i], meshPool[j].v2 ) < distance_P_and_M ){
+                distance_P_and_M = distancePnM( tmp_PointSet[i], meshPool[j].v2 );
+                record_j = j;
+                record_v = 2;
             }
-            if(record_v==2){
-                theSetOfNotedVertex.push_back( meshPool[record_j].v2 );
+            if( distancePnM( tmp_PointSet[i], meshPool[j].v3 ) < distance_P_and_M ){
+                distance_P_and_M = distancePnM( tmp_PointSet[i], meshPool[j].v3 );
+                record_j = j;
+                record_v = 3;
             }
-            if(record_v==3){
-                theSetOfNotedVertex.push_back( meshPool[record_j].v3 );
-            }
-
         }
-        cout<<"Noted size"<<theSetOfNotedVertex.size()<<"\n";
-        /*
+
+        if(record_v==1){
+            theSetOfNotedVertex.push_back( meshPool[record_j].v1 );
+        }
+        if(record_v==2){
+            theSetOfNotedVertex.push_back( meshPool[record_j].v2 );
+        }
+        if(record_v==3){
+            theSetOfNotedVertex.push_back( meshPool[record_j].v3 );
+        }
+
+    }
+    cout<<"Noted size"<<theSetOfNotedVertex.size()<<"\n";
+        
+    theSet2OfMouse.clear();
+
+    for(int i=0; i<theSetOfNotedVertex.size(); i++){
+        tmp_PointSet_2.push_back(theSetOfNotedVertex[i]);
+    }
+    int count = tmp_PointSet_2.size();
+    float x1, y1, z1;
+    float x2, y2, z2;
+    x1 = tmp_PointSet_2[0].x - tmp_PointSet_2[count/3].x;
+    y1 = tmp_PointSet_2[0].y - tmp_PointSet_2[count/3].y;
+    z1 = tmp_PointSet_2[0].z - tmp_PointSet_2[count/3].z;
+
+    x2 = tmp_PointSet_2[count/3].x - tmp_PointSet_2[2*count/3].x;
+    y2 = tmp_PointSet_2[count/3].y - tmp_PointSet_2[2*count/3].y;
+    z2 = tmp_PointSet_2[count/3].z - tmp_PointSet_2[2*count/3].z;
+
+    float normal_x, normal_y, normal_z;
+    normal_x = y1*z2 - z1*y2;
+    normal_y = z1*x2 - x1*z2;
+    normal_z = x1*y2 - y1*x2;
+
+    if(normal_z < 0.0){
+        normal_x = -normal_x;
+        normal_y = -normal_y;
+        normal_z = -normal_z;
+    }
+
+    float limit = 5.3;
+    normal_x = normal_x / limit;
+    normal_y = normal_y / limit;
+    normal_z = normal_z / limit;
+
+    vertex center = centerOfCircumscribedCircle( tmp_PointSet_2[0], tmp_PointSet_2[count/3], tmp_PointSet_2[2*count/3] );
+    
+    for(int i=0;i< 5/*tmp_PointSet.size()*/;i++)
+    {
+        if(i%2 == 0){
+            for(int j=0; j< tmp_PointSet_2.size(); j++){
+                ;
+            }
+            ;
+        }
+        if(i%2==1){
+            for(int j=0; j< tmp_PointSet_2.size(); j++){
+                ;
+            }
+            ;
+        }
+        
+        tmp_PointSet_3.push_back();
+
+    }
+
+    tmp_PointSet_2.clear();
+    tmp_PointSet_3.clear();
+
+/*
         //deform
         for(int i=0; i<bone_vertex_pool.size(); i++)
         {
@@ -2025,8 +2084,8 @@ void draw()
         generateBoneLine();
          generateMesh();
 */
-        theSet2OfMouse.clear();
-        tmp_PointSet.clear();
+    theSet2OfMouse.clear();
+    tmp_PointSet.clear();
 
     }
 
