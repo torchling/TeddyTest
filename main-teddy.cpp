@@ -1478,6 +1478,35 @@ void printMesh2()
     }
 }
 
+void printTmpMesh()
+{
+    for(int i=0; i<tmp_meshPool.size(); i++)
+    {
+        glBegin(GL_LINE_LOOP);
+            glVertex3f( tmp_meshPool[i].v1.x, tmp_meshPool[i].v1.y, tmp_meshPool[i].v1.z );
+            glVertex3f( tmp_meshPool[i].v2.x, tmp_meshPool[i].v2.y, tmp_meshPool[i].v2.z );
+            glVertex3f( tmp_meshPool[i].v3.x, tmp_meshPool[i].v3.y, tmp_meshPool[i].v3.z );
+        glEnd();
+    }
+}
+
+void printTmpMesh2()
+{
+    for(int i=0; i<tmp_meshPool.size(); i++)
+    {
+        glBegin(GL_TRIANGLE_STRIP);
+            glVertex3f( tmp_meshPool[i].v1.x, tmp_meshPool[i].v1.y, tmp_meshPool[i].v1.z );
+            glVertex3f( tmp_meshPool[i].v2.x, tmp_meshPool[i].v2.y, tmp_meshPool[i].v2.z );
+            glVertex3f( tmp_meshPool[i].v3.x, tmp_meshPool[i].v3.y, tmp_meshPool[i].v3.z );
+        glEnd();
+        glBegin(GL_TRIANGLE_STRIP);
+            glVertex3f( tmp_meshPool[i].v3.x, tmp_meshPool[i].v3.y, tmp_meshPool[i].v3.z );
+            glVertex3f( tmp_meshPool[i].v2.x, tmp_meshPool[i].v2.y, tmp_meshPool[i].v2.z );
+            glVertex3f( tmp_meshPool[i].v1.x, tmp_meshPool[i].v1.y, tmp_meshPool[i].v1.z );
+        glEnd();
+    }
+}
+
 void printSharpE()
 {
     //if(!drawn)
@@ -1496,8 +1525,8 @@ void printNoted()
     glBegin(GL_LINE_STRIP);
         for(int i=0;i<theSetOfNotedVertex.size();i++){
             glVertex3f( theSetOfNotedVertex[i].x, theSetOfNotedVertex[i].y, theSetOfNotedVertex[i].z );
-        }        
-    glEnd();   
+        }
+    glEnd();
 }
 
 /* Callback function */
@@ -1682,7 +1711,7 @@ void teddy_test()
     if(!meshBeenMade)
     {
         evendistance();
-        
+
         jump = theSetOfMouse.size()/70 + 1 + more;
         for(int i=0; i<theSetOfMouse.size(); i=i+jump){
         theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
@@ -1728,7 +1757,7 @@ static void display(void)
         printStroke();
     glPopMatrix();
     }
-    
+
     glPushMatrix();
     	glColor3d(0,1,0);
         glTranslated(0.0,0.0,-50);
@@ -1738,7 +1767,7 @@ static void display(void)
     glPopMatrix();
 
     if(draw_done==false)
-    {    
+    {
     glPushMatrix();
         glColor3d(1,0,0);
         glTranslated(0.0,0.0,-30);
@@ -1747,7 +1776,7 @@ static void display(void)
         printNoted();
     glPopMatrix();
     }
-    
+
     if (on8)
     {
     glPushMatrix();
@@ -1774,9 +1803,13 @@ static void display(void)
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
         printMesh();
+        printTmpMesh();
+
         if(on7){
         glColor3d(1.0,1.0,1.0);
-        printMesh2();}
+        printMesh2();
+        printTmpMesh2();
+        }
     glPopMatrix();
     }
 
@@ -2002,9 +2035,11 @@ void draw()
 
     }
     cout<<"Noted size"<<theSetOfNotedVertex.size()<<"\n";
-        
-    theSet2OfMouse.clear();
 
+    theSet2OfMouse.clear();
+    tmp_PointSet.clear();
+
+    /* Limb Start */
     for(int i=0; i<theSetOfNotedVertex.size(); i++){
         tmp_PointSet_2.push_back(theSetOfNotedVertex[i]);
     }
@@ -2035,26 +2070,110 @@ void draw()
     normal_y = normal_y / limit;
     normal_z = normal_z / limit;
 
+    float rate = 0.12;
+    float rate_stay = 0.5;
+    float num = 1.01;
     vertex center = centerOfCircumscribedCircle( tmp_PointSet_2[0], tmp_PointSet_2[count/3], tmp_PointSet_2[2*count/3] );
-    
-    for(int i=0;i< 5/*tmp_PointSet.size()*/;i++)
+    vertex tmp_vertex;
+    triangle tmp_triangle;
+
+    for(int i=0;i< 6/*tmp_PointSet.size()*/;i++)
     {
-        if(i%2 == 0){
-            for(int j=0; j< tmp_PointSet_2.size(); j++){
-                ;
+        int size = count;
+/*
+        if(i==4){
+            
+            for(int j=0; j< size; j++){
+                tmp_vertex.x = tmp_PointSet_2[j].x + (center.x - tmp_PointSet_2[j].x) * rate + normal_x* rate_stay;
+                tmp_vertex.y = tmp_PointSet_2[j].y + (center.y - tmp_PointSet_2[j].y) * rate + normal_y* rate_stay;
+                tmp_vertex.z = tmp_PointSet_2[j].z + (center.z - tmp_PointSet_2[j].z) * rate + normal_z* rate_stay;
+                tmp_PointSet_3.push_back(tmp_vertex);
             }
-            ;
-        }
-        if(i%2==1){
-            for(int j=0; j< tmp_PointSet_2.size(); j++){
-                ;
+
+            center = centerOfCircumscribedCircle( tmp_PointSet_3[0], tmp_PointSet_3[count/3], tmp_PointSet_3[2*count/3] ); 
+
+            //center.x = center.x + normal_x ;//* rate_stay * rate_stay;
+            //center.y = center.y + normal_y ;//* rate_stay * rate_stay;
+            //center.z = center.z + normal_z ;//* rate_stay * rate_stay;
+
+            for(int j=0; j< size; j++){
+                tmp_triangle.v1 = tmp_PointSet_2[j%size];
+                tmp_triangle.v2 = tmp_PointSet_2[(j+1)%size];
+                tmp_triangle.v3 = center;
+                tmp_meshPool.push_back(tmp_triangle);
             }
-            ;
+
+            goto dd2049;
+        }*/
+
+        if((i%2) == 0){
+
+            for(int j=0; j< size; j++){
+                tmp_vertex.x = tmp_PointSet_2[j].x + (center.x - tmp_PointSet_2[j].x) * rate + normal_x* rate_stay;
+                tmp_vertex.y = tmp_PointSet_2[j].y + (center.y - tmp_PointSet_2[j].y) * rate + normal_y* rate_stay;
+                tmp_vertex.z = tmp_PointSet_2[j].z + (center.z - tmp_PointSet_2[j].z) * rate + normal_z* rate_stay;
+                tmp_PointSet_3.push_back(tmp_vertex);
+            }
+/*
+            center.x = center.x + normal_x;
+            center.y = center.y + normal_y;
+            center.z = center.z + normal_z;
+*/
+            for(int j=0; j< size; j++){
+                tmp_triangle.v1 = tmp_PointSet_2[j%size];
+                tmp_triangle.v2 = tmp_PointSet_2[(j+1)%size];
+                tmp_triangle.v3 = tmp_PointSet_3[j%size];
+                tmp_meshPool.push_back(tmp_triangle);
+
+                tmp_triangle.v1 = tmp_PointSet_2[(j+1)%size];
+                tmp_triangle.v2 = tmp_PointSet_3[(j+1)%size];
+                tmp_triangle.v3 = tmp_PointSet_3[j%size];
+                tmp_meshPool.push_back(tmp_triangle);
+            }
+
+            tmp_PointSet_2.clear();
+            center = centerOfCircumscribedCircle( tmp_PointSet_3[0], tmp_PointSet_3[count/3], tmp_PointSet_3[2*count/3] );
+
         }
+
+        if((i%2) == 1){
+        cout<<"000111"<<"\n";
+
+            for(int j=0; j< size; j++){
+                tmp_vertex.x = tmp_PointSet_3[j].x + (center.x - tmp_PointSet_3[j].x) * rate + normal_x* rate_stay;
+                tmp_vertex.y = tmp_PointSet_3[j].y + (center.y - tmp_PointSet_3[j].y) * rate + normal_y* rate_stay;
+                tmp_vertex.z = tmp_PointSet_3[j].z + (center.z - tmp_PointSet_3[j].z) * rate + normal_z* rate_stay;
+                tmp_PointSet_2.push_back(tmp_vertex);
+            }
+/*
+            center.x = center.x + normal_x;
+            center.y = center.y + normal_y;
+            center.z = center.z + normal_z;
+*/
+            for(int j=0; j< size; j++){
+                tmp_triangle.v1 = tmp_PointSet_3[j%size];
+                tmp_triangle.v2 = tmp_PointSet_3[(j+1)%size];
+                tmp_triangle.v3 = tmp_PointSet_2[j%size];
+                tmp_meshPool.push_back(tmp_triangle);
+
+                tmp_triangle.v1 = tmp_PointSet_3[(j+1)%size];
+                tmp_triangle.v2 = tmp_PointSet_2[(j+1)%size];
+                tmp_triangle.v3 = tmp_PointSet_2[j%size];
+                tmp_meshPool.push_back(tmp_triangle);
+            }
+            tmp_PointSet_3.clear();
+            center = centerOfCircumscribedCircle( tmp_PointSet_2[0], tmp_PointSet_2[count/3], tmp_PointSet_2[2*count/3] );
+        }
+
+        num = num * num ;
+        rate = rate * num;
         
-        tmp_PointSet_3.push_back();
+        cout<<center.z<<"\n";
+        cout<<rate<<"\n";
 
     }
+
+    dd2049:
 
     tmp_PointSet_2.clear();
     tmp_PointSet_3.clear();
@@ -2084,8 +2203,6 @@ void draw()
         generateBoneLine();
          generateMesh();
 */
-    theSet2OfMouse.clear();
-    tmp_PointSet.clear();
 
     }
 
@@ -2214,7 +2331,7 @@ void mousebutton( int button, int state, int x, int y )
                 if(mode_2_on==true&&mode_3_on==false){
                 	mark_done = true;
 					mark_sharp_edge();
-                    //teddy_test(); 
+                    //teddy_test();
 				}
                 if(mode_3_on==true&&mode_2_on==false){
                     draw_done = true;
@@ -2256,6 +2373,7 @@ void mousebutton( int button, int state, int x, int y )
             theSet2OfMouse.clear();
             tmp_PointSet.clear();
             theSetOfNotedVertex.clear();
+            tmp_meshPool.clear();
             //draw_done = true;
             //draw();
             //sharp_bone_vPool.clear();
