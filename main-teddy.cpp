@@ -615,9 +615,37 @@ bool isCenterTriangle(triangle test_triangle)
     return false;
 }
 
-void generateConstraintDelaunayTriangle()
+void generate_ConstraintDelaunayTriangle(int start, int end /*, edges of the G-graph*/ )
 {
-    ;
+    if((end - start) > 2){
+        //descide how many to divide, Ans: 2;
+        define points_before_boundary,
+        int pbb_start;
+        int pbb_end;
+        define points_after_boundary,
+        int pab_start;
+        int pab_end;
+        generate_ConstraintDelaunayTriangle(pbb_start, pbb_end);
+        generate_ConstraintDelaunayTriangle(pab_start, pab_end);
+        sticth points_before_boundary and points_after_boundary together;
+    }
+    else
+    {
+        for(int i = start; i<end+1; i++)
+        {
+            connect points;
+        }
+    }
+    
+}
+
+void ConstraintDelaunayTriangle()
+{
+    get InputPointSet,
+    reorder InputPointSet by their coordenates of axis x (left to right),
+    int points_start = 0;
+    int points_end   = InputPointSet.size()-1;
+    generate_ConstraintDelaunayTriangle(points_start, points_end /*, edges of the G-graph*/ );
 }
 
 void generateDelaunayTriangle()
