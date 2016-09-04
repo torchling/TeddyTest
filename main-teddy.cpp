@@ -615,6 +615,11 @@ bool isCenterTriangle(triangle test_triangle)
     return false;
 }
 
+void generateConstraintDelaunayTriangle()
+{
+    ;
+}
+
 void generateDelaunayTriangle()
 {
     //triangle superDT;
