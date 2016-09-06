@@ -615,6 +615,34 @@ bool isCenterTriangle(triangle test_triangle)
     return false;
 }
 
+/*------------------------------------------------------------------*/
+
+void swap_vertex()
+{
+    ;
+}
+
+template<typename T>
+void quick_sort_recursive(T arr[], int start, int end) {
+    if (start >= end) return;
+    T mid = arr[end];
+    int left = start, right = end - 1;
+    while (left < right) {
+        while (arr[left] < mid && left < right) left++;
+        while (arr[right] >= mid && left < right) right--;
+        std::swap(arr[left], arr[right]);
+    }
+    if (arr[left] >= arr[end])
+        std::swap(arr[left], arr[end]);
+    else
+        left++;
+    quick_sort_recursive(arr, start, left - 1);
+    quick_sort_recursive(arr, left + 1, end);
+}
+template<typename T> //整數或浮點數皆可使用,若要使用物件(class)時必須設定"小於"(<)、"大於"(>)、"不小於"(>=)的運算子功能
+
+
+
 void generate_ConstraintDelaunayTriangle(int start, int end /*, edges of the G-graph*/ )
 {
     if((end - start) > 2){
@@ -643,6 +671,7 @@ void ConstraintDelaunayTriangle()
 {
     get InputPointSet,
     reorder InputPointSet by their coordenates of axis x (left to right),
+
     int points_start = 0;
     int points_end   = InputPointSet.size()-1;
     generate_ConstraintDelaunayTriangle(points_start, points_end /*, edges of the G-graph*/ );
