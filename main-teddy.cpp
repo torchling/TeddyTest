@@ -617,29 +617,32 @@ bool isCenterTriangle(triangle test_triangle)
 
 /*------------------------------------------------------------------*/
 
-void swap_vertex()
+void swap_vertex(int number_a, int number_b)
 {
-    ;
+    vertex tmp;
+    tmp                     = InputPointSet[number_a];
+    InputPointSet[number_a] = InputPointSet[number_b];
+    InputPointSet[number_b] = tmp;
 }
 
-template<typename T>
-void quick_sort_recursive(T arr[], int start, int end) {
+//template<typename T>
+void quick_sort_recursive(int start, int end) {
     if (start >= end) return;
-    T mid = arr[end];
+    GLfloat mid_x = InputPointSet[end].x
     int left = start, right = end - 1;
     while (left < right) {
-        while (arr[left] < mid && left < right) left++;
-        while (arr[right] >= mid && left < right) right--;
-        std::swap(arr[left], arr[right]);
+        while (InputPointSet[left].x < mid_x && left < right) left++;
+        while (InputPointSet[right].x >= mid_x && left < right) right--;
+        swap_vertex(left, right);
     }
-    if (arr[left] >= arr[end])
-        std::swap(arr[left], arr[end]);
+    if (InputPointSet[left].x >= InputPointSet[end].x)
+        swap_vertex(left, end);
     else
         left++;
-    quick_sort_recursive(arr, start, left - 1);
-    quick_sort_recursive(arr, left + 1, end);
+    quick_sort_recursive(start, left - 1);
+    quick_sort_recursive(left + 1, end);
 }
-template<typename T> //整數或浮點數皆可使用,若要使用物件(class)時必須設定"小於"(<)、"大於"(>)、"不小於"(>=)的運算子功能
+//template<typename T> //整數或浮點數皆可使用,若要使用物件(class)時必須設定"小於"(<)、"大於"(>)、"不小於"(>=)的運算子功能
 
 
 
