@@ -626,7 +626,7 @@ void swap_vertex(int number_a, int number_b)
 }
 
 //template<typename T>
-void quick_sort_recursive(int start, int end) {
+void quick_sort_recursive_CDT(int start, int end) {
     if (start >= end) return;
     GLfloat mid_x = InputPointSet[end].x
     int left = start, right = end - 1;
@@ -649,11 +649,30 @@ void quick_sort_recursive(int start, int end) {
 void generate_ConstraintDelaunayTriangle(int start, int end /*, edges of the G-graph*/ )
 {
     if((end - start) > 2){
-        //descide how many to divide, Ans: 2;
-        define points_before_boundary,
+    //descide how many to divide, Ans: 2;
+        //define points_before_boundary,
+        int mid;
+        float mid_x = (InputPointSet[start].x - InputPointSet[end].x)/2;
+        float distance_from_mid_x_to_inputPoint = mid_x;
+        
+        for (int i = 0; i < InputPointSet.size(); i++)
+        {
+            if(abs(InputPointSet[i].x - mid_x) < distance_from_mid_x_to_inputPoint){
+                distance_from_mid_x_to_inputPoint = abs(InputPointSet[i].x - mid_x);
+                mid = i;
+            }
+        }
+
+        for(int i=0; i < InputPointSet.size(); i++){
+            if(InputPointSet.x == mid_x){
+                mid++;
+            }
+        }
+        
         int pbb_start;
         int pbb_end;
-        define points_after_boundary,
+        //define points_after_boundary,
+        
         int pab_start;
         int pab_end;
         generate_ConstraintDelaunayTriangle(pbb_start, pbb_end);
@@ -672,11 +691,12 @@ void generate_ConstraintDelaunayTriangle(int start, int end /*, edges of the G-g
 
 void ConstraintDelaunayTriangle()
 {
-    get InputPointSet,
-    reorder InputPointSet by their coordenates of axis x (left to right),
-
+    //get InputPointSet,
+    
+    //reorder InputPointSet by their coordenates of axis x (left to right);
     int points_start = 0;
     int points_end   = InputPointSet.size()-1;
+    quick_sort_recursive_CDT(points_start, points_end);
     generate_ConstraintDelaunayTriangle(points_start, points_end /*, edges of the G-graph*/ );
 }
 
