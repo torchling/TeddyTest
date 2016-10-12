@@ -649,36 +649,36 @@ void quick_sort_recursive_CDT(int start, int end) {
 
 void quick_sort_left_vPool(int start, int end) {
     if (start >= end) return;
-    GLfloat mid_x = InputPointSet[end].x
-    int left = start, right = end - 1;
-    while (left < right) {
-        while (InputPointSet[left].x < mid_x && left < right) left++;
-        while (InputPointSet[right].x >= mid_x && left < right) right--;
-        swap_vertex(left, right);
+    GLfloat mid_y = InputPointSet[end].y
+    int below = start, above = end - 1;
+    while (below < above) {
+        while (InputPointSet[below].y < mid_y && below < above) below++;
+        while (InputPointSet[above].y >= mid_y && below < above) above--;
+        swap_vertex(below, above);
     }
-    if (InputPointSet[left].x >= InputPointSet[end].x)
-        swap_vertex(left, end);
+    if (InputPointSet[below].x >= InputPointSet[end].x)
+        swap_vertex(below, end);
     else
-        left++;
-    quick_sort_recursive(start, left - 1);
-    quick_sort_recursive(left + 1, end);
+        below++;
+    quick_sort_left_vPool(start, below - 1);
+    quick_sort_left_vPool(below + 1, end);
 }
 
 void quick_sort_right_vPool(int start, int end) {
     if (start >= end) return;
-    GLfloat mid_x = InputPointSet[end].x
-    int left = start, right = end - 1;
-    while (left < right) {
-        while (InputPointSet[left].x < mid_x && left < right) left++;
-        while (InputPointSet[right].x >= mid_x && left < right) right--;
-        swap_vertex(left, right);
+    GLfloat mid_y = InputPointSet[end].y
+    int below = start, above = end - 1;
+    while (below < above) {
+        while (InputPointSet[below].y < mid_x && below < above) below++;
+        while (InputPointSet[above].y >= mid_x && below < above) above--;
+        swap_vertex(below, above);
     }
-    if (InputPointSet[left].x >= InputPointSet[end].x)
-        swap_vertex(left, end);
+    if (InputPointSet[below].y >= InputPointSet[end].y)
+        swap_vertex(below, end);
     else
-        left++;
-    quick_sort_recursive(start, left - 1);
-    quick_sort_recursive(left + 1, end);
+        below++;
+    quick_sort_right_vPool(start, below - 1);
+    quick_sort_right_vPool(below + 1, end);
 }
 
 void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of the G-graph*/ )
@@ -731,7 +731,14 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of th
             }
         }
 
-        connect line that cross left to right 
+        quick_sort_left_vPool();
+        quick_sort_right_vPool();
+        
+        int i1=j1=0
+        while( i1< left_vertex_pool.size() || j1< right_vertex_pool.size() ){
+            ;
+        }
+        //connect line that cross left to right 
         
         left_vertex_pool.clear();
         right_vertex_pool.clear();
