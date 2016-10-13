@@ -35,6 +35,7 @@ std::vector< vertex >   theSetOfNotedVertex ;   //.stay                 ; ; Orig
 
 std::vector< vertex >   left_vertex_pool ;      //.clear() in the end   ; ; CDT 09.30.2016
 std::vector< vertex >   right_vertex_pool ;     //.clear() in the end   ; ; CDT 09.30.2016
+//std::vector< vertex >   tmpRL_vertex_pool ;     //.clear() in the end   ; ; CDT 10.14.2016
 
 std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ; ; warping
 std::vector< vertex >	bone_prime_vPool ;		//.clear() in the end   ; ; warping
@@ -704,14 +705,17 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of th
             }
         }
         
+        //define points_before_boundary,
         int pbb_start;
         int pbb_end;
+
         //define points_after_boundary,
-        
         int pab_start;
         int pab_end;
+        
         generate_ConstraintDelaunayTriangleEdges(pbb_start, pbb_end);
         generate_ConstraintDelaunayTriangleEdges(pab_start, pab_end);
+
         //sticth points_before_boundary and points_after_boundary together;
         for(int i = pbb_start; i< pbb_end+1; i++)
         {
@@ -733,13 +737,101 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of th
 
         quick_sort_left_vPool();
         quick_sort_right_vPool();
+
+        //Stich vertices from left and vertices from right together,
+        //or we can say "connect left strip and right strip."
         
-        int i1=j1=0
-        while( i1< left_vertex_pool.size() || j1< right_vertex_pool.size() ){
-            ;
+        //Sort left-strip's vertices and right-strip's veretices 
+        int i1=j1=1;
+        int pa=pb=0;
+        bool i_validity = false; 
+        bool j_validity = false;
+
+        start1014:
+        while( i1< left_vertex_pool.size() || j1< right_vertex_pool.size() )
+        {
+            //validity test, the new edge shouldn't cross old edges
+            if( !crossOriginLine(left_vertex_pool[i1], right_vertex_pool[j1]) ){//maybe don't need this test.
+            
+                if( left_vertex_pool[i1].y < right_vertex_pool[j1].y ){
+                    vertex center_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], left_vertex_pool[i1]);
+                    float radius_CDT = radiusOfCCircle(left_vertex_pool[i1], center_CDT);
+
+                    for( int i= i1+1; i< left_vertex_pool.size(); i++ ){
+                        if(insideTheCircle(left_vertex_pool[i], center_CDT, radius_CDT)){
+                            i_validity = false;
+                            goto nextStart;
+                        }
+                    }
+                    for( int i= pa; i< right_vertex_pool.size(); i++ ){
+                        if(insideTheCircle(right_vertex_pool[i], center_CDT, radius_CDT)){
+                            i_validity = false;
+                            goto nextStart;
+                        }
+                    }
+                    i_validity = true;
+
+                }
+                nextStart:
+
+                if( left_vertex_pool[i1].y >= right_vertex_pool[j1].y ){
+                    vertex center_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], right_vertex_pool[j1]);
+                    float radius_CDT = radiusOfCCircle(right_vertex_pool[j1], center_CDT);
+
+                    for( int i= pb; i< left_vertex_pool.size(); i++ ){
+                        if(insideTheCircle(left_vertex_pool[i], center_CDT, radius_CDT)){
+                            i_validity = false;
+                            goto next2Start;
+                        }
+                    }
+                    for( int i= j1+1; i< right_vertex_pool.size(); i++ ){
+                        if(insideTheCircle(right_vertex_pool[i], center_CDT, radius_CDT)){
+                            i_validity = false;
+                            goto next2Start;
+                        }
+                    }
+                    j_validity = true;
+                }
+                next2Start:
+
+                if( !i_validity && !j_validity ){//barely won't happened
+                    i1++;
+                    j2++;
+                }
+                else if(i_validity && !j_validity){
+                    addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                    addToEdgePool(left_vertex_pool[pa], left_vertex_pool[i1]);
+                    addToEdgePool(left_vertex_pool[i1], right_vertex_pool[pb]);
+                    pa = i1;
+                    i1++;
+                }
+                else if(!i_validity && j_validity){ 
+                    addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                    addToEdgePool(right_vertex_pool[j1], right_vertex_pool[pb]);
+                    addToEdgePool(left_vertex_pool[pa], right_vertex_pool[j1]);
+                    pb = j1;
+                    j1++;
+                }
+                else{//(i_validity && j_validity)
+                    if(left_vertex_pool[i1].y < right_vertex_pool[j1].y){
+                        addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                        addToEdgePool(left_vertex_pool[pa], left_vertex_pool[i1]);
+                        addToEdgePool(left_vertex_pool[i1], right_vertex_pool[pb]);
+                        pa = i1;
+                        i1++;
+                    }
+                    else{//( left_vertex_pool[i1].y >= right_vertex_pool[j1].y )
+                        addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                        addToEdgePool(right_vertex_pool[j1], right_vertex_pool[pb]);
+                        addToEdgePool(left_vertex_pool[pa], right_vertex_pool[j1]);
+                        pb = j1;
+                        j1++;
+                    }
+                }
+
+            }
         }
-        //connect line that cross left to right 
-        
+
         left_vertex_pool.clear();
         right_vertex_pool.clear();
     }
@@ -760,6 +852,11 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of th
         }
     }
     
+}
+
+void transform_CDTEdges_to_CDT()
+{
+    ;
 }
 
 void ConstraintDelaunayTriangle()
