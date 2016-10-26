@@ -103,6 +103,13 @@ bool isSameVertex( vertex A , vertex B )//("are" some vertecies) Using "is" is e
 	return false;
 }
 
+bool oneVertexOfEdge(vertex test_point, edge line)
+{
+    if( isSameVertex(test_point, line.v1) || isSameVertex(test_point, line.v2) )
+        return true;
+    return false;
+}
+
 bool isSameVertex2( vertex A , vertex B )//("are" some vertecies) Using "is" is easier to distinguish between two functions.
 {
 	if((A.x == B.x)&&(A.y == B.y))
@@ -122,6 +129,29 @@ bool areSameEdges( edge edgeA , edge edgeB )
 		return true;
 
 	return false;
+}
+
+bool areSameTriangles( triangle T1, triangle T2 )
+{
+    if(isSameVertex( T1.v1, T2.v1 )){
+        if(isSameVertex( T1.v2, T2.v2 )&&isSameVertex( T1.v3, T2.v3 ))
+            return true;
+        if(isSameVertex( T1.v2, T2.v3 )&&isSameVertex( T1.v3, T2.v2 ))
+            return true;
+    }
+    else if(isSameVertex( T1.v1, T2.v2 )){
+        if(isSameVertex( T1.v2, T2.v1 )&&isSameVertex( T1.v3, T2.v3 ))
+            return true;
+        if(isSameVertex( T1.v2, T2.v3 )&&isSameVertex( T1.v3, T2.v1 ))
+            return true;
+    }
+    else if(isSameVertex( T1.v1, T2.v3 )){
+        if(isSameVertex( T1.v2, T2.v1 )&&isSameVertex( T1.v3, T2.v2 ))
+            return true;
+        if(isSameVertex( T1.v2, T2.v2 )&&isSameVertex( T1.v3, T2.v1 ))
+            return true;
+    }
+    else return false;
 }
 
 triangle findSuperTriangle()
@@ -856,7 +886,54 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of th
 
 void transform_CDTEdges_to_CDT()
 {
-    ;
+    int      tri3;
+    vertex   vt;
+    edge     et;
+    triangle tt;
+
+    for(int i=0; i<edgePool.size(); i++){
+        for(int j=0; j<edgePool.size(); j++){
+            if( !areSameEdges(edgePool[i], edgePool[j]) ){
+                if(oneVertexOfEdge(edgePool[j].v1, edgePool[i])){
+                    et = edgePool[j];
+                    vt = edgePool[j].v2;
+                    tri3 = j;
+                }
+                if(oneVertexOfEdge(edgePool[j].v2, edgePool[i])){
+                    et = edgePool[j];
+                    vt = edgePool[j].v1;
+                    tri3 = j;
+                }
+            }
+        }
+        for(int j=0; j<edgePool.size(); j++){
+            if( !areSameEdges(edgePool[i], edgePool[j]) && !areSameEdges(edgePool[tri3], edgePool[j]) ){
+                if(oneVertexOfEdge(vt, edgePool[j]) && oneVertexOfEdge(edgePool[i].v2, edgePool[j]) 
+                    && oneVertexOfEdge(vt, et) && oneVertexOfEdge(edgePool[i].v1, et) )
+                {
+                    tt.v1 = vt;
+                    tt.v2 = edgePool[i].v1;
+                    tt.v3 = edgePool[i].v2;
+
+                    for(int x=0; x<trianglePool.size(); x++){
+                        if(!areSameTriangles(tt, trianglePool[x]))
+                            addToTrianglePool(vt, edgePool[i].v1, edgePool[i].v2);
+                    }
+                }
+                if(oneVertexOfEdge(vt, edgePool[j])&&oneVertexOfEdge(edgePool[i].v1, edgePool[j])
+                    && oneVertexOfEdge(vt, et) && oneVertexOfEdge(edgePool[i].v2, et) )
+                {
+                    tt.v1 = vt;
+                    tt.v2 = edgePool[i].v1;
+                    tt.v3 = edgePool[i].v2;
+
+                    for(int x=0; x<trianglePool.size(); x++){
+                        if(!areSameTriangles(tt, trianglePool[x]))
+                            addToTrianglePool(vt, edgePool[i].v1, edgePool[i].v2);
+                    }
+                }
+            }
+    }
 }
 
 void ConstraintDelaunayTriangle()
