@@ -33,8 +33,7 @@ std::vector< vertex >   tmp_PointSet_2 ;        //.clear() in the end   ; ;
 std::vector< vertex >   tmp_PointSet_3 ;        //.clear() in the end   ; ;
 std::vector< vertex >   theSetOfNotedVertex ;   //.stay                 ; ; Original input points
 
-std::vector< vertex >   left_vertex_pool ;      //.clear() in the end   ; ; CDT 09.30.2016
-std::vector< vertex >   right_vertex_pool ;     //.clear() in the end   ; ; CDT 09.30.2016
+
 //std::vector< vertex >   tmpRL_vertex_pool ;     //.clear() in the end   ; ; CDT 10.14.2016
 
 std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ; ; warping
@@ -727,14 +726,15 @@ void quick_sort_right_vPool(int start, int end) {
 
 void generate_ConstraintDelaunayTriangleEdges(int start, int end/*, edges of the G-graph*/ )
 {
-    if((end - start) > 2){
-    //descide how many to divide, Ans: 2;
-        //define points_before_boundary,
-        int mid;
+    std::vector< vertex >   left_vertex_pool ;      //.clear() in the end   ; ; CDT 09.30.2016
+    std::vector< vertex >   right_vertex_pool ;     //.clear() in the end   ; ; CDT 09.30.2016
+
+    if((end - start) > 2){// start, x, y, end
+        int mid = start + 2 ;
         float mid_x = (theSetOfInputPoint[start].x - theSetOfInputPoint[end].x)/2;
         float distance_from_mid_x_to_inputPoint = mid_x;
 
-        for (int i = start; i < (end-start+1); i++)
+        for (int i = start; i < (end+1); i++)
         {
             if(abs(theSetOfInputPoint[i].x - mid_x) < distance_from_mid_x_to_inputPoint){
                 distance_from_mid_x_to_inputPoint = abs(theSetOfInputPoint[i].x - mid_x);
@@ -742,7 +742,7 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end/*, edges of the
             }
         }
 
-        for(int i = start; i < (end-start+1); i++){
+        for(int i = start; i < (end+1); i++){
             if(theSetOfInputPoint[i].x == mid_x){
                 mid++;
             }
@@ -755,10 +755,12 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end/*, edges of the
         //define points_after_boundary,
         int pab_start = mid;
         int pab_end   = end;
-
+cout<<"CDT_OK"<<"\n";
         generate_ConstraintDelaunayTriangleEdges(pbb_start, pbb_end);
+cout<<"CDT_EZ"<<"\n";
         generate_ConstraintDelaunayTriangleEdges(pab_start, pab_end);
 
+cout<<"dddddddddddddddd"<<"\n";
         //sticth points_before_boundary and points_after_boundary together;
         for(int i = pbb_start; i< (pbb_end+1); i++)
         {
@@ -776,134 +778,98 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end/*, edges of the
                 }
             }
         }
+        //quick_sort_left_vPool( 0, left_vertex_pool.size()-1 );
+        //quick_sort_right_vPool( 0, right_vertex_pool.size()-1 );
 
-        quick_sort_left_vPool( 0, left_vertex_pool.size()-1 );
-        quick_sort_right_vPool( 0, right_vertex_pool.size()-1 );
 
         //Stich vertices from left and vertices from right together,
         //or we can say "connect left strip and right strip."
 
         //Sort left-strip's vertices and right-strip's veretices
-        int i1=1;
-        int j1=1;
+
+        int i1=0;
+        int j1=0;
         int pa=0;
         int pb=0;
-        bool i_validity = false;
-        bool j_validity = false;
-        bool crossLine = false;
 
-        start1014:
+        addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+
+        bool i_validity = true;
+        bool j_validity = true;
+        //bool crossLine = false;
+        vertex candidateL;
+        vertex candidateR;
+
         while( (i1< left_vertex_pool.size()) || (j1< right_vertex_pool.size()) )
         {
-            //validity test, the new edge shouldn't cross old edges
-            /*
-            for(int x=0; x<edgePool.size(); x++){
-                if( cross(left_vertex_pool[i1], right_vertex_pool[j1], edgePool[x]) )
-                    crossLine = true;
-            }*/
+            candidateL = left_vertex_pool[i1];
+            candidateR = right_vertex_pool[j1];
 
-            if( crossLine == false ){//maybe don't need this test.
+            vertex centerL_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], candidateL);
+            vertex centerR_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], candidateR);
 
-                if( left_vertex_pool[i1].y < right_vertex_pool[j1].y ){
-                    vertex center_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], left_vertex_pool[i1]);
-                    float radius_CDT = radiusOfCCircle(left_vertex_pool[i1], center_CDT);
+            i_validity = true;
+            j_validity = true;
 
-                    for( int i= i1+1; i< left_vertex_pool.size(); i++ ){
-                        if(insideTheCircle(left_vertex_pool[i], center_CDT, radius_CDT)){
-                            i_validity = false;
-                            goto nextStart;
-                        }
-                    }
-                    for( int i= pa; i< right_vertex_pool.size(); i++ ){
-                        if(insideTheCircle(right_vertex_pool[i], center_CDT, radius_CDT)){
-                            i_validity = false;
-                            goto nextStart;
-                        }
-                    }
-                    i_validity = true;
-
-                }
-                nextStart:
-
-                if( left_vertex_pool[i1].y >= right_vertex_pool[j1].y ){
-                    vertex center_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], right_vertex_pool[j1]);
-                    float radius_CDT = radiusOfCCircle(right_vertex_pool[j1], center_CDT);
-
-                    for( int i= pb; i< left_vertex_pool.size(); i++ ){
-                        if(insideTheCircle(left_vertex_pool[i], center_CDT, radius_CDT)){
-                            i_validity = false;
-                            goto next2Start;
-                        }
-                    }
-                    for( int i= j1+1; i< right_vertex_pool.size(); i++ ){
-                        if(insideTheCircle(right_vertex_pool[i], center_CDT, radius_CDT)){
-                            i_validity = false;
-                            goto next2Start;
-                        }
-                    }
-                    j_validity = true;
-                }
-                next2Start:
-
-                if( !i_validity && !j_validity ){//barely won't happened
-                    i1++;
-                    j1++;
-                }
-                else if(i_validity && !j_validity){
-                    addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
-                    addToEdgePool(left_vertex_pool[pa], left_vertex_pool[i1]);
-                    addToEdgePool(left_vertex_pool[i1], right_vertex_pool[pb]);
-                    pa = i1;
-                    i1++;
-                }
-                else if(!i_validity && j_validity){
-                    addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
-                    addToEdgePool(right_vertex_pool[j1], right_vertex_pool[pb]);
-                    addToEdgePool(left_vertex_pool[pa], right_vertex_pool[j1]);
-                    pb = j1;
-                    j1++;
-                }
-                else{//(i_validity && j_validity)
-                    if(left_vertex_pool[i1].y < right_vertex_pool[j1].y){
-                        addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
-                        addToEdgePool(left_vertex_pool[pa], left_vertex_pool[i1]);
-                        addToEdgePool(left_vertex_pool[i1], right_vertex_pool[pb]);
-                        pa = i1;
-                        i1++;
-                    }
-                    else{//( left_vertex_pool[i1].y >= right_vertex_pool[j1].y )
-                        addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
-                        addToEdgePool(right_vertex_pool[j1], right_vertex_pool[pb]);
-                        addToEdgePool(left_vertex_pool[pa], right_vertex_pool[j1]);
-                        pb = j1;
-                        j1++;
+            for(int i = 0; i<left_vertex_pool.size(); i++){
+                if((i!=pa)&&(i!=i1)){
+                    if(!outsideTheTriangle(left_vertex_pool[i], left_vertex_pool[pa], right_vertex_pool[pb], candidateL)){
+                        i_validity = false;
                     }
                 }
-
             }
+
+            for(int j = 0; j<right_vertex_pool.size(); j++){
+                if((j!=pb)&&(j!=j1)){
+                    if(!outsideTheTriangle(right_vertex_pool[j], left_vertex_pool[pa], right_vertex_pool[pb], candidateR)){
+                        j_validity = false;
+                    }
+                }
+            }
+
+            if((centerL_CDT.y < centerR_CDT.y) && i_validity){
+                //addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                addToEdgePool(left_vertex_pool[pa], left_vertex_pool[i1]);
+                addToEdgePool(left_vertex_pool[i1], right_vertex_pool[pb]);
+                pa = i1;
+                i1++;
+            }
+            else if((centerR_CDT.y <= centerL_CDT.y) && j_validity){
+                //addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                addToEdgePool(left_vertex_pool[pa], left_vertex_pool[j1]);
+                addToEdgePool(left_vertex_pool[j1], right_vertex_pool[pb]);
+                pb = j1;
+                j1++;
+            }
+
         }
 
         left_vertex_pool.clear();
         right_vertex_pool.clear();
-    }
-    else if(start==end){
-        ;
-    }
-    else
-    {
-        if((end-start)==1)
-        {
-                //connect points;
-                addToEdgePool(theSetOfInputPoint[start],theSetOfInputPoint[end]);
-        }
 
-        if((end-start)==2)
-        {
-            for(int i = start; i<end+1; i++){
-                //connect points;
-                addToEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
-            }
+        //return;
+    }
+
+    else if(start>=end){
+        //return;
+    }
+    else if((end-start)==1)// start, end
+    {
+        cout<<"wwwwwwwwww"<<"\n";
+        //connect points;
+        addToEdgePool(theSetOfInputPoint[start],theSetOfInputPoint[end]);
+        return;
+    }
+
+    else if((end-start)==2)// start, mid, end
+    {
+        cout<<"cccccccccccccccccccc"<<"\n";
+
+        for(int i = start; i<end; i++){
+            //connect points;
+            addToEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
         }
+        return;
     }
 
 }
@@ -1794,6 +1760,16 @@ void printTrianglePool()
     }
 }
 
+void printEdgePool()
+{
+    for(int i=0;i<bone_edgePool.size();i++){
+        glBegin(GL_LINE_STRIP);
+            glVertex3f( edgePool[i].v1.x, edgePool[i].v1.y, edgePool[i].v1.z );
+            glVertex3f( edgePool[i].v2.x, edgePool[i].v2.y, edgePool[i].v2.z );
+        glEnd();
+    }
+}
+
 void printStroke()
 {
     //if(!drawn)
@@ -2185,7 +2161,7 @@ static void display(void)
         glTranslated(0.0,0.0,-30);
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
-        printTrianglePool();
+        printEdgePool();
     glPopMatrix();
 
     glutSwapBuffers();
