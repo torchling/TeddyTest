@@ -131,7 +131,7 @@ bool areSameEdges( edge edgeA , edge edgeB )
 	return false;
 }
 
-bool areSameTriangles( triangle T1, triangle T2 )
+bool areSameTriangles( triangle T1, triangle T2 )//New CDT
 {
     if(isSameVertex( T1.v1, T2.v1 )){
         if(isSameVertex( T1.v2, T2.v2 )&&isSameVertex( T1.v3, T2.v3 ))
@@ -152,6 +152,14 @@ bool areSameTriangles( triangle T1, triangle T2 )
             return true;
     }
     else return false;
+}
+
+bool cross(vertex t1, vertex t2, edge e)//New CDT
+{
+    if(!onTheSameSideCDT(t1, e.v1, e.v2, t2) && !onTheSameSideCDT( e.v1, t1, t2, e.v2))
+        return true;
+
+    return false;
 }
 
 triangle findSuperTriangle()
@@ -649,45 +657,50 @@ bool isCenterTriangle(triangle test_triangle)
     return false;
 }
 
+//New CDT Start
 /*------------------------------------------------------------------*/
+
+
 
 void swap_vertex(int number_a, int number_b)
 {
     vertex tmp;
-    tmp                     = InputPointSet[number_a];
-    InputPointSet[number_a] = InputPointSet[number_b];
-    InputPointSet[number_b] = tmp;
+    tmp                     = theSetOfInputPoint[number_a];
+    theSetOfInputPoint[number_a] = theSetOfInputPoint[number_b];
+    theSetOfInputPoint[number_b] = tmp;
 }
 
 //template<typename T>
 void quick_sort_recursive_CDT(int start, int end) {
     if (start >= end) return;
-    GLfloat mid_x = InputPointSet[end].x
-    int left = start, right = end - 1;
+    GLfloat mid_x = theSetOfInputPoint[end].x;
+    int left = start;
+    int right = end - 1;
+
     while (left < right) {
-        while (InputPointSet[left].x < mid_x && left < right) left++;
-        while (InputPointSet[right].x >= mid_x && left < right) right--;
+        while (theSetOfInputPoint[left].x < mid_x && left < right) left++;
+        while (theSetOfInputPoint[right].x >= mid_x && left < right) right--;
         swap_vertex(left, right);
     }
-    if (InputPointSet[left].x >= InputPointSet[end].x)
+    if (theSetOfInputPoint[left].x >= theSetOfInputPoint[end].x)
         swap_vertex(left, end);
     else
         left++;
-    quick_sort_recursive(start, left - 1);
-    quick_sort_recursive(left + 1, end);
+    quick_sort_recursive_CDT(start, left - 1);
+    quick_sort_recursive_CDT(left + 1, end);
 }
 //template<typename T> //整數或浮點數皆可使用,若要使用物件(class)時必須設定"小於"(<)、"大於"(>)、"不小於"(>=)的運算子功能
 
 void quick_sort_left_vPool(int start, int end) {
     if (start >= end) return;
-    GLfloat mid_y = InputPointSet[end].y
+    GLfloat mid_y = theSetOfInputPoint[end].y;
     int below = start, above = end - 1;
     while (below < above) {
-        while (InputPointSet[below].y < mid_y && below < above) below++;
-        while (InputPointSet[above].y >= mid_y && below < above) above--;
+        while (theSetOfInputPoint[below].y < mid_y && below < above) below++;
+        while (theSetOfInputPoint[above].y >= mid_y && below < above) above--;
         swap_vertex(below, above);
     }
-    if (InputPointSet[below].x >= InputPointSet[end].x)
+    if (theSetOfInputPoint[below].x >= theSetOfInputPoint[end].x)
         swap_vertex(below, end);
     else
         below++;
@@ -697,14 +710,14 @@ void quick_sort_left_vPool(int start, int end) {
 
 void quick_sort_right_vPool(int start, int end) {
     if (start >= end) return;
-    GLfloat mid_y = InputPointSet[end].y
+    GLfloat mid_y = theSetOfInputPoint[end].y;
     int below = start, above = end - 1;
     while (below < above) {
-        while (InputPointSet[below].y < mid_x && below < above) below++;
-        while (InputPointSet[above].y >= mid_x && below < above) above--;
+        while (theSetOfInputPoint[below].y < mid_y && below < above) below++;
+        while (theSetOfInputPoint[above].y >= mid_y && below < above) above--;
         swap_vertex(below, above);
     }
-    if (InputPointSet[below].y >= InputPointSet[end].y)
+    if (theSetOfInputPoint[below].y >= theSetOfInputPoint[end].y)
         swap_vertex(below, end);
     else
         below++;
@@ -712,77 +725,85 @@ void quick_sort_right_vPool(int start, int end) {
     quick_sort_right_vPool(below + 1, end);
 }
 
-void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of the G-graph*/ )
+void generate_ConstraintDelaunayTriangleEdges(int start, int end/*, edges of the G-graph*/ )
 {
     if((end - start) > 2){
     //descide how many to divide, Ans: 2;
         //define points_before_boundary,
         int mid;
-        float mid_x = (InputPointSet[start].x - InputPointSet[end].x)/2;
+        float mid_x = (theSetOfInputPoint[start].x - theSetOfInputPoint[end].x)/2;
         float distance_from_mid_x_to_inputPoint = mid_x;
-        
-        for (int i = 0; i < InputPointSet.size(); i++)
+
+        for (int i = start; i < (end-start+1); i++)
         {
-            if(abs(InputPointSet[i].x - mid_x) < distance_from_mid_x_to_inputPoint){
-                distance_from_mid_x_to_inputPoint = abs(InputPointSet[i].x - mid_x);
+            if(abs(theSetOfInputPoint[i].x - mid_x) < distance_from_mid_x_to_inputPoint){
+                distance_from_mid_x_to_inputPoint = abs(theSetOfInputPoint[i].x - mid_x);
                 mid = i;
             }
         }
 
-        for(int i=0; i < InputPointSet.size(); i++){
-            if(InputPointSet[i].x == mid_x){
+        for(int i = start; i < (end-start+1); i++){
+            if(theSetOfInputPoint[i].x == mid_x){
                 mid++;
             }
         }
-        
+
         //define points_before_boundary,
-        int pbb_start;
-        int pbb_end;
+        int pbb_start = start;
+        int pbb_end   = mid-1;
 
         //define points_after_boundary,
-        int pab_start;
-        int pab_end;
-        
+        int pab_start = mid;
+        int pab_end   = end;
+
         generate_ConstraintDelaunayTriangleEdges(pbb_start, pbb_end);
         generate_ConstraintDelaunayTriangleEdges(pab_start, pab_end);
 
         //sticth points_before_boundary and points_after_boundary together;
-        for(int i = pbb_start; i< pbb_end+1; i++)
+        for(int i = pbb_start; i< (pbb_end+1); i++)
         {
             for(int j=0; j<edgePool.size(); j++){
-                //cross not built yet
-                if( cross(InputPointSet[ i ], InputPointSet[ pab_start ], edge[j])==false ){
-                    left_vertex_pool.push_back(InputPointSet[i]);
+                if( cross(theSetOfInputPoint[ i ], theSetOfInputPoint[ pab_start ], edgePool[j])==false ){
+                    left_vertex_pool.push_back(theSetOfInputPoint[i]);
                 }
             }
         }
-        for(int i = pab_start; i< pab_end+1; i++)
+        for(int i = pab_start; i< (pab_end+1); i++)
         {
             for(int j=0; j<edgePool.size(); j++){
-                if( cross(InputPointSet[ pbb_end ], InputPointSet[ i ], edge[j])==false ){
-                    right_vertex_pool.push_back(InputPointSet[i]);
+                if( cross(theSetOfInputPoint[ pbb_end ], theSetOfInputPoint[ i ], edgePool[j])==false ){
+                    right_vertex_pool.push_back(theSetOfInputPoint[i]);
                 }
             }
         }
 
-        quick_sort_left_vPool();
-        quick_sort_right_vPool();
+        quick_sort_left_vPool( 0, left_vertex_pool.size()-1 );
+        quick_sort_right_vPool( 0, right_vertex_pool.size()-1 );
 
         //Stich vertices from left and vertices from right together,
         //or we can say "connect left strip and right strip."
-        
-        //Sort left-strip's vertices and right-strip's veretices 
-        int i1=j1=1;
-        int pa=pb=0;
-        bool i_validity = false; 
+
+        //Sort left-strip's vertices and right-strip's veretices
+        int i1=1;
+        int j1=1;
+        int pa=0;
+        int pb=0;
+        bool i_validity = false;
         bool j_validity = false;
+        bool crossLine = false;
 
         start1014:
-        while( i1< left_vertex_pool.size() || j1< right_vertex_pool.size() )
+        while( (i1< left_vertex_pool.size()) || (j1< right_vertex_pool.size()) )
         {
             //validity test, the new edge shouldn't cross old edges
-            if( !crossOriginLine(left_vertex_pool[i1], right_vertex_pool[j1]) ){//maybe don't need this test.
-            
+            /*
+            for(int x=0; x<edgePool.size(); x++){
+                if( cross(left_vertex_pool[i1], right_vertex_pool[j1], edgePool[x]) )
+                    crossLine = true;
+            }*/
+
+            if( crossLine == false ){//maybe don't need this test.
+
                 if( left_vertex_pool[i1].y < right_vertex_pool[j1].y ){
                     vertex center_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], left_vertex_pool[i1]);
                     float radius_CDT = radiusOfCCircle(left_vertex_pool[i1], center_CDT);
@@ -826,7 +847,7 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of th
 
                 if( !i_validity && !j_validity ){//barely won't happened
                     i1++;
-                    j2++;
+                    j1++;
                 }
                 else if(i_validity && !j_validity){
                     addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
@@ -835,7 +856,7 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of th
                     pa = i1;
                     i1++;
                 }
-                else if(!i_validity && j_validity){ 
+                else if(!i_validity && j_validity){
                     addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
                     addToEdgePool(right_vertex_pool[j1], right_vertex_pool[pb]);
                     addToEdgePool(left_vertex_pool[pa], right_vertex_pool[j1]);
@@ -865,23 +886,26 @@ void generate_ConstraintDelaunayTriangleEdges(int start, int end /*, edges of th
         left_vertex_pool.clear();
         right_vertex_pool.clear();
     }
+    else if(start==end){
+        ;
+    }
     else
     {
-        if(end-start==1)
+        if((end-start)==1)
         {
                 //connect points;
-                addToEdgePool(InputPointSet[i],InputPointSet[i+1]);
+                addToEdgePool(theSetOfInputPoint[start],theSetOfInputPoint[end]);
         }
 
-        if(end-start==2)
+        if((end-start)==2)
         {
             for(int i = start; i<end+1; i++){
                 //connect points;
-                addToEdgePool(InputPointSet[i],InputPointSet[i+1]);
+                addToEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
             }
         }
     }
-    
+
 }
 
 void transform_CDTEdges_to_CDT()
@@ -908,7 +932,7 @@ void transform_CDTEdges_to_CDT()
         }
         for(int j=0; j<edgePool.size(); j++){
             if( !areSameEdges(edgePool[i], edgePool[j]) && !areSameEdges(edgePool[tri3], edgePool[j]) ){
-                if(oneVertexOfEdge(vt, edgePool[j]) && oneVertexOfEdge(edgePool[i].v2, edgePool[j]) 
+                if(oneVertexOfEdge(vt, edgePool[j]) && oneVertexOfEdge(edgePool[i].v2, edgePool[j])
                     && oneVertexOfEdge(vt, et) && oneVertexOfEdge(edgePool[i].v1, et) )
                 {
                     tt.v1 = vt;
@@ -933,20 +957,30 @@ void transform_CDTEdges_to_CDT()
                     }
                 }
             }
+        }
     }
 }
 
 void ConstraintDelaunayTriangle()
 {
     //get InputPointSet,
-    
+    edgePool.clear();
+    for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
+        addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[(cot+1)%theSetOfInputPoint.size()] );
+        //(cot+1)%theSetOfInputPoint.size()
+    }
     //reorder InputPointSet by their coordenates of axis x (left to right);
     int points_start = 0;
-    int points_end   = InputPointSet.size()-1;
+    int points_end   = theSetOfInputPoint.size()-1;
     quick_sort_recursive_CDT(points_start, points_end);
     generate_ConstraintDelaunayTriangleEdges(points_start, points_end /*, edges of the G-graph*/ );
+
     transform_CDTEdges_to_CDT();
 }
+
+//New CDT Ends
+/*------------------------------------------------------------------*/
+
 
 void generateDelaunayTriangle()
 {
@@ -997,12 +1031,12 @@ void generateDelaunayTriangle()
             }
 
         deletDoubleEdge();
-/*
+
         //Part of pseudo code. Have been writen in Line 199 "Delete badTri. from tri.Pool"
 
-        for each triangle in badTriangles do // remove them from the data structure
-            remove triangle from triangulation
-*/
+//        for each triangle in badTriangles do // remove them from the data structure
+//            remove triangle from triangulation
+
         for(int k=0;k<edgePool.size();k++)
             {
             	edgeFT = edgePool[k];
@@ -1023,7 +1057,7 @@ void generateDelaunayTriangle()
         }
     }
 
-    /*--Trimming outside Triangles--*/
+    //--Trimming outside Triangles--
     //trim 01 : attached triangle
     edgePool.clear();
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
@@ -2050,9 +2084,10 @@ void teddy_test()
         theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
         //cout<<"test"<<"\n";
         }
-        generateDelaunayTriangle();
-        generateBoneLine();
-        generateMesh();
+        //generateDelaunayTriangle();//Using CDT so don't need
+        ConstraintDelaunayTriangle();
+        //generateBoneLine();
+        //generateMesh();
         theSetOfInputPoint.clear();
 
         meshBeenMade=true;
@@ -2090,7 +2125,7 @@ static void display(void)
         printStroke();
     glPopMatrix();
     }
-
+/*//new CDT test
     glPushMatrix();
     	glColor3d(0,1,0);
         glTranslated(0.0,0.0,-50);
@@ -2145,6 +2180,13 @@ static void display(void)
         }
     glPopMatrix();
     }
+*/
+    glPushMatrix();//new CDT test
+        glTranslated(0.0,0.0,-30);
+        glRotated(yRotated, 0, 1, 0);
+        glRotated(zRotated, 1, 0, 0);
+        printTrianglePool();
+    glPopMatrix();
 
     glutSwapBuffers();
 }
@@ -2415,7 +2457,7 @@ void draw()
         int size = count;
 /*
         if(i==4){
-            
+
             for(int j=0; j< size; j++){
                 tmp_vertex.x = tmp_PointSet_2[j].x + (center.x - tmp_PointSet_2[j].x) * rate + normal_x* rate_stay;
                 tmp_vertex.y = tmp_PointSet_2[j].y + (center.y - tmp_PointSet_2[j].y) * rate + normal_y* rate_stay;
@@ -2423,7 +2465,7 @@ void draw()
                 tmp_PointSet_3.push_back(tmp_vertex);
             }
 
-            center = centerOfCircumscribedCircle( tmp_PointSet_3[0], tmp_PointSet_3[count/3], tmp_PointSet_3[2*count/3] ); 
+            center = centerOfCircumscribedCircle( tmp_PointSet_3[0], tmp_PointSet_3[count/3], tmp_PointSet_3[2*count/3] );
 
             //center.x = center.x + normal_x ;//* rate_stay * rate_stay;
             //center.y = center.y + normal_y ;//* rate_stay * rate_stay;
@@ -2500,7 +2542,7 @@ void draw()
 
         num = num * num ;
         rate = rate * num;
-        
+
         cout<<center.z<<"\n";
         cout<<rate<<"\n";
 
