@@ -12,8 +12,8 @@
 #include <GL/glut.h>
 #endif
 
-#include <vector>
 #include "helpteddy.h"
+#include <vector>
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
@@ -35,6 +35,7 @@ std::vector< vertex >   theSetOfNotedVertex ;   //.stay                 ; ; Orig
 
 
 //std::vector< vertex >   tmpRL_vertex_pool ;     //.clear() in the end   ; ; CDT 10.14.2016
+std::vector< node > trees_nodes;                //.clear() in the end   ; ; CDT 12.1.2016
 
 std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ; ; warping
 std::vector< vertex >	bone_prime_vPool ;		//.clear() in the end   ; ; warping
@@ -656,9 +657,9 @@ bool isCenterTriangle(triangle test_triangle)
     return false;
 }
 
+
 //New CDT Start
 /*------------------------------------------------------------------*/
-
 
 
 void swap_vertex(int number_a, int number_b)
@@ -669,7 +670,7 @@ void swap_vertex(int number_a, int number_b)
     theSetOfInputPoint[number_b] = tmp;
 }
 
-//template<typename T>
+//step 1: sort the set input point
 void quick_sort_recursive_CDT(int start, int end) {
     if (start >= end) return;
     GLfloat mid_x = theSetOfInputPoint[end].x;
@@ -688,7 +689,6 @@ void quick_sort_recursive_CDT(int start, int end) {
     quick_sort_recursive_CDT(start, left - 1);
     quick_sort_recursive_CDT(left + 1, end);
 }
-//template<typename T> //整數或浮點數皆可使用,若要使用物件(class)時必須設定"小於"(<)、"大於"(>)、"不小於"(>=)的運算子功能
 
 void quick_sort_left_vPool(int start, int end) {
     if (start >= end) return;
@@ -724,10 +724,99 @@ void quick_sort_right_vPool(int start, int end) {
     quick_sort_right_vPool(below + 1, end);
 }
 
-void generate_ConstraintDelaunayTriangleEdges(int start, int end/*, edges of the G-graph*/ )
+void build_tree( int start, int end, int parent )
 {
-    std::vector< vertex >   left_vertex_pool ;      //.clear() in the end   ; ; CDT 09.30.2016
-    std::vector< vertex >   right_vertex_pool ;     //.clear() in the end   ; ; CDT 09.30.2016
+    node c;
+    c.start = start;
+    c.end   = end;
+    c.parent= parent;
+    c.alive = true;
+
+    if(trees_nodes.size()==0)
+        c.root = true;
+
+    if((end - start) > 2){
+
+        int mid = start + 2 ;
+        float mid_x = (theSetOfInputPoint[start].x - theSetOfInputPoint[end].x)/2;
+        float distance_from_mid_x_to_inputPoint = mid_x;
+
+        for (int i = start; i < (end+1); i++)
+        {
+            if(abs(theSetOfInputPoint[i].x - mid_x) < distance_from_mid_x_to_inputPoint){
+                distance_from_mid_x_to_inputPoint = abs(theSetOfInputPoint[i].x - mid_x);
+                mid = i;
+            }
+        }
+
+        for(int i = start; i < (end+1); i++){
+            if(theSetOfInputPoint[i].x == mid_x){
+                mid++;
+            }
+        }
+
+        //define points_before_boundary,
+        int pbb_start = start;
+        int pbb_end   = mid-1;
+
+        //define points_after_boundary,
+        int pab_start = mid;
+        int pab_end   = end;
+
+        c.num = trees_nodes.size();
+
+        build_tree(pbb_start, pbb_end, c.num);
+        build_tree(pab_start, pab_end, c.num);
+
+        c.ls = true;
+        c.rs = true;
+        c.leaf = false;
+
+        trees_nodes.push_back(c);
+    }
+    else{
+        if((end-start)==2){
+
+            c.num = trees_nodes.size();
+
+            build_tree(start, start+1, c.num);
+            build_tree(end, end, c.num);
+            c.ls = true;
+            c.rs = true;
+            c.leaf = false;
+
+            trees_nodes.push_back(c);
+        }
+        else if((end-start)==1){
+            c.ls = false;
+            c.rs = false;
+            c.leaf = true;
+
+            c.num = trees_nodes.size();
+            trees_nodes.push_back(c);
+        }
+        else{ // start == end;
+            c.ls = false;
+            c.rs = false;
+            c.leaf = true;
+
+            c.num = trees_nodes.size();
+            trees_nodes.push_back(c);
+        }
+    }
+}
+
+void generate_ConstraintDelaunayTriangleEdges( int start_of_all, int end_of_all )
+{
+    //std::vector< vertex >   left_vertex_pool ;      //.clear() in the end   ; ; CDT 09.30.2016
+    //std::vector< vertex >   right_vertex_pool ;     //.clear() in the end   ; ; CDT 09.30.2016
+    
+    build_tree(start_of_all, end_of_all, -1); 
+    //tree has been built!
+
+    
+
+//------------------------Preserve line----------------------------------------//
 
     if((end - start) > 2){// start, x, y, end
         int mid = start + 2 ;
@@ -761,6 +850,7 @@ cout<<"CDT_EZ"<<"\n";
         generate_ConstraintDelaunayTriangleEdges(pab_start, pab_end);
 
 cout<<"dddddddddddddddd"<<"\n";
+        
         //sticth points_before_boundary and points_after_boundary together;
         for(int i = pbb_start; i< (pbb_end+1); i++)
         {
@@ -778,8 +868,8 @@ cout<<"dddddddddddddddd"<<"\n";
                 }
             }
         }
-        //quick_sort_left_vPool( 0, left_vertex_pool.size()-1 );
-        //quick_sort_right_vPool( 0, right_vertex_pool.size()-1 );
+        quick_sort_left_vPool( 0, left_vertex_pool.size()-1 );
+        quick_sort_right_vPool( 0, right_vertex_pool.size()-1 );
 
 
         //Stich vertices from left and vertices from right together,
@@ -939,7 +1029,7 @@ void ConstraintDelaunayTriangle()
     int points_start = 0;
     int points_end   = theSetOfInputPoint.size()-1;
     quick_sort_recursive_CDT(points_start, points_end);
-    generate_ConstraintDelaunayTriangleEdges(points_start, points_end /*, edges of the G-graph*/ );
+    generate_ConstraintDelaunayTriangleEdges(points_start, points_end);
 
     transform_CDTEdges_to_CDT();
 }
