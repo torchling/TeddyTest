@@ -37,6 +37,23 @@ struct triangle
     vertex v2;
     vertex v3;
 };
+
+struct node
+{
+    int parent;     //parent's num
+//    int lsn;        //left son's num
+//    int rsn;        //right son's num
+    int num;
+
+    int start;      //data
+    int end;        //data
+
+    bool root;
+    bool ls;        //is left son
+    bool rs;        //is right son
+    bool alive;     //useful:TRUE; useless:FALSE
+    bool leaf;      //is leaf:TRUE; not leaf:FALSE
+};
 /*
 
 std::vector< vertex >	theSetOfInputPoint ;

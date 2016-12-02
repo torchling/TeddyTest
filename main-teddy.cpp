@@ -35,7 +35,9 @@ std::vector< vertex >   theSetOfNotedVertex ;   //.stay                 ; ; Orig
 
 
 //std::vector< vertex >   tmpRL_vertex_pool ;     //.clear() in the end   ; ; CDT 10.14.2016
-std::vector< node > trees_nodes;                //.clear() in the end   ; ; CDT 12.1.2016
+std::vector< node >     trees_nodes;            //.clear() in the end   ; ; CDT 12.01.2016
+std::vector< vertex >   right_vertex_pool ;     //.clear() in the end   ; ; CDT 12.02.2016 & 10.14
+std::vector< vertex >   left_vertex_pool ;      //.clear() in the end   ; ; CDT 12.02.2016 & 10.14
 
 std::vector< vertex >	bone_vertex_pool ;      //.clear() in the end   ; ; warping
 std::vector< vertex >	bone_prime_vPool ;		//.clear() in the end   ; ; warping
@@ -692,14 +694,14 @@ void quick_sort_recursive_CDT(int start, int end) {
 
 void quick_sort_left_vPool(int start, int end) {
     if (start >= end) return;
-    GLfloat mid_y = theSetOfInputPoint[end].y;
+    GLfloat mid_y = left_vertex_pool[end].y;
     int below = start, above = end - 1;
     while (below < above) {
-        while (theSetOfInputPoint[below].y < mid_y && below < above) below++;
-        while (theSetOfInputPoint[above].y >= mid_y && below < above) above--;
+        while (left_vertex_pool[below].y < mid_y && below < above) below++;
+        while (left_vertex_pool[above].y >= mid_y && below < above) above--;
         swap_vertex(below, above);
     }
-    if (theSetOfInputPoint[below].x >= theSetOfInputPoint[end].x)
+    if (left_vertex_pool[below].x >= left_vertex_pool[end].x)
         swap_vertex(below, end);
     else
         below++;
@@ -709,14 +711,14 @@ void quick_sort_left_vPool(int start, int end) {
 
 void quick_sort_right_vPool(int start, int end) {
     if (start >= end) return;
-    GLfloat mid_y = theSetOfInputPoint[end].y;
+    GLfloat mid_y = right_vertex_pool[end].y;
     int below = start, above = end - 1;
     while (below < above) {
-        while (theSetOfInputPoint[below].y < mid_y && below < above) below++;
-        while (theSetOfInputPoint[above].y >= mid_y && below < above) above--;
+        while (right_vertex_pool[below].y < mid_y && below < above) below++;
+        while (right_vertex_pool[above].y >= mid_y && below < above) above--;
         swap_vertex(below, above);
     }
-    if (theSetOfInputPoint[below].y >= theSetOfInputPoint[end].y)
+    if (right_vertex_pool[below].y >= right_vertex_pool[end].y)
         swap_vertex(below, end);
     else
         below++;
@@ -724,158 +726,52 @@ void quick_sort_right_vPool(int start, int end) {
     quick_sort_right_vPool(below + 1, end);
 }
 
-void build_tree( int start, int end, int parent )
+
+void merging_strip(node l_node, node r_node)
 {
-    node c;
-    c.start = start;
-    c.end   = end;
-    c.parent= parent;
-    c.alive = true;
-
-    if(trees_nodes.size()==0)
-        c.root = true;
-
-    if((end - start) > 2){
-
-        int mid = start + 2 ;
-        float mid_x = (theSetOfInputPoint[start].x - theSetOfInputPoint[end].x)/2;
-        float distance_from_mid_x_to_inputPoint = mid_x;
-
-        for (int i = start; i < (end+1); i++)
-        {
-            if(abs(theSetOfInputPoint[i].x - mid_x) < distance_from_mid_x_to_inputPoint){
-                distance_from_mid_x_to_inputPoint = abs(theSetOfInputPoint[i].x - mid_x);
-                mid = i;
-            }
-        }
-
-        for(int i = start; i < (end+1); i++){
-            if(theSetOfInputPoint[i].x == mid_x){
-                mid++;
-            }
-        }
-
-        //define points_before_boundary,
-        int pbb_start = start;
-        int pbb_end   = mid-1;
-
-        //define points_after_boundary,
-        int pab_start = mid;
-        int pab_end   = end;
-
-        c.num = trees_nodes.size();
-
-        build_tree(pbb_start, pbb_end, c.num);
-        build_tree(pab_start, pab_end, c.num);
-
-        c.ls = true;
-        c.rs = true;
-        c.leaf = false;
-
-        trees_nodes.push_back(c);
-    }
-    else{
-        if((end-start)==2){
-
-            c.num = trees_nodes.size();
-
-            build_tree(start, start+1, c.num);
-            build_tree(end, end, c.num);
-            c.ls = true;
-            c.rs = true;
-            c.leaf = false;
-
-            trees_nodes.push_back(c);
-        }
-        else if((end-start)==1){
-            c.ls = false;
-            c.rs = false;
-            c.leaf = true;
-
-            c.num = trees_nodes.size();
-            trees_nodes.push_back(c);
-        }
-        else{ // start == end;
-            c.ls = false;
-            c.rs = false;
-            c.leaf = true;
-
-            c.num = trees_nodes.size();
-            trees_nodes.push_back(c);
-        }
-    }
-}
-
-void generate_ConstraintDelaunayTriangleEdges( int start_of_all, int end_of_all )
-{
-    //std::vector< vertex >   left_vertex_pool ;      //.clear() in the end   ; ; CDT 09.30.2016
-    //std::vector< vertex >   right_vertex_pool ;     //.clear() in the end   ; ; CDT 09.30.2016
-    
-    build_tree(start_of_all, end_of_all, -1); 
-    //tree has been built!
-
-    
-
-//------------------------Preserve line----------------------------------------//
-
-    if((end - start) > 2){// start, x, y, end
-        int mid = start + 2 ;
-        float mid_x = (theSetOfInputPoint[start].x - theSetOfInputPoint[end].x)/2;
-        float distance_from_mid_x_to_inputPoint = mid_x;
-
-        for (int i = start; i < (end+1); i++)
-        {
-            if(abs(theSetOfInputPoint[i].x - mid_x) < distance_from_mid_x_to_inputPoint){
-                distance_from_mid_x_to_inputPoint = abs(theSetOfInputPoint[i].x - mid_x);
-                mid = i;
-            }
-        }
-
-        for(int i = start; i < (end+1); i++){
-            if(theSetOfInputPoint[i].x == mid_x){
-                mid++;
-            }
-        }
-
-        //define points_before_boundary,
-        int pbb_start = start;
-        int pbb_end   = mid-1;
-
-        //define points_after_boundary,
-        int pab_start = mid;
-        int pab_end   = end;
-cout<<"CDT_OK"<<"\n";
-        generate_ConstraintDelaunayTriangleEdges(pbb_start, pbb_end);
-cout<<"CDT_EZ"<<"\n";
-        generate_ConstraintDelaunayTriangleEdges(pab_start, pab_end);
-
-cout<<"dddddddddddddddd"<<"\n";
-        
         //sticth points_before_boundary and points_after_boundary together;
+        
+        int pbb_start = l_node.start;
+        int pbb_end   = l_node.end;
+
+        int pab_start = r_node.start;
+        int pab_end   = r_node.end;
+        bool ok=true;
+
+        cout<<"Size of edgePool: "<<edgePool.size()<<"\n";
+        
         for(int i = pbb_start; i< (pbb_end+1); i++)
         {
             for(int j=0; j<edgePool.size(); j++){
-                if( cross(theSetOfInputPoint[ i ], theSetOfInputPoint[ pab_start ], edgePool[j])==false ){
-                    left_vertex_pool.push_back(theSetOfInputPoint[i]);
+                if( cross(theSetOfInputPoint[ i ], theSetOfInputPoint[ pab_start ], edgePool[j]) ){
+                    ok=false;
                 }
             }
+            if(ok)
+                left_vertex_pool.push_back(theSetOfInputPoint[i]);
         }
+
+        ok = true;
+        
         for(int i = pab_start; i< (pab_end+1); i++)
         {
             for(int j=0; j<edgePool.size(); j++){
-                if( cross(theSetOfInputPoint[ pbb_end ], theSetOfInputPoint[ i ], edgePool[j])==false ){
-                    right_vertex_pool.push_back(theSetOfInputPoint[i]);
+                if( cross(theSetOfInputPoint[ pbb_end ], theSetOfInputPoint[ i ], edgePool[j]) ){
+                    ok=false;
                 }
             }
+            if(ok)
+                right_vertex_pool.push_back(theSetOfInputPoint[i]);
         }
         quick_sort_left_vPool( 0, left_vertex_pool.size()-1 );
         quick_sort_right_vPool( 0, right_vertex_pool.size()-1 );
-
-
-        //Stich vertices from left and vertices from right together,
-        //or we can say "connect left strip and right strip."
-
+        cout<< left_vertex_pool[0].y << " " << left_vertex_pool[left_vertex_pool.size()-1].y<<"\n";
+        cout<<"S1"<<"\n";
         //Sort left-strip's vertices and right-strip's veretices
+
+        //To merge two strips, we have to
+        //stich vertices from left and vertices from right together,
+        //or we can say "connect left strip and right strip."
 
         int i1=0;
         int j1=0;
@@ -889,6 +785,8 @@ cout<<"dddddddddddddddd"<<"\n";
         //bool crossLine = false;
         vertex candidateL;
         vertex candidateR;
+        
+        cout<<"S2"<<"\n";
 
         while( (i1< left_vertex_pool.size()) || (j1< right_vertex_pool.size()) )
         {
@@ -924,7 +822,7 @@ cout<<"dddddddddddddddd"<<"\n";
                 pa = i1;
                 i1++;
             }
-            else if((centerR_CDT.y <= centerL_CDT.y) && j_validity){
+            else if((centerL_CDT.y >= centerR_CDT.y) && j_validity){
                 //addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
                 addToEdgePool(left_vertex_pool[pa], left_vertex_pool[j1]);
                 addToEdgePool(left_vertex_pool[j1], right_vertex_pool[pb]);
@@ -934,33 +832,154 @@ cout<<"dddddddddddddddd"<<"\n";
 
         }
 
+        cout<<"S3"<<"\n";
+        
         left_vertex_pool.clear();
         right_vertex_pool.clear();
 
         //return;
-    }
+}
 
-    else if(start>=end){
-        //return;
-    }
-    else if((end-start)==1)// start, end
-    {
-        cout<<"wwwwwwwwww"<<"\n";
-        //connect points;
-        addToEdgePool(theSetOfInputPoint[start],theSetOfInputPoint[end]);
-        return;
-    }
+void build_tree( int start, int end, int parent )
+{
+    node c;
+    c.start = start;
+    c.end   = end;
+    c.parent= parent;
+    c.alive = true;
 
-    else if((end-start)==2)// start, mid, end
-    {
-        cout<<"cccccccccccccccccccc"<<"\n";
+    if(trees_nodes.size()==0)
+        c.root = true;
 
-        for(int i = start; i<end; i++){
-            //connect points;
-            addToEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
+    if((end - start) > 2){
+
+        int mid = start + (end - start)/2 ;
+        /*
+        float mid_x = (theSetOfInputPoint[start].x - theSetOfInputPoint[end].x)/2;
+        float distance_from_mid_x_to_inputPoint = mid_x;
+
+        for (int i = start; i < (end+1); i++)
+        {
+            if(abs(theSetOfInputPoint[i].x - mid_x) < distance_from_mid_x_to_inputPoint){
+                distance_from_mid_x_to_inputPoint = abs(theSetOfInputPoint[i].x - mid_x);
+                mid = i;
+            }
         }
-        return;
+
+        for(int i = start; i < (end+1); i++){
+            if(theSetOfInputPoint[i].x == mid_x){
+                mid++;
+            }
+        }
+        */
+
+        //define points_before_boundary,
+        int pbb_start = start;
+        int pbb_end   = mid-1;
+
+        //define points_after_boundary,
+        int pab_start = mid;
+        int pab_end   = end;
+
+        c.num = trees_nodes.size();
+
+        c.ls = true;
+        c.rs = true;
+        c.leaf = false;
+
+        trees_nodes.push_back(c);
+
+        build_tree(pbb_start, pbb_end, c.num);
+        build_tree(pab_start, pab_end, c.num);
     }
+    else{
+        if((end-start)==2){
+
+            c.num = trees_nodes.size();
+
+            c.ls = true;
+            c.rs = true;
+            c.leaf = false;
+
+            trees_nodes.push_back(c);
+
+            build_tree(start, start+1, c.num);
+            build_tree(end, end, c.num);
+            
+            for(int i = start; i<end; i++){
+                addToEdgePool(theSetOfInputPoint[i],theSetOfInputPoint[i+1]);
+                //connect points;
+            }
+        }
+        else if((end-start)==1){
+            c.ls = false;
+            c.rs = false;
+            c.leaf = true;
+
+            c.num = trees_nodes.size();
+            trees_nodes.push_back(c);
+
+            addToEdgePool(theSetOfInputPoint[start],theSetOfInputPoint[end]);
+        }
+        else{ // start == end;
+            c.ls = false;
+            c.rs = false;
+            c.leaf = true;
+
+            c.num = trees_nodes.size();
+            trees_nodes.push_back(c);
+        }
+    }
+}
+
+void generate_ConstraintDelaunayTriangleEdges( int start_of_all, int end_of_all )
+{
+    //std::vector< vertex >   left_vertex_pool ;      //.clear() in the end   ; ; CDT 09.30.2016
+    //std::vector< vertex >   right_vertex_pool ;     //.clear() in the end   ; ; CDT 09.30.2016
+    
+    build_tree(start_of_all, end_of_all, -1); 
+    //tree has been built!
+    cout<<"Tree has been built!"<<" Size of tree: "<<trees_nodes.size()<<"\n";
+    
+    for(int i=0; i<trees_nodes.size(); i++){
+//        cout<<trees_nodes[i].start<<" "<<trees_nodes[i].end<<"\n";
+    }
+
+    int lot = log2(trees_nodes.size())/1 + 1;
+    //level_of_tree
+    for(int l=0; l < lot; l++){
+//    cout<<"Test1"<<"\n";
+    for(int i=0; i < trees_nodes.size(); i++)
+    {
+        if(trees_nodes[i].alive && trees_nodes[i].leaf)
+        {
+//            cout<<"Test2"<<"\n";
+            for(int j=0; j < trees_nodes.size(); j++)
+            {
+                if( (i!=j) && trees_nodes[j].alive && trees_nodes[j].leaf && (trees_nodes[i].parent==trees_nodes[j].parent) )
+                {
+//                    cout<<"Test3"<<"\n";
+                    if(trees_nodes[i].start < trees_nodes[j].start){
+                        cout<<"Test4"<<"\n";
+                        merging_strip(trees_nodes[i], trees_nodes[j]);
+                    }
+                    else{//(trees_nodes[j].start < trees_nodes[i].start)
+                        cout<<"Test4"<<"\n";
+                        merging_strip(trees_nodes[j], trees_nodes[i]);
+                    }
+                    cout<<"can do merge"<<"\n";
+                    trees_nodes[i].alive = false;
+                    trees_nodes[j].alive = false;
+                    
+                    trees_nodes[ trees_nodes[i].parent ].leaf=true;
+                }
+
+            }
+        }
+    }
+
+    }
+    cout<<"finish CDT_edge"<<"\n";
 
 }
 
@@ -1021,6 +1040,7 @@ void ConstraintDelaunayTriangle()
 {
     //get InputPointSet,
     edgePool.clear();
+    cout<<"CDT Size of theSetOfInputPoint: "<<theSetOfInputPoint.size()<<"\n";
     for (int cot=0; cot<theSetOfInputPoint.size(); cot++){
         addToEdgePool( theSetOfInputPoint[cot], theSetOfInputPoint[(cot+1)%theSetOfInputPoint.size()] );
         //(cot+1)%theSetOfInputPoint.size()
@@ -2145,11 +2165,14 @@ void teddy_test()
     {
         evendistance();
 
-        jump = theSetOfMouse.size()/70 + 1 + more;
+        //jump = theSetOfMouse.size()/70 + 1 + more;
+        jump = 1;
         for(int i=0; i<theSetOfMouse.size(); i=i+jump){
         theSetOfInputPoint.push_back(theSetOfMouse[i]);//keeping the strokes number under 100 will perform better
         //cout<<"test"<<"\n";
         }
+        cout<<"Size of theSetOfInputPoint: "<<theSetOfInputPoint.size()<<"\n";
+        
         //generateDelaunayTriangle();//Using CDT so don't need
         ConstraintDelaunayTriangle();
         //generateBoneLine();
@@ -2765,6 +2788,7 @@ void mousebutton( int button, int state, int x, int y )
                     //evendistance();
 					drawn = true;
 					cout<<"Size of Stroke: "<<theSetOfMouse.size()<<"\n";
+                    cout<<"Size of InputPointSet: "<<theSetOfInputPoint.size()<<"\n";
                 	cout<<"\n";
                 	meshBeenMade = false;
                 	teddy_test();
