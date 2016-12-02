@@ -778,8 +778,6 @@ void merging_strip(node l_node, node r_node)
         int pa=0;
         int pb=0;
 
-        addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
-
         bool i_validity = true;
         bool j_validity = true;
         //bool crossLine = false;
@@ -788,46 +786,111 @@ void merging_strip(node l_node, node r_node)
         
         cout<<"S2"<<"\n";
 
+        int limit=0;
+        
         while( (i1< left_vertex_pool.size()) || (j1< right_vertex_pool.size()) )
         {
-            candidateL = left_vertex_pool[i1];
-            candidateR = right_vertex_pool[j1];
+            limit++;
+            if(limit>25)
+                break;
+            addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
 
-            vertex centerL_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], candidateL);
-            vertex centerR_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], candidateR);
+            if((left_vertex_pool.size()>1)&&(right_vertex_pool.size()>1)){
+                
+                if(i1==0)
+                    i1=i1+1;
+                if(j1==0)
+                    j1=j1+1;
 
-            i_validity = true;
-            j_validity = true;
+                candidateL = left_vertex_pool[i1];
+                candidateR = right_vertex_pool[j1];
+            
+                vertex centerL_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], candidateL);
+                vertex centerR_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], candidateR);
 
-            for(int i = 0; i<left_vertex_pool.size(); i++){
-                if((i!=pa)&&(i!=i1)){
-                    if(!outsideTheTriangle(left_vertex_pool[i], left_vertex_pool[pa], right_vertex_pool[pb], candidateL)){
-                        i_validity = false;
+                i_validity = true;
+                j_validity = true;
+
+                for(int i = 1; i<left_vertex_pool.size(); i++){
+                    if((i!=pa)&&(i!=i1)){
+                        if(!outsideTheTriangle(left_vertex_pool[i], left_vertex_pool[pa], right_vertex_pool[pb], candidateL)){
+                            i_validity = false;
+                        }
                     }
+                }
+
+                for(int j = 1; j<right_vertex_pool.size(); j++){
+                    if((j!=pb)&&(j!=j1)){
+                        if(!outsideTheTriangle(right_vertex_pool[j], left_vertex_pool[pa], right_vertex_pool[pb], candidateR)){
+                            j_validity = false;
+                        }
+                    }
+                }
+
+                if((centerL_CDT.y < centerR_CDT.y) && i_validity){
+                    //addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                    addToEdgePool(left_vertex_pool[pa], left_vertex_pool[i1]);
+                    addToEdgePool(left_vertex_pool[i1], right_vertex_pool[pb]);
+                    pa = i1;
+                    i1++;
+                }
+                else if((centerL_CDT.y >= centerR_CDT.y) && j_validity){
+                    //addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                    addToEdgePool(left_vertex_pool[pa], left_vertex_pool[j1]);
+                    addToEdgePool(left_vertex_pool[j1], right_vertex_pool[pb]);
+                    pb = j1;
+                    j1++;
                 }
             }
 
-            for(int j = 0; j<right_vertex_pool.size(); j++){
-                if((j!=pb)&&(j!=j1)){
-                    if(!outsideTheTriangle(right_vertex_pool[j], left_vertex_pool[pa], right_vertex_pool[pb], candidateR)){
-                        j_validity = false;
+            else if( (left_vertex_pool.size()==1)&&(right_vertex_pool.size()>1) ){
+                if(j1==0)
+                    j1=1;
+
+                candidateL = left_vertex_pool[i1];
+                candidateR = right_vertex_pool[j1];
+            
+                vertex centerR_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], candidateR);
+
+                for(int i = 1; i<left_vertex_pool.size(); i++){
+                    if((i!=pa)&&(i!=i1)){
+                        if(!outsideTheTriangle(left_vertex_pool[i], left_vertex_pool[pa], right_vertex_pool[pb], candidateL)){
+                            i_validity = false;
+                        }
                     }
                 }
-            }
 
-            if((centerL_CDT.y < centerR_CDT.y) && i_validity){
-                //addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
-                addToEdgePool(left_vertex_pool[pa], left_vertex_pool[i1]);
-                addToEdgePool(left_vertex_pool[i1], right_vertex_pool[pb]);
-                pa = i1;
-                i1++;
+                if(i_validity){
+                    //addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                    addToEdgePool(left_vertex_pool[pa], left_vertex_pool[i1]);
+                    addToEdgePool(left_vertex_pool[i1], right_vertex_pool[pb]);
+                    pa = i1;
+                    i1++;
+                }
             }
-            else if((centerL_CDT.y >= centerR_CDT.y) && j_validity){
-                //addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
-                addToEdgePool(left_vertex_pool[pa], left_vertex_pool[j1]);
-                addToEdgePool(left_vertex_pool[j1], right_vertex_pool[pb]);
-                pb = j1;
-                j1++;
+            else if( (left_vertex_pool.size()>1)&&(right_vertex_pool.size()==1) ){
+                 if(i1==0)
+                    i1=1;
+
+                candidateL = left_vertex_pool[i1];
+            
+                vertex centerL_CDT = centerOfCircumscribedCircle(left_vertex_pool[pa], right_vertex_pool[pb], candidateL);
+
+                for(int j = 1; j<right_vertex_pool.size(); j++){
+                    if((j!=pb)&&(j!=j1)){
+                        if(!outsideTheTriangle(right_vertex_pool[j], left_vertex_pool[pa], right_vertex_pool[pb], candidateR)){
+                            j_validity = false;
+                        }
+                    }
+                }
+
+                if(j_validity){
+                    //addToEdgePool(left_vertex_pool[pa], right_vertex_pool[pb]);
+                    addToEdgePool(left_vertex_pool[pa], left_vertex_pool[j1]);
+                    addToEdgePool(left_vertex_pool[j1], right_vertex_pool[pb]);
+                    pb = j1;
+                    j1++;
+                }
             }
 
         }
@@ -1872,7 +1935,7 @@ void printTrianglePool()
 
 void printEdgePool()
 {
-    for(int i=0;i<bone_edgePool.size();i++){
+    for(int i=0;i<edgePool.size();i++){
         glBegin(GL_LINE_STRIP);
             glVertex3f( edgePool[i].v1.x, edgePool[i].v1.y, edgePool[i].v1.z );
             glVertex3f( edgePool[i].v2.x, edgePool[i].v2.y, edgePool[i].v2.z );
@@ -2271,6 +2334,7 @@ static void display(void)
     }
 */
     glPushMatrix();//new CDT test
+        glColor3d(0,0,1);
         glTranslated(0.0,0.0,-30);
         glRotated(yRotated, 0, 1, 0);
         glRotated(zRotated, 1, 0, 0);
